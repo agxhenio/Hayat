@@ -1,84 +1,91 @@
-/**
- * Router Module (router.js)
- * Menaxhon navigimin midis faqeve pa rifreskuar browserin
- */
+// 📄 js/router.js
+import { events } from './core/events.js';
+import { dashboardModule } from './modules/dashboard.js';
+import { dhikrModule } from './modules/dhikr.js';
 
-export const Router = {
-  appContent: document.getElementById('app-content'),
-  navItems: document.querySelectorAll('.nav-item'),
-  
-  routes: {
-    '/dashboard': 'pages/dashboard.html',
-    '/quran': 'pages/quran.html',
-    '/prayer': 'pages/prayer.html',
-    '/mburoja': 'pages/mburoja.html',
-    '/dhikr': 'pages/dhikr.html',
-    '/settings': 'pages/settings.html',
-  },
+export const router = {
+    viewContainer: null,
+    routes: {
+        '/': 'pages/dashboard.html',
+        '/explore': 'pages/explore.html',
+        '/namazi': 'pages/prayer.html', 
+        '/kurani': 'pages/quran.html',
+        '/dhikr': 'pages/dhikr.html',
+        '/menu': 'pages/settings.html'
+    },
 
-  init() {
-    // Dëgjo për ndryshime në URL (Hash)
-    window.addEventListener('hashchange', this.handleRoute.bind(this));
-    
-    // Ngarko faqen e parë kur hapet aplikacioni
-    if (!window.location.hash) {
-      window.location.hash = '#/dashboard';
-    } else {
-      this.handleRoute();
+    init() {
+        this.viewContainer = document.getElementById('app-view');
+        
+        window.addEventListener('hashchange', () => this.handleRoute());
+        
+        if (!window.location.hash) {
+            window.location.hash = '/';
+        } else {
+            this.handleRoute();
+        }
+    },
+
+    async handleRoute() {
+        let path = window.location.hash.slice(1) || '/';
+        
+        // Logjikë për të pikasur rrugët dinamike (p.sh. /dhikr/kategori/1)
+        let templatePath = this.routes[path];
+        let categoryId = null;
+
+        if (path.startsWith('/dhikr/kategori/')) {
+            categoryId = path.split('/').pop();
+            templatePath = 'pages/dhikr-category.html'; // Përdor faqen e listës së kategorive
+        }
+
+        if (templatePath) {
+            await this.loadView(templatePath);
+            this.updateActiveNav(path);
+            
+            // Inicializimi i moduleve sipas faqes
+            if (path === '/') {
+                setTimeout(() => { dashboardModule.init(); }, 50);
+            } else if (path === '/dhikr') {
+                setTimeout(() => { dhikrModule.init(); }, 50);
+            } else if (categoryId) {
+                // Nëse jemi brenda një kategorie, ngarkojmë listën e saj specifike
+                setTimeout(() => { dhikrModule.initCategoryView(categoryId); }, 50);
+            }
+            
+            events.emit('routeChanged', { path });
+        } else {
+            this.viewContainer.innerHTML = '<div class="container text-center text-secondary" style="padding: 40px 0;">404 - Faqja nuk u gjet</div>';
+        }
+    },
+
+    async loadView(templatePath) {
+        try {
+            this.viewContainer.style.opacity = '0.5';
+            
+            const response = await fetch(templatePath);
+            const html = await response.text();
+            
+            this.viewContainer.innerHTML = html;
+            this.viewContainer.style.opacity = '1';
+            
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        } catch (error) {
+            console.error('Error loading view:', error);
+            this.viewContainer.innerHTML = '<div class="container text-danger">Ndodhi një gabim në ngarkimin e faqes.</div>';
+        }
+    },
+
+    updateActiveNav(currentPath) {
+        const navItems = document.querySelectorAll('.bottom-nav__item');
+        navItems.forEach(item => {
+            const itemRoute = item.getAttribute('data-route');
+            if (currentPath.startsWith(itemRoute) && itemRoute !== '/' || (currentPath === '/' && itemRoute === '/')) {
+                item.classList.add('is-active');
+            } else {
+                item.classList.remove('is-active');
+            }
+        });
     }
-  },
-
-  async handleRoute() {
-    // Merr path-in nga URL (p.sh. ng "#/dashboard" bëhet "/dashboard")
-    let path = window.location.hash.slice(1) || '/dashboard';
-    
-    // Nësë path-i nuk ekziston, kthehu në dashboard
-    if (!this.routes[path]) {
-      path = '/dashboard';
-      window.location.hash = '#' + path;
-      return;
-    }
-
-    try {
-      // 1. Shfaq loading state të thjeshtë
-      this.appContent.innerHTML = `<div style="display:flex; height:100%; justify-content:center; align-items:center;"><div class="spinner--islamic"></div></div>`;
-      
-      // 2. Fetch HTML-në e faqes
-      const response = await fetch(this.routes[path]);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const html = await response.text();
-      
-      // 3. Injekto HTML
-      this.appContent.innerHTML = html;
-      
-      // 4. Update CSS dhe Icons
-      this.updateActiveNav(path);
-      if (window.lucide) window.lucide.createIcons();
-      
-      // 5. Ritransmeto një event global në mënyrë që modulet të nisin logjikën e tyre
-      document.dispatchEvent(new CustomEvent('pageLoaded', { detail: { path } }));
-
-    } catch (error) {
-      console.error('[Router] Error loading page:', error);
-      this.appContent.innerHTML = `
-        <div style="padding: var(--space-6); text-align: center;">
-          <i data-lucide="alert-circle" style="color: var(--color-danger); width: 48px; height: 48px; margin-bottom: var(--space-4);"></i>
-          <h3>Ndodhi një gabim</h3>
-          <p>Faqja nuk mund të ngarkohej. Ju lutem provoni përsëri.</p>
-        </div>
-      `;
-      if (window.lucide) window.lucide.createIcons();
-    }
-  },
-
-  updateActiveNav(currentPath) {
-    const routeName = currentPath.replace('/', '');
-    this.navItems.forEach(item => {
-      if (item.dataset.route === routeName) {
-        item.classList.add('is-active');
-      } else {
-        item.classList.remove('is-active');
-      }
-    });
-  }
 };

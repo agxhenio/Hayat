@@ -1,16 +1,10 @@
-/* ==========================================================================
-   ANIMATIONS (animations.css)
-   Sistemi i animimeve
-   ========================================================================== */
+/* * 📄 css/animations.css
+ * Keyframes and Animation Utilities
+ */
 
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
-}
-
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
 }
 
 @keyframes slideInUp {
@@ -18,24 +12,10 @@
   to { transform: translateY(0); opacity: 1; }
 }
 
-@keyframes slideOutDown {
-  from { transform: translateY(0); opacity: 1; }
-  to { transform: translateY(20px); opacity: 0; }
-}
-
-@keyframes scaleIn {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-@keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
-}
-
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0% { transform: scale(1); box-shadow: 0 0 0 0 hsla(161, 100%, 35%, 0.4); }
+  70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(0, 180, 125, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 180, 125, 0); }
 }
 
 @keyframes rotate {
@@ -43,25 +23,18 @@
   to { transform: rotate(360deg); }
 }
 
-@keyframes islamic-spin {
-  0% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(180deg) scale(1.1); }
-  100% { transform: rotate(360deg) scale(1); }
-}
-
 /* Utility Classes */
 .animate-fade-in { animation: fadeIn var(--transition-base) forwards; }
-.animate-slide-up { animation: slideInUp var(--transition-slow) var(--ease-out) forwards; }
-.animate-scale-in { animation: scaleIn var(--transition-base) var(--ease-bounce) forwards; }
-.animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+.animate-slide-up { animation: slideInUp var(--transition-bounce) forwards; }
+.animate-pulse { animation: pulse 2s infinite; }
+.animate-spin { animation: rotate 1s linear infinite; }
 
-.skeleton {
-  background: linear-gradient(90deg, var(--color-bg-tertiary) 25%, var(--color-bg-elevated) 50%, var(--color-bg-tertiary) 75%);
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite linear;
-}
+/* Staggered delays for lists */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
 
-/* Accessibility: Stop animations if user prefers reduced motion */
+/* Reduced Motion Preference */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

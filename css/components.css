@@ -1,429 +1,434 @@
-/* ==========================================================================
-   COMPONENTS (components.css)
-   Komponentët UI të ripërdorshëm
-   ========================================================================== */
+/* * 📄 css/components.css
+ * UI Components (BEM Methodology)
+ */
 
-/* --- 1. BUTTON --- */
+/* =========================================
+   1. BUTTONS (.btn)
+   ========================================= */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
   font-weight: var(--font-weight-medium);
-  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
   transition: all var(--transition-fast);
-  padding: var(--space-3) var(--space-6);
-  font-size: var(--font-size-base);
   user-select: none;
 }
 
 .btn:active {
-  transform: scale(0.96);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
+  transform: scale(0.97);
 }
 
 .btn--primary {
-  background-color: var(--color-accent-gold);
-  color: #fff; /* Always white text on gold */
-  box-shadow: var(--shadow-sm);
-}
-
-.btn--secondary {
   background-color: var(--color-accent-teal);
-  color: #fff;
-}
-
-.btn--ghost {
-  background-color: transparent;
-  border: 1px solid var(--color-border-strong);
   color: var(--color-text-primary);
 }
 
+.btn--primary:hover { background-color: var(--color-accent-teal-light); }
+
+.btn--secondary {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.btn--gold {
+  background-color: var(--color-accent-gold-alpha);
+  color: var(--color-accent-gold-light);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
 .btn--icon {
-  padding: var(--space-3);
+  padding: var(--space-2);
   border-radius: var(--radius-full);
 }
 
-/* Sizes */
-.btn--sm { padding: var(--space-2) var(--space-4); font-size: var(--font-size-sm); }
-.btn--lg { padding: var(--space-4) var(--space-8); font-size: var(--font-size-lg); }
-
-/* --- 2. CARD --- */
+/* =========================================
+   2. CARDS (.card)
+   ========================================= */
 .card {
   background-color: var(--color-bg-secondary);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
   position: relative;
 }
 
 .card--elevated {
-  background-color: var(--color-bg-elevated);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--color-border);
-}
-
-.card--glass {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: linear-gradient(180deg, var(--color-bg-secondary) 0%, var(--color-bg-tertiary) 100%);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.card--gradient {
-  background: linear-gradient(135deg, var(--color-bg-elevated) 0%, var(--color-bg-secondary) 100%);
-  border-left: 4px solid var(--color-accent-gold);
+.card--glass {
+  background: rgba(20, 31, 45, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-/* --- 3. INPUT --- */
+.card--glow-teal {
+  box-shadow: 0 0 30px hsla(161, 100%, 35%, 0.05);
+  border: 1px solid hsla(161, 100%, 35%, 0.15);
+}
+
+/* =========================================
+   3. INPUTS & FORMS (.input)
+   ========================================= */
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  margin-bottom: var(--space-4);
+  gap: var(--space-1);
 }
 
 .input {
   width: 100%;
-  padding: var(--space-3) var(--space-4);
   background-color: var(--color-bg-tertiary);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
   color: var(--color-text-primary);
+  font-size: var(--font-size-base);
   transition: border-color var(--transition-fast);
 }
 
 .input:focus {
-  border-color: var(--color-accent-gold);
+  border-color: var(--color-accent-teal);
 }
 
-.input--with-icon {
-  padding-inline-start: var(--space-10);
-}
-
-.input-wrapper {
-  position: relative;
-}
-
-.input-icon {
-  position: absolute;
-  left: var(--space-3);
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-text-tertiary);
-}
-
-/* --- 4. BADGE --- */
+/* =========================================
+   4. BADGES (.badge)
+   ========================================= */
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: var(--space-1) var(--space-2);
+  gap: var(--space-1);
+  padding: 0.15rem var(--space-2);
   border-radius: var(--radius-full);
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  background-color: var(--color-bg-tertiary);
-  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
 }
 
-.badge--success { background-color: hsla(var(--h-success), var(--s-success), var(--l-success), 0.15); color: var(--color-success); }
-.badge--warning { background-color: hsla(var(--h-warning), var(--s-warning), var(--l-warning), 0.15); color: var(--color-warning); }
-.badge--danger { background-color: hsla(var(--h-danger), var(--s-danger), var(--l-danger), 0.15); color: var(--color-danger); }
-.badge--gold { background-color: hsla(var(--h-accent-gold), var(--s-accent-gold), var(--l-accent-gold), 0.15); color: var(--color-accent-gold); }
+.badge--teal {
+  background-color: var(--color-accent-teal-alpha);
+  color: var(--color-accent-teal);
+  border: 1px solid var(--color-accent-teal);
+}
 
-/* --- 5. AVATAR --- */
-.avatar {
-  display: inline-flex;
+.badge--dark {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+/* =========================================
+   5. BOTTOM NAVIGATION (.bottom-nav)
+   ========================================= */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(11, 19, 30, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-around;
+  padding: var(--space-2) 0 calc(var(--space-2) + env(safe-area-inset-bottom));
+  z-index: var(--z-bottom-nav);
+}
+
+.bottom-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-tertiary);
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  transition: color var(--transition-fast);
+  position: relative;
+}
+
+.bottom-nav__item.is-active {
+  color: var(--color-accent-teal);
+}
+
+.bottom-nav__item svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2;
+}
+
+.bottom-nav__badge {
+  position: absolute;
+  top: -2px;
+  right: -6px;
+  background-color: var(--color-accent-teal);
+  color: white;
+  font-size: 9px;
+  font-weight: bold;
+  height: 16px;
+  width: 16px;
+  display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-full);
-  background-color: var(--color-bg-tertiary);
-  color: var(--color-accent-gold);
-  font-weight: var(--font-weight-bold);
-  overflow: hidden;
-  border: 2px solid var(--color-border);
+  border: 2px solid var(--color-bg-primary);
 }
 
-.avatar img { width: 100%; height: 100%; object-fit: cover; }
-.avatar--sm { width: 32px; height: 32px; font-size: var(--font-size-xs); }
-.avatar--md { width: 48px; height: 48px; font-size: var(--font-size-base); }
-.avatar--lg { width: 64px; height: 64px; font-size: var(--font-size-lg); }
-
-/* --- 6. DIVIDER --- */
-.divider {
-  height: 1px;
-  background-color: var(--color-divider);
-  margin: var(--space-4) 0;
-  width: 100%;
-}
-
-.divider--with-text {
+/* =========================================
+   6. PRAYER PROGRESS CIRCLES (.prayer-pill)
+   ========================================= */
+.prayer-circles-row {
   display: flex;
-  align-items: center;
-  text-align: center;
-  color: var(--color-text-tertiary);
-  font-size: var(--font-size-sm);
+  justify-content: space-between;
+  margin-top: var(--space-4);
 }
 
-.divider--with-text::before,
-.divider--with-text::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid var(--color-divider);
-}
-
-.divider--with-text::before { margin-inline-end: var(--space-4); }
-.divider--with-text::after { margin-inline-start: var(--space-4); }
-
-/* --- 7. LOADING SPINNER (Islamic geometric) --- */
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--color-border);
-  border-top-color: var(--color-accent-gold);
-  border-radius: 50%;
-  animation: rotate 1s linear infinite;
-}
-
-.spinner--islamic {
-  border: none;
-  background-color: transparent;
-  width: 40px;
-  height: 40px;
-  position: relative;
-  animation: islamic-spin 4s ease-in-out infinite;
-}
-
-.spinner--islamic::before,
-.spinner--islamic::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border: 2px solid var(--color-accent-gold);
-}
-.spinner--islamic::after { transform: rotate(45deg); }
-
-/* --- 8. TOAST --- */
-.toast {
-  position: fixed;
-  bottom: calc(var(--space-20) + env(safe-area-inset-bottom));
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: var(--color-bg-elevated);
-  color: var(--color-text-primary);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+.prayer-circle {
   display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  z-index: var(--z-toast);
-  width: max-content;
-  max-width: 90vw;
-  border-left: 4px solid var(--color-accent-gold);
-}
-
-/* --- 9. MODAL --- */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  z-index: var(--z-modal-backdrop);
-  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: var(--space-2);
+  background-color: var(--color-bg-elevated);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-2);
+  flex: 1;
+  margin: 0 4px;
+}
+
+.prayer-circle__name {
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.circle-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-text-tertiary);
+  transition: all var(--transition-base);
+}
+
+.prayer-circle.is-completed .circle-indicator {
+  background-color: var(--color-accent-teal);
+  border-color: var(--color-accent-teal);
+}
+
+/* =========================================
+   7. MODALS & SHEETS (.modal)
+   ========================================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: var(--z-modal-backdrop);
+  display: none;
   opacity: 0;
-  pointer-events: none;
   transition: opacity var(--transition-base);
 }
 
-.modal {
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--radius-2xl);
-  width: 90vw;
-  max-width: 400px;
-  padding: var(--space-6);
-  z-index: var(--z-modal);
-  transform: scale(0.95);
-  transition: transform var(--transition-base) var(--ease-bounce);
-}
-
-.modal.is-active,
-.modal-backdrop.is-active {
+.modal-overlay.is-open {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   opacity: 1;
-  pointer-events: auto;
 }
-.modal.is-active { transform: scale(1); }
 
-/* --- 10. BOTTOM SHEET --- */
 .bottom-sheet {
   position: fixed;
   bottom: 0;
   left: 0;
-  right: 0;
-  background-color: var(--color-bg-secondary);
-  border-top-left-radius: var(--radius-3xl);
-  border-top-right-radius: var(--radius-3xl);
-  padding: var(--space-6) var(--space-4) calc(var(--space-6) + env(safe-area-inset-bottom));
+  width: 100%;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: var(--space-6);
   z-index: var(--z-modal);
   transform: translateY(100%);
-  transition: transform var(--transition-slow) var(--ease-out);
-  box-shadow: var(--shadow-xl);
+  transition: transform var(--transition-bounce);
+  box-shadow: var(--shadow-lg);
 }
 
-.bottom-sheet.is-active {
+.bottom-sheet.is-open {
   transform: translateY(0);
 }
 
-.bottom-sheet__handle {
+.sheet-handle {
   width: 40px;
   height: 4px;
-  background-color: var(--color-divider);
+  background: var(--color-divider);
   border-radius: var(--radius-full);
   margin: 0 auto var(--space-6);
 }
 
-/* --- 11. NAVIGATION BAR (Bottom) --- */
-.nav-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(19, 47, 76, 0.85); /* h-bg-secondary with opacity */
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  display: flex;
-  justify-content: space-around;
-  padding: var(--space-2) 0 calc(var(--space-2) + env(safe-area-inset-bottom));
-  z-index: var(--z-fixed);
-  border-top: 1px solid var(--color-border);
+/* =========================================
+   8. CAROUSEL & SCROLLBAR HIDING
+   ========================================= */
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+.carousel-track {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
-.nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-1);
-  color: var(--color-text-tertiary);
-  font-size: var(--font-size-xs);
-  padding: var(--space-2);
-  transition: color var(--transition-fast);
+/* =========================================
+   MODULI I NAMAZIT
+   ========================================= */
+
+/* Rrethi i Progresit (Hero) */
+.prayer-hero {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-6) 0;
+    margin-bottom: var(--space-4);
 }
 
-.nav-item.is-active {
-  color: var(--color-accent-gold);
+.prayer-progress-circle {
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    /* Gradienti që tregon progresin (65% e mbushur për test) */
+    background: conic-gradient(var(--color-accent-teal) 0% 65%, var(--color-surface-hover) 65% 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(46, 204, 113, 0.15);
 }
 
-/* --- 12. PROGRESS CIRCLE --- */
-.progress-circle {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.prayer-progress-inner {
+    width: 220px;
+    height: 220px;
+    background: var(--color-background);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.progress-circle svg {
-  transform: rotate(-90deg);
+.prayer-current-label {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.progress-circle__bg {
-  fill: none;
-  stroke: var(--color-bg-elevated);
-  stroke-width: 8;
+.prayer-countdown {
+    font-size: 32px;
+    color: var(--color-text-primary);
+    font-weight: 800;
+    margin: var(--space-2) 0;
+    font-variant-numeric: tabular-nums; /* Mban numrat të rreshtuar bukur */
 }
 
-.progress-circle__value {
-  fill: none;
-  stroke: var(--color-accent-teal);
-  stroke-width: 8;
-  stroke-linecap: round;
-  transition: stroke-dashoffset var(--transition-slow);
+.prayer-current-time {
+    font-size: 14px;
+    color: var(--color-accent-gold);
+    font-weight: 500;
 }
 
-.progress-circle__text {
-  position: absolute;
-  font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-lg);
+/* Kartat e Listës së Vakteve */
+.prayer-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
 }
 
-/* --- 13. LIST ITEM --- */
-.list-item {
-  display: flex;
-  align-items: center;
-  padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--color-divider);
-}
-.list-item:last-child { border-bottom: none; }
-
-.list-item__icon {
-  background-color: var(--color-bg-elevated);
-  padding: var(--space-2);
-  border-radius: var(--radius-md);
-  margin-inline-end: var(--space-3);
-  color: var(--color-accent-gold);
+.prayer-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--color-surface);
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    transition: all 0.3s ease;
 }
 
-.list-item__content { flex: 1; }
-.list-item__title { font-weight: var(--font-weight-medium); }
-.list-item__subtitle { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
-
-/* --- 14. TAB BAR --- */
-.tabs {
-  display: flex;
-  overflow-x: auto;
-  gap: var(--space-4);
-  padding-bottom: var(--space-2);
+.prayer-card-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
 }
 
-.tab {
-  padding: var(--space-2) 0;
-  color: var(--color-text-secondary);
-  font-weight: var(--font-weight-medium);
-  white-space: nowrap;
-  position: relative;
+.prayer-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-secondary);
 }
 
-.tab.is-active {
-  color: var(--color-text-primary);
+.prayer-info h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 2px 0;
 }
 
-.tab.is-active::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background-color: var(--color-accent-gold);
-  border-radius: var(--radius-full);
+.prayer-info p {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin: 0;
+    font-weight: 500;
 }
 
-/* --- 15. SEGMENTED CONTROL --- */
-.segmented {
-  display: flex;
-  background-color: var(--color-bg-tertiary);
-  padding: var(--space-1);
-  border-radius: var(--radius-lg);
+.prayer-status {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
 }
 
-.segmented__btn {
-  flex: 1;
-  text-align: center;
-  padding: var(--space-2);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  transition: all var(--transition-fast);
+/* Gjendja: Namazi Aktual */
+.prayer-card.active {
+    border-color: var(--color-accent-teal);
+    background: linear-gradient(145deg, rgba(46, 204, 113, 0.05), transparent);
 }
 
-.segmented__btn.is-active {
-  background-color: var(--color-bg-elevated);
-  color: var(--color-text-primary);
-  box-shadow: var(--shadow-sm);
+.prayer-card.active .prayer-icon-wrapper {
+    background: var(--color-accent-teal);
+    color: var(--color-background);
+}
+
+.prayer-card.active .prayer-status {
+    border-color: var(--color-accent-teal);
+    border-style: dashed;
+    animation: spin-slow 4s linear infinite;
+}
+
+/* Gjendja: E Falur (Completed) */
+.prayer-card.completed .prayer-status {
+    background: var(--color-accent-teal);
+    border-color: var(--color-accent-teal);
+    color: var(--color-background);
+}
+
+@keyframes spin-slow {
+    100% { transform: rotate(360deg); }
 }

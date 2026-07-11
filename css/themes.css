@@ -1,34 +1,34 @@
-/* ==========================================================================
-   THEMES (themes.css)
-   Sistemi i dritës (Light Mode)
-   ========================================================================== */
+/* * 📄 css/themes.css
+ * Theme Overrides (Light Mode)
+ * Default is Dark Mode (Night). This applies Day mode variables.
+ */
 
-/* Overrides for Light Mode */
-[data-theme="light"] {
-  --h-bg-primary: 50; --s-bg-primary: 60%; --l-bg-primary: 98%; /* #fefdf8 */
-  --h-bg-secondary: 41; --s-bg-secondary: 41%; --l-bg-secondary: 93%; /* #f5f1e8 */
-  --h-bg-tertiary: 0; --s-bg-tertiary: 0%; --l-bg-tertiary: 100%; /* #ffffff */
-  --h-bg-elevated: 0; --s-bg-elevated: 0%; --l-bg-elevated: 100%; /* #ffffff */
+.light-theme {
+  --color-bg-primary: hsl(48, 40%, 98%);     /* #FEFDF8 - Cream */
+  --color-bg-secondary: hsl(45, 30%, 94%);   /* #F5F1E8 */
+  --color-bg-tertiary: hsl(0, 0%, 100%);     /* #FFFFFF */
+  --color-bg-elevated: hsl(0, 0%, 100%);
 
-  --h-accent-gold: 44; --s-accent-gold: 49%; --l-accent-gold: 44%; /* #a68938 */
-  --h-accent-teal: 175; --s-accent-teal: 76%; --l-accent-teal: 26%; /* #0f766e */
+  --color-text-primary: hsl(215, 30%, 15%);  /* #1E293B */
+  --color-text-secondary: hsl(215, 20%, 35%);/* #475569 */
+  --color-text-tertiary: hsl(215, 15%, 45%); /* #64748B */
 
-  --h-text-primary: 217; --s-text-primary: 33%; --l-text-primary: 17%; /* #1e293b */
-  --h-text-secondary: 215; --s-text-secondary: 19%; --l-text-secondary: 35%; /* #475569 */
-  --h-text-tertiary: 215; --s-text-tertiary: 25%; --l-text-tertiary: 47%; /* #64748b */
+  --color-border: hsla(215, 20%, 80%, 0.5);
+  --color-divider: hsla(215, 20%, 80%, 0.3);
 
+  --color-accent-teal: hsl(175, 75%, 25%);   /* Darker teal for contrast */
+  --color-accent-gold: hsl(43, 70%, 45%);    /* Darker gold for text readability */
+  
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
   --shadow-md: 0 4px 6px rgba(0,0,0,0.05);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
-  --shadow-xl: 0 20px 25px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.05);
 }
 
-/* Optional: Auto-detect system theme if data-theme is not explicitly set 
-  Note: Since Night mode is the default and preferred aesthetic for Hayat, 
-  we rely primarily on the manual data-theme toggle.
-*/
+/* Optional: System preference auto-switch (Uncomment if needed) */
+/*
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    /* (You can copy the HSL values from above here if you want OS-level syncing) */
+  :root {
+    // Paste light-theme variables here to auto-switch based on OS
   }
 }
+*/

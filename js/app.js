@@ -1,61 +1,54 @@
-/**
- * Main Entry Point (app.js)
- * Inicializon PWA, Router dhe Modulet Baze
- */
-
-import { Router } from './router.js';
-import { Storage } from './core/storage.js';
-import { Utils } from './core/utils.js';
-
-import './modules/dashboard.js'; 
-import './modules/prayer.js';
-import './modules/dhikr.js'; 
-import './modules/mburoja.js'; // Shto këtë linjë!
-
+// 📄 js/app.js
+import { router } from './router.js';
+import { events } from './core/events.js';
+import { storage } from './core/storage.js';
+import { ui } from './core/ui.js';
 
 class HayatApp {
-  constructor() {
-    this.init();
-  }
-
-  init() {
-    console.log('[Hayat] Bismillah - Inicializimi i aplikacionit...');
-    
-    // 1. Inicializo Ikonat (Lucide)
-    if (window.lucide) {
-      lucide.createIcons();
+    constructor() {
+        this.init();
     }
 
-    // 2. Regjistro Service Worker (Për PWA & Offline Support)
-    this.registerServiceWorker();
+    init() {
+        console.log('Bismillah! Hayat App Initializing...');
+        
+        // Fillo Ndërfaqen (Bottom Sheets, Modalet)
+        ui.init();
+        
+        // Fillo ikonat për shell-in
+        if (window.lucide) {
+            lucide.createIcons();
+        }
 
-    // 3. Apliko temën e ruajtur (Dark/Light)
-    this.applyTheme();
+        // Fillo routerin (Navigimin)
+        router.init();
 
-    // 4. Nis Router-in (Menaxhon navigimin)
-    Router.init();
-  }
-
-  registerServiceWorker() {
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(registration => {
-            console.log('[SW] Regjistruar me sukses:', registration.scope);
-          })
-          .catch(error => {
-            console.error('[SW] Dështoi regjistrimi:', error);
-          });
-      });
+        // Dëgjo evente globale
+        this.setupGlobalEvents();
+        
+        // Kontrollo nëse përdoruesi hyn për herë të parë
+        this.checkFirstVisit();
     }
-  }
 
-  applyTheme() {
-    const savedTheme = Storage.get('theme', 'dark');
-    document.documentElement.setAttribute('data-theme', savedTheme);
-  }
+    setupGlobalEvents() {
+        events.on('routeChanged', (data) => {
+            console.log(`Naviguam tek: ${data.path}`);
+            // Këtu mund të fusim logjikë specifike kur ndërrojmë faqe
+            // P.sh. të lëshojmë evente për Analytics
+        });
+    }
+
+    checkFirstVisit() {
+        const isFirstVisit = storage.get('isFirstVisit', true);
+        if (isFirstVisit) {
+            console.log('Welcome to Hayat!');
+            // Këtu mund të hapim një Modal "Welcome/Onboarding" më vonë
+            storage.set('isFirstVisit', false);
+        }
+    }
 }
 
+// Nis Aplikacionin kur DOM është gati
 document.addEventListener('DOMContentLoaded', () => {
-  window.app = new HayatApp();
+    window.app = new HayatApp();
 });

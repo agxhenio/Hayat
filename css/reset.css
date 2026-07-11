@@ -1,8 +1,6 @@
-/* ==========================================================================
-   RESET (reset.css)
-   Pastrimi i stileve standard të browser-it
-   ========================================================================== */
-
+/* * 📄 css/reset.css
+ * Modern CSS Reset for PWA
+ */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -11,15 +9,37 @@
 
 html {
   -webkit-text-size-adjust: 100%;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
   scroll-behavior: smooth;
 }
 
 body {
   min-height: 100vh;
-  min-height: 100dvh; /* Dynamic viewport for mobile browsers */
+  min-height: 100dvh; /* Dynamic viewport for mobile */
   text-rendering: optimizeSpeed;
+  line-height: var(--line-height-normal);
+  font-family: var(--font-family-base);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img, picture, svg, video {
+  display: block;
+  max-width: 100%;
+}
+
+input, button, textarea, select {
+  font: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  outline: none;
+}
+
+button {
+  cursor: pointer;
 }
 
 ul, ol {
@@ -31,27 +51,14 @@ a {
   color: inherit;
 }
 
-img, picture, svg, video {
-  display: block;
-  max-width: 100%;
-}
-
-input, button, textarea, select {
-  font: inherit;
-  background: none;
+/* Remove default dialog styles */
+dialog {
   border: none;
-  color: inherit;
+  background: none;
+  padding: 0;
+  margin: auto;
 }
-
-button {
-  cursor: pointer;
-}
-
-/* Remove tap highlight on mobile */
--webkit-tap-highlight-color: transparent;
-
-/* Accessibility focus */
-:focus-visible {
-  outline: 2px solid var(--color-accent-gold);
-  outline-offset: 2px;
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
 }

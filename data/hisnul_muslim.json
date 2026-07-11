@@ -1,0 +1,46 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "name": "Mëngjes & Mbrëmje",
+      "count": 30,
+      "duas": [
+        {
+          "id": 1,
+          "title": "Kur zgjohemi nga gjumi",
+          "arabic": "الْحَمْدُ للهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ",
+          "transliteration": "Elhamdu lillâhil-led hî ahjânâ ba'de mâ emâtenâ ve ilejhin-nushûr.",
+          "translation": "Falënderimi i takon Allahut, i Cili na ngjalli pasi na bëri të vdekur (na fjeti) dhe tek Ai është rikthimi.",
+          "count": 1,
+          "source": "Sahih Al-Bukhari 11/113",
+          "audio": "https://everyayah.com/data/Alafasy_128kbps/001001.mp3"
+        },
+        {
+          "id": 27,
+          "title": "Dhikri i mëngjesit (1)",
+          "arabic": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلهِ وَالْحَمْدُ لِلهِ، لَا إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ",
+          "transliteration": "Asbahnâ ve asbehal-mulku lillâhi vel-hamdu lillâhi, lâ ilâhe illallâhu vahdehû lâ sherîke leh.",
+          "translation": "E arritëm mëngjesin dhe e tërë mbretëria i takon Allahut. Falënderimi është për Allahun, nuk ka të adhuruar tjetër me të drejtë përveç Allahut të Vetëm, i Cili nuk ka shok.",
+          "count": 1,
+          "source": "Muslim 4/2088"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Shtëpia & Familja",
+      "count": 15,
+      "duas": [
+        {
+          "id": 2,
+          "title": "Duaja kur veshim rrobat",
+          "arabic": "الْحَمْدُ لِلهِ الَّذِي كَسَانِي هَذَا (الثَّوْبَ) وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ",
+          "transliteration": "Elhamdu lillâhil-led hî kesânî hadhâ (eth-thevbe) ve rezekanîhi min gajri havlin minnî ve lâ kuvveh.",
+          "translation": "Falënderimi i takon Allahut, i Cili më veshi me këtë (rrobë) dhe më furnizoi me të pa ndonjë mundim apo fuqi nga ana ime.",
+          "count": 1,
+          "source": "Al-Asqalani, Bulugh al-Maram"
+        }
+      ]
+    }
+  ]
+}

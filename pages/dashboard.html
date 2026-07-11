@@ -1,85 +1,81 @@
-<!-- 
-  PAGES: Dashboard (dashboard.html)
-  Kjo injektohet në #app-content nga router.js 
--->
-
-<div class="dashboard-page animate-fade-in" style="padding: var(--space-4);">
-  
-  <!-- Header / Greeting Section -->
-  <header style="margin-bottom: var(--space-6); display: flex; justify-content: space-between; align-items: flex-end;">
-    <div>
-      <p style="color: var(--color-text-tertiary); font-size: var(--font-size-sm); margin-bottom: var(--space-1);" id="dash-date">
-        <!-- Date will be injected here -->
-      </p>
-      <h1 style="font-size: var(--font-size-2xl);" id="dash-greeting">
-        <!-- Greeting will be injected here -->
-      </h1>
-      <p style="color: var(--color-accent-gold); font-weight: var(--font-weight-medium); font-size: var(--font-size-sm);" id="dash-hijri">
-        <!-- Hijri Date here -->
-      </p>
-    </div>
-    <div class="avatar avatar--md">
-      <i data-lucide="user"></i>
-    </div>
-  </header>
-
-  <!-- Next Prayer Hero Card -->
-  <section class="card card--gradient" style="margin-bottom: var(--space-6); text-align: center; padding: var(--space-6) var(--space-4);">
-    <div class="badge badge--gold" style="margin-bottom: var(--space-4);">Koha e ardhshme</div>
+<div class="container" style="padding-top: var(--space-4); padding-bottom: var(--space-8);">
     
-    <h2 style="font-size: var(--font-size-4xl); margin-bottom: var(--space-2); color: #fff;">Asr</h2>
-    <p style="font-size: var(--font-size-lg); color: rgba(255,255,255,0.8); margin-bottom: var(--space-6);">16:45 PM</p>
-    
-    <div style="display: flex; justify-content: center; align-items: center; gap: var(--space-4);">
-      <div style="text-align: center;">
-        <span style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); font-variant-numeric: tabular-nums;">02</span>
-        <div style="font-size: var(--font-size-xs); color: rgba(255,255,255,0.6); text-transform: uppercase;">Orë</div>
-      </div>
-      <span style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-top: -15px;">:</span>
-      <div style="text-align: center;">
-        <span style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); font-variant-numeric: tabular-nums;">34</span>
-        <div style="font-size: var(--font-size-xs); color: rgba(255,255,255,0.6); text-transform: uppercase;">Min</div>
-      </div>
-    </div>
-  </section>
+    <header class="flex-between" style="margin-bottom: var(--space-4);">
+        <div>
+            <div id="gregorian-date" class="text-sm text-secondary font-medium">Duke ngarkuar...</div>
+            <div id="hijri-date" class="text-base text-teal font-bold">...</div>
+        </div>
+        <button class="btn btn--secondary" style="border-radius: var(--radius-full); padding: 6px 12px; font-size: 12px;">
+            <i data-lucide="map-pin" style="width: 14px; height: 14px; color: var(--color-accent-teal);"></i> 
+            <span id="location-name">Duke kërkuar...</span>
+            <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+        </button>
+    </header>
 
-  <!-- Quick Actions Grid -->
-  <section style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-6);">
-    <!-- Dhikr Button -->
-    <a href="#/dhikr" class="card card--elevated" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: var(--space-4);">
-      <div class="btn--icon" style="background-color: hsla(var(--h-accent-teal), var(--s-accent-teal), var(--l-accent-teal), 0.15); color: var(--color-accent-teal); margin-bottom: var(--space-3);">
-        <i data-lucide="activity"></i>
-      </div>
-      <h3 style="font-size: var(--font-size-base); margin-bottom: var(--space-1);">Dhikr</h3>
-      <p style="font-size: var(--font-size-xs); margin: 0;">Tespih digjital</p>
-    </a>
-    
-    <!-- Quran Button -->
-    <a href="#/quran" class="card card--elevated" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: var(--space-4);">
-      <div class="btn--icon" style="background-color: hsla(var(--h-accent-gold), var(--s-accent-gold), var(--l-accent-gold), 0.15); color: var(--color-accent-gold); margin-bottom: var(--space-3);">
-        <i data-lucide="book-open"></i>
-      </div>
-      <h3 style="font-size: var(--font-size-base); margin-bottom: var(--space-1);">Lexo</h3>
-      <p style="font-size: var(--font-size-xs); margin: 0;">Vazhdo Kuranin</p>
-    </a>
-  </section>
-
-  <!-- Daily Inspiration / Ayah of the day -->
-  <section class="card card--elevated">
-    <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-4);">
-      <i data-lucide="bookmark" style="color: var(--color-accent-gold); width: 16px;"></i>
-      <h3 style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">Ajeti i Ditës</h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-bottom: var(--space-4);">
+        <div class="card card--glow-teal" style="padding: var(--space-3);">
+            <div class="flex-between" style="margin-bottom: var(--space-2);">
+                <span class="badge badge--teal" style="font-size: 10px;">Tani</span>
+                <span class="text-sm font-bold flex-row" style="gap:4px;">
+                    <span id="current-prayer-name">--</span> 
+                    <i data-lucide="sun" style="width:14px; color:var(--color-accent-gold);"></i>
+                </span>
+            </div>
+            <div id="current-prayer-time" class="text-3xl font-bold font-tabular text-teal">--:--</div>
+        </div>
+        
+        <div class="card" style="padding: var(--space-3); background-color: var(--color-bg-elevated);">
+            <div class="flex-between" style="margin-bottom: var(--space-2);">
+                <span class="text-xs text-tertiary">Në vijim</span>
+                <span class="text-sm font-medium flex-row" style="gap:4px;">
+                    <span id="next-prayer-name">--</span> 
+                    <i data-lucide="cloud" style="width:14px; color:var(--color-text-tertiary);"></i>
+                </span>
+            </div>
+            <div id="next-prayer-time" class="text-3xl font-bold font-tabular text-secondary">--:--</div>
+        </div>
     </div>
-    
-    <p class="arabic-quran" style="font-size: var(--font-size-ar-sm); text-align: center; margin-bottom: var(--space-4);">
-      إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا
-    </p>
-    <p style="font-style: italic; color: var(--color-text-secondary); text-align: center; margin-bottom: var(--space-2);">
-      "Me të vërtetë, pas vështirësisë vjen lehtësimi."
-    </p>
-    <p style="font-size: var(--font-size-xs); color: var(--color-text-tertiary); text-align: center; margin: 0;">
-      — Surah Ash-Sharh (94:6)
-    </p>
-  </section>
-  
+
+    <div class="card card--elevated" style="margin-bottom: var(--space-4); text-align: center; border-top: 2px solid var(--color-accent-teal);">
+        <h3 class="text-sm text-gold font-bold uppercase tracking-wide mb-2">Surja En-Nisa</h3>
+        <div class="text-xs text-tertiary mb-4">Ajeti 28</div>
+        <div class="quran-text" style="color: var(--color-text-primary); margin: var(--space-4) 0;">
+            يُرِيدُ ٱللَّهُ أَن يُخَفِّفَ عَنكُمْ ۚ وَخُلِقَ ٱلْإِنسَـٰنُ ضَعِيفًا
+        </div>
+        <p class="text-base text-secondary font-medium" style="line-height: var(--line-height-relaxed); margin-bottom: var(--space-4);">
+            "Allahu dëshiron t’jua lehtësojë (barrën), sepse njeriu është krijuar i dobët."
+        </p>
+    </div>
+
+    <div id="dynamic-reminders" style="display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-4);">
+        </div>
+
+    <div style="margin-bottom: var(--space-4);">
+        <div class="flex-between" style="margin-bottom: var(--space-3);">
+            <h3 class="font-bold text-lg">Të rejat në Hayat</h3>
+            <a href="#/explore" class="text-teal text-xs font-medium" style="text-decoration: none;">Shiko të gjitha</a>
+        </div>
+        
+        <div class="carousel-track" style="display: flex; gap: var(--space-3); overflow-x: auto; padding-bottom: var(--space-2); scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;">
+            <div class="card carousel-item js-play-video" style="min-width: 220px; padding: 0; scroll-snap-align: start; border: none; overflow: hidden;">
+                <div style="height: 120px; background: linear-gradient(45deg, var(--color-bg-secondary), var(--color-bg-tertiary)); display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="play-circle" style="width: 40px; height: 40px; color: var(--color-accent-teal);"></i>
+                </div>
+                <div style="padding: var(--space-3);">
+                    <h4 class="font-semibold text-sm">Histori të Profetëve</h4>
+                    <p class="text-xs text-tertiary" style="margin-top: 4px;">Episodi 1 • 15 min</p>
+                </div>
+            </div>
+            
+            <div class="card carousel-item" style="min-width: 220px; padding: 0; scroll-snap-align: start; border: none; overflow: hidden;">
+                <div style="height: 120px; background: linear-gradient(45deg, var(--color-accent-teal-dark), var(--color-bg-tertiary)); display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="book" style="width: 40px; height: 40px; color: var(--color-text-primary);"></i>
+                </div>
+                <div style="padding: var(--space-3);">
+                    <h4 class="font-semibold text-sm">Kurse Texhvidi</h4>
+                    <p class="text-xs text-tertiary" style="margin-top: 4px;">Për fillestarë • 8 Mësime</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

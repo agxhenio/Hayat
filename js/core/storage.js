@@ -1,56 +1,44 @@
+// 📄 js/core/storage.js
 /**
- * Core Storage Module (storage.js)
- * Menaxhimi i të dhënave lokale (LocalStorage Wrapper)
+ * Storage Wrapper
+ * Menaxhon ruajtjen e të dhënave në pajisjen e përdoruesit (LocalStorage).
  */
+export const storage = {
+    // Ruaj të dhëna (kthehen automatikisht në JSON)
+    set(key, value) {
+        try {
+            const serializedValue = JSON.stringify(value);
+            localStorage.setItem(`hayat_${key}`, serializedValue);
+            return true;
+        } catch (error) {
+            console.error('Error saving to storage:', error);
+            return false;
+        }
+    },
 
-export const Storage = {
-  /**
-   * Ruaj të dhëna në LocalStorage
-   * @param {string} key 
-   * @param {any} value 
-   */
-  set(key, value) {
-    try {
-      const serializedValue = JSON.stringify(value);
-      localStorage.setItem(`hayat_${key}`, serializedValue);
-    } catch (error) {
-      console.error(`[Storage] Error saving key "${key}":`, error);
+    // Merr të dhëna
+    get(key, defaultValue = null) {
+        try {
+            const item = localStorage.getItem(`hayat_${key}`);
+            return item ? JSON.parse(item) : defaultValue;
+        } catch (error) {
+            console.error('Error reading from storage:', error);
+            return defaultValue;
+        }
+    },
+
+    // Fshi një çelës
+    remove(key) {
+        localStorage.removeItem(`hayat_${key}`);
+    },
+
+    // Fshi gjithçka (për log out / reset)
+    clear() {
+        // Fshi vetëm çelësat e Hayat
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('hayat_')) {
+                localStorage.removeItem(key);
+            }
+        });
     }
-  },
-
-  /**
-   * Merr të dhëna nga LocalStorage
-   * @param {string} key 
-   * @param {any} defaultValue 
-   * @returns {any}
-   */
-  get(key, defaultValue = null) {
-    try {
-      const item = localStorage.getItem(`hayat_${key}`);
-      return item ? JSON.parse(item) : defaultValue;
-    } catch (error) {
-      console.error(`[Storage] Error reading key "${key}":`, error);
-      return defaultValue;
-    }
-  },
-
-  /**
-   * Fshi një çelës specifik
-   * @param {string} key 
-   */
-  remove(key) {
-    localStorage.removeItem(`hayat_${key}`);
-  },
-
-  /**
-   * Fshi të gjitha të dhënat (për Logout / Reset)
-   */
-  clear() {
-    const keys = Object.keys(localStorage);
-    keys.forEach(key => {
-      if (key.startsWith('hayat_')) {
-        localStorage.removeItem(key);
-      }
-    });
-  }
 };

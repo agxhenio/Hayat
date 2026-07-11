@@ -1,336 +1,382 @@
-/**
- * Dhikr Module (dhikr.js)
- * Kontrollon SPA-në e brendshme: Hub, Player, dhe Free Counter.
- */
+// 📄 js/modules/dhikr.js
 
-import { Storage } from '../core/storage.js';
+export const dhikrModule = {
+    cachedData: null,
 
-class DhikrModule {
-  constructor() {
-    this.adhkarData = { morning: [], evening: [], sleep: [] };
-    this.currentPlaylist = [];
-    this.currentIndex = 0;
-    this.currentDuaCount = 0;
-    
-    // Free counter state
-    this.freeCount = 0;
-    this.freeTarget = 33;
-    
-    // Stats
-    this.stats = {
-      todayCount: 0,
-      lastDate: null,
-      streak: 0
-    };
+    async init() {
+        console.log('Moduli i Dhikrit u inicializua');
+        this.bindSearch();
+        await this.renderFavorites(); // Vizaton të preferuarat sapo hapet faqja
+    },
 
-    document.addEventListener('pageLoaded', (e) => {
-      if (e.detail.path === '/dhikr') {
-        this.mount();
-      }
-    });
-  }
-
-  async mount() {
-    console.log('[Dhikr] Moduli u ngarkua.');
-    this.cacheDOM();
-    this.loadStats();
-    this.updateSuggestionCard();
-    this.bindGlobalEvents();
-    
-    await this.fetchData();
-    
-    // Default to Home View
-    this.switchView('home');
-    if (window.lucide) window.lucide.createIcons();
-  }
-
-  cacheDOM() {
-    // Views
-    this.viewHome = document.getElementById('dhikr-view-home');
-    this.viewPlayer = document.getElementById('dhikr-view-player');
-    this.viewFree = document.getElementById('dhikr-view-free');
-    
-    // Home Elements
-    this.statCountEl = document.getElementById('stat-today-count');
-    this.statStreakEl = document.getElementById('stat-streak');
-    this.suggestionCard = document.getElementById('dhikr-suggestion-card');
-    this.navBtns = document.querySelectorAll('.dhikr-nav-btn');
-    
-    // Player Elements
-    this.pTitle = document.getElementById('player-title');
-    this.pProgressText = document.getElementById('player-progress-text');
-    this.pProgressBar = document.getElementById('player-progress-bar');
-    this.pDuaTitle = document.getElementById('player-dua-title');
-    this.pTargetText = document.getElementById('player-target-text');
-    this.pArabic = document.getElementById('player-arabic');
-    this.pTransl = document.getElementById('player-transliteration');
-    this.pTrans = document.getElementById('player-translation');
-    this.pSource = document.getElementById('player-source');
-    this.pVirtue = document.getElementById('player-virtue');
-    this.pCount = document.getElementById('player-count');
-    
-    this.btnPTap = document.getElementById('btn-player-tap');
-    this.btnPNext = document.getElementById('btn-player-next');
-    this.btnPPrev = document.getElementById('btn-player-prev');
-    this.btnCloses = document.querySelectorAll('.btn-close-player');
-
-    // Free Elements
-    this.btnFTap = document.getElementById('btn-tap-free');
-    this.fCount = document.getElementById('free-count');
-    this.btnFReset = document.getElementById('btn-reset-free');
-    this.fTargetBtns = document.querySelectorAll('#dhikr-view-free .segmented__btn');
-  }
-
-  async fetchData() {
-    try {
-      const response = await fetch('data/adhkar.json');
-      if (response.ok) {
-        this.adhkarData = await response.json();
-      }
-    } catch (e) {
-      console.error('[Dhikr] Gabim në ngarkimin e json:', e);
-    }
-  }
-
-  // --- STATE & UI MANAGEMENT ---
-
-  loadStats() {
-    const today = new Date().toDateString();
-    this.stats = Storage.get('dhikr_stats', { todayCount: 0, lastDate: null, streak: 0 });
-    
-    if (this.stats.lastDate !== today) {
-      // Logic for streak
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      
-      if (this.stats.lastDate === yesterday.toDateString()) {
-        // Kept streak
-      } else {
-        this.stats.streak = 0; // Broken streak
-      }
-      
-      this.stats.todayCount = 0;
-      this.stats.lastDate = today;
-      this.saveStats();
-    }
-
-    this.statCountEl.textContent = this.stats.todayCount;
-    this.statStreakEl.textContent = `🔥 ${this.stats.streak} ditë radhazi`;
-  }
-
-  saveStats() {
-    Storage.set('dhikr_stats', this.stats);
-    if (this.statCountEl) this.statCountEl.textContent = this.stats.todayCount;
-  }
-
-  incrementGlobalCount(amount = 1) {
-    this.stats.todayCount += amount;
-    
-    // Award a streak if they did at least 10 dhikr today and streak hasn't updated
-    if (this.stats.todayCount === 10 && this.stats.streak === 0) {
-       this.stats.streak += 1;
-       this.statStreakEl.textContent = `🔥 ${this.stats.streak} ditë radhazi`;
-    }
-    this.saveStats();
-  }
-
-  switchView(viewName) {
-    this.viewHome.style.display = 'none';
-    this.viewPlayer.style.display = 'none';
-    this.viewFree.style.display = 'none';
-
-    if (viewName === 'home') this.viewHome.style.display = 'block';
-    if (viewName === 'player') {
-      this.viewPlayer.style.display = 'flex';
-      // Hide main app nav bar when in player
-      document.getElementById('main-nav').style.display = 'none';
-    }
-    if (viewName === 'free') {
-      this.viewFree.style.display = 'flex';
-      document.getElementById('main-nav').style.display = 'none';
-    }
-
-    if (viewName === 'home') {
-      document.getElementById('main-nav').style.display = 'flex';
-      this.updateSuggestionCard();
-    }
-  }
-
-  updateSuggestionCard() {
-    const hour = new Date().getHours();
-    let type = '';
-    let title = '';
-    let btnText = '';
-
-    if (hour >= 4 && hour < 10) {
-      type = 'morning'; title = "Është koha për Dhikrin e Mëngjesit"; btnText = "Fillo Mëngjesin";
-    } else if (hour >= 15 && hour < 20) {
-      type = 'evening'; title = "Është koha për Dhikrin e Mbrëmjes"; btnText = "Fillo Mbrëmjen";
-    } else {
-      type = 'sleep'; title = "Mos harro Dhikrin para Gjumit"; btnText = "Fillo para Gjumit";
-    }
-
-    this.suggestionCard.innerHTML = `
-      <h3 style="font-size: var(--font-size-lg); color: #fff; margin-bottom: var(--space-4);">${title}</h3>
-      <button class="btn btn--primary dhikr-nav-btn" data-type="${type}" style="width: 100%; box-shadow: none;">${btnText}</button>
-    `;
-    
-    // Rebind dynamic button
-    this.suggestionCard.querySelector('button').addEventListener('click', (e) => {
-      this.startGuidedPlaylist(e.currentTarget.dataset.type);
-    });
-  }
-
-  bindGlobalEvents() {
-    // Navigation cards
-    this.navBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const type = e.currentTarget.dataset.type;
-        if (type === 'free') {
-          this.switchView('free');
-        } else {
-          this.startGuidedPlaylist(type);
+    async loadData() {
+        if (this.cachedData) return this.cachedData;
+        try {
+            const res = await fetch('data/hisnul_muslim.json');
+            this.cachedData = await res.json();
+            return this.cachedData;
+        } catch (e) {
+            console.error("Gabim gjatë ngarkimit të datave të dhikrit:", e);
+            return null;
         }
-      });
-    });
+    },
 
-    // Close buttons
-    this.btnCloses.forEach(btn => {
-      btn.addEventListener('click', () => this.switchView('home'));
-    });
+    // --- LOGJIKA E TË PREFERUARAVE (FAVORITES) ---
+    getFavorites() {
+        return JSON.parse(localStorage.getItem('hayat_favorite_duas') || '[]');
+    },
 
-    // --- PLAYER EVENTS ---
-    this.btnPTap.addEventListener('click', () => this.handlePlayerTap());
-    this.btnPNext.addEventListener('click', () => this.navigatePlayer(1));
-    this.btnPPrev.addEventListener('click', () => this.navigatePlayer(-1));
-    
-    // Haptic UI effect
-    this.btnPTap.addEventListener('touchstart', () => { this.btnPTap.style.transform = 'scale(0.95)'; }, { passive: true });
-    this.btnPTap.addEventListener('touchend', () => { this.btnPTap.style.transform = 'scale(1)'; }, { passive: true });
+    isFavorite(duaId) {
+        const favs = this.getFavorites();
+        return favs.some(f => f.id == duaId);
+    },
 
-    // --- FREE COUNTER EVENTS ---
-    this.btnFTap.addEventListener('click', () => this.handleFreeTap());
-    this.btnFReset.addEventListener('click', () => {
-      this.freeCount = 0;
-      this.fCount.textContent = 0;
-      this.vibrate(50);
-    });
-    
-    this.btnFTap.addEventListener('touchstart', () => { this.btnFTap.style.transform = 'scale(0.95)'; }, { passive: true });
-    this.btnFTap.addEventListener('touchend', () => { this.btnFTap.style.transform = 'scale(1)'; }, { passive: true });
+    toggleFavorite(duaId, categoryId) {
+        let favs = this.getFavorites();
+        const index = favs.findIndex(f => f.id == duaId);
+        let added = false;
 
-    this.fTargetBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        this.fTargetBtns.forEach(b => b.classList.remove('is-active'));
-        e.target.classList.add('is-active');
-        const t = e.target.getAttribute('data-target');
-        this.freeTarget = t === 'infinity' ? Infinity : parseInt(t, 10);
-      });
-    });
-  }
+        if (index > -1) {
+            favs.splice(index, 1); // E heq nëse ekziston
+        } else {
+            favs.push({ id: duaId, categoryId: categoryId }); // E shton nëse s'ekziston
+            added = true;
+        }
 
-  // --- GUIDED PLAYER LOGIC ---
+        localStorage.setItem('hayat_favorite_duas', JSON.stringify(favs));
+        return added;
+    },
 
-  startGuidedPlaylist(type) {
-    if (!this.adhkarData[type] || this.adhkarData[type].length === 0) {
-      alert("Të dhënat po ngarkohen. Ju lutem provoni përsëri.");
-      return;
-    }
+    async renderFavorites() {
+        const container = document.getElementById('favorites-carousel');
+        if (!container) return;
 
-    const titles = {
-      morning: 'Dhikri i Mëngjesit',
-      evening: 'Dhikri i Mbrëmjes',
-      sleep: 'Para Fjetjes'
-    };
-
-    this.pTitle.textContent = titles[type];
-    this.currentPlaylist = this.adhkarData[type];
-    this.currentIndex = 0;
-    this.currentDuaCount = 0;
-    
-    this.renderCurrentDua();
-    this.switchView('player');
-  }
-
-  renderCurrentDua() {
-    const dua = this.currentPlaylist[this.currentIndex];
-    this.currentDuaCount = 0;
-
-    this.pProgressText.textContent = `${this.currentIndex + 1}/${this.currentPlaylist.length}`;
-    this.pProgressBar.style.width = `${((this.currentIndex + 1) / this.currentPlaylist.length) * 100}%`;
-    
-    this.pDuaTitle.textContent = dua.title;
-    this.pTargetText.textContent = `${dua.target} herë`;
-    
-    this.pArabic.textContent = dua.arabic;
-    this.pTransl.textContent = dua.transliteration;
-    this.pTrans.textContent = dua.translation;
-    this.pSource.textContent = dua.source;
-    this.pVirtue.textContent = dua.virtue;
-    
-    this.pCount.textContent = '0';
-    this.updatePlayerButtons();
-  }
-
-  handlePlayerTap() {
-    const dua = this.currentPlaylist[this.currentIndex];
-    if (this.currentDuaCount < dua.target) {
-      this.currentDuaCount++;
-      this.incrementGlobalCount(1);
-      this.pCount.textContent = this.currentDuaCount;
-      
-      if (this.currentDuaCount === dua.target) {
-        this.vibrate([100, 50, 100]); // Target reached haptic
-        this.btnPTap.style.borderColor = 'var(--color-success)';
+        const favs = this.getFavorites();
         
-        // Auto-advance
-        setTimeout(() => {
-          this.btnPTap.style.borderColor = 'var(--color-accent-gold)';
-          this.navigatePlayer(1);
-        }, 600);
-      } else {
-        this.vibrate(15); // Light tap haptic
-      }
+        if (favs.length === 0) {
+            container.innerHTML = `
+                <div style="width: 100%; padding: var(--space-4); text-align: center; border: 1px dashed var(--color-border); border-radius: var(--radius-lg); color: var(--color-text-tertiary); font-size: 13px;">
+                    Nuk keni ruajtur ende asnjë lutje.<br>Klikoni ikonën e "Bookmark" për t'i shtuar këtu.
+                </div>
+            `;
+            return;
+        }
+
+        const data = await this.loadData();
+        if (!data) return;
+
+        let html = '';
+        favs.forEach(fav => {
+            const category = data.categories.find(c => c.id == fav.categoryId);
+            if (category) {
+                const dua = category.duas.find(d => d.id == fav.id);
+                if (dua) {
+                    html += `
+                        <div class="card js-open-fav" data-cat="${fav.categoryId}" data-id="${fav.id}" style="min-width: 140px; padding: var(--space-3); background: var(--color-bg-elevated); cursor: pointer;">
+                            <div style="background: var(--color-accent-teal-alpha); width: 32px; height: 32px; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-2);">
+                                <i data-lucide="bookmark" style="width: 16px; color: var(--color-accent-teal); fill: var(--color-accent-teal);"></i>
+                            </div>
+                            <h4 class="font-semibold text-sm line-clamp-2" style="font-size: 13px;">${dua.title}</h4>
+                        </div>
+                    `;
+                }
+            }
+        });
+
+        container.innerHTML = html;
+        if (window.lucide) window.lucide.createIcons();
+
+        // Lidhim klikimin e kartave të të preferuarave që t'i hapë direkt
+        container.querySelectorAll('.js-open-fav').forEach(item => {
+            item.addEventListener('click', () => {
+                const catId = item.getAttribute('data-cat');
+                const duaId = item.getAttribute('data-id');
+                const cat = data.categories.find(c => c.id == catId);
+                const duaIndex = cat.duas.findIndex(d => d.id == duaId);
+                this.openDuaBottomSheet(cat.duas, duaIndex, catId);
+            });
+        });
+    },
+    // ---------------------------------------------
+
+    async initCategoryView(categoryId) {
+        const data = await this.loadData();
+        if (!data) return;
+
+        const category = data.categories.find(c => c.id == categoryId);
+        const titleEl = document.getElementById('category-title');
+        const subtitleEl = document.getElementById('category-subtitle');
+        const listContainer = document.getElementById('duas-list');
+
+        if (!category || !listContainer) return;
+
+        if (titleEl) titleEl.innerText = category.name;
+        if (subtitleEl) subtitleEl.innerText = `${category.count} lutje gjithsej`;
+
+        let listHTML = '';
+        category.duas.forEach((dua, index) => {
+            listHTML += `
+                <div class="card js-open-dua" data-index="${index}" style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--color-bg-elevated); border: 1px solid var(--color-border); cursor: pointer;">
+                    <div style="font-size: 14px; font-weight: 700; color: var(--color-accent-teal); min-width: 24px;">
+                        ${dua.id}.
+                    </div>
+                    <div style="flex-grow: 1; font-weight: 600; font-size: 14px; color: var(--color-text-primary);">
+                        ${dua.title}
+                    </div>
+                    <i data-lucide="chevron-right" style="width: 16px; color: var(--color-text-tertiary);"></i>
+                </div>
+            `;
+        });
+
+        listContainer.innerHTML = listHTML;
+        if (window.lucide) window.lucide.createIcons();
+
+        this.bindDuaClicks(category.duas, categoryId);
+    },
+
+    bindDuaClicks(categoryDuas, categoryId) {
+        const items = document.querySelectorAll('.js-open-dua');
+        items.forEach(item => {
+            item.addEventListener('click', (e) => {
+                const index = parseInt(e.currentTarget.getAttribute('data-index'));
+                this.openDuaBottomSheet(categoryDuas, index, categoryId);
+            });
+        });
+    },
+
+        openDuaBottomSheet(categoryDuas, currentIndex, categoryId) {
+        const dua = categoryDuas[currentIndex];
+        const isFav = this.isFavorite(dua.id); 
+        
+        import('../core/ui.js').then(({ ui }) => {
+            const sheetHTML = `
+                <div style="padding-bottom: var(--space-4);" id="dua-reader-content">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+                        <span class="badge badge--teal" style="font-size: 11px;">Lutja ${dua.id}</span>
+                        <div style="display: flex; gap: var(--space-2);">
+                            <button id="bookmark-btn" class="btn btn--icon btn--secondary" style="border-radius: var(--radius-full); width: 36px; height: 36px; color: ${isFav ? 'var(--color-accent-teal)' : 'var(--color-text-secondary)'};">
+                                <i data-lucide="bookmark" style="width: 16px; ${isFav ? 'fill: currentColor;' : ''}"></i>
+                            </button>
+                            <!-- Mbyllja tani do të ndalojë edhe audion nëse është duke luajtur -->
+                            <button class="btn btn--icon btn--secondary" id="close-sheet-btn" style="border-radius: var(--radius-full); width: 36px; height: 36px;">
+                                <i data-lucide="x" style="width: 16px; color: var(--color-text-secondary);"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Butoni i Audios i përditësuar -->
+                    <button id="audio-btn" data-audio-src="${dua.audio || ''}" class="btn btn--secondary flex-row" style="gap: 6px; width: 100%; justify-content: center; margin-bottom: var(--space-4); border-radius: var(--radius-md); padding: 10px; ${!dua.audio ? 'opacity: 0.5; pointer-events: none;' : ''}">
+                        <i data-lucide="play" id="audio-icon" style="width: 16px; fill: currentColor;"></i>
+                        <span id="audio-text" style="font-size: 13px; font-weight: 600;">${dua.audio ? 'Dëgjo Audion' : 'Audio nuk ofrohet'}</span>
+                    </button>
+
+                    <div class="quran-text" style="color: var(--color-accent-gold); font-size: 24px; text-align: right; line-height: 2; margin-bottom: var(--space-4); direction: rtl;">
+                        ${dua.arabic}
+                    </div>
+
+                    <p style="font-size: 13px; font-style: italic; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: var(--space-3); border-left: 2px solid var(--color-accent-teal); padding-left: var(--space-2);">
+                        "${dua.transliteration}"
+                    </p>
+
+                    <p style="font-size: 14px; font-weight: 500; color: var(--color-text-primary); line-height: 1.6; margin-bottom: var(--space-4);">
+                        ${dua.translation}
+                    </p>
+
+                    <button id="counter-btn" data-max="${dua.count}" class="btn btn--primary" style="width: 100%; padding: var(--space-3); font-weight: 700; border-radius: var(--radius-lg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: var(--color-accent-teal);">
+                        <span id="counter-title" style="font-size: 16px;">Kliko për të numëruar</span>
+                        <span id="counter-display" style="font-size: 12px; opacity: 0.8;">Përsërit: 0 / ${dua.count}</span>
+                    </button>
+                </div>
+            `;
+            
+            const existingContent = document.getElementById('dua-reader-content');
+            if (existingContent) {
+                // Fikim audion e mëparshme nëse po luan kur bëjmë auto-next
+                if (window.currentDuaAudio) {
+                    window.currentDuaAudio.pause();
+                    window.currentDuaAudio = null;
+                }
+                
+                existingContent.parentElement.innerHTML = sheetHTML;
+                if (window.lucide) window.lucide.createIcons();
+                this.initCounterLogic(categoryDuas, currentIndex, categoryId);
+                this.initBookmarkLogic(dua.id, categoryId);
+                this.initAudioLogic();
+            } else {
+                ui.openBottomSheet(sheetHTML);
+                this.initCounterLogic(categoryDuas, currentIndex, categoryId);
+                this.initBookmarkLogic(dua.id, categoryId);
+                this.initAudioLogic();
+            }
+
+            // Mbyllja e overlay-t duhet të fikë audion
+            document.getElementById('close-sheet-btn').addEventListener('click', () => {
+                if (window.currentDuaAudio) {
+                    window.currentDuaAudio.pause();
+                    window.currentDuaAudio = null;
+                }
+                document.getElementById('global-overlay').click();
+            });
+        });
+    },
+
+    initAudioLogic() {
+        const btn = document.getElementById('audio-btn');
+        const icon = document.getElementById('audio-icon');
+        const text = document.getElementById('audio-text');
+        if (!btn) return;
+
+        const src = btn.getAttribute('data-audio-src');
+        if (!src) return;
+
+        let isPlaying = false;
+
+        btn.addEventListener('click', () => {
+            if (!isPlaying) {
+                // Ndez audion
+                if (!window.currentDuaAudio) {
+                    window.currentDuaAudio = new Audio(src);
+                    
+                    // Kur të mbarojë audio, ktheje butonin siç ishte
+                    window.currentDuaAudio.addEventListener('ended', () => {
+                        isPlaying = false;
+                        text.innerText = 'Dëgjo Audion';
+                        icon.setAttribute('data-lucide', 'play');
+                        if (window.lucide) window.lucide.createIcons();
+                    });
+                }
+                window.currentDuaAudio.play();
+                isPlaying = true;
+                text.innerText = 'Ndalo Audion';
+                icon.setAttribute('data-lucide', 'pause');
+            } else {
+                // Ndalon audion
+                if (window.currentDuaAudio) {
+                    window.currentDuaAudio.pause();
+                }
+                isPlaying = false;
+                text.innerText = 'Dëgjo Audion';
+                icon.setAttribute('data-lucide', 'play');
+            }
+            if (window.lucide) window.lucide.createIcons();
+        });
+    },
+
+    initBookmarkLogic(duaId, categoryId) {
+        const btn = document.getElementById('bookmark-btn');
+        if (!btn) return;
+
+        btn.addEventListener('click', () => {
+            const isNowFav = this.toggleFavorite(duaId, categoryId);
+            
+            // Ndryshojmë pamjen e butonit me animacion të vogël
+            if (isNowFav) {
+                btn.style.color = 'var(--color-accent-teal)';
+                btn.innerHTML = `<i data-lucide="bookmark" style="width: 16px; fill: currentColor;"></i>`;
+            } else {
+                btn.style.color = 'var(--color-text-secondary)';
+                btn.innerHTML = `<i data-lucide="bookmark" style="width: 16px;"></i>`;
+            }
+            if (window.lucide) window.lucide.createIcons();
+
+            // Ringarkojmë listën e favoriteve mbrapa skenës që kur të kthehemi të jetë gati
+            this.renderFavorites();
+        });
+    },
+
+    initCounterLogic(categoryDuas, currentIndex, categoryId) {
+        const btn = document.getElementById('counter-btn');
+        const display = document.getElementById('counter-display');
+        const title = document.getElementById('counter-title');
+        if (!btn || !display) return;
+
+        let currentCount = 0;
+        const max = parseInt(btn.getAttribute('data-max'));
+
+        btn.addEventListener('click', () => {
+            if (currentCount < max) {
+                currentCount++;
+                display.innerText = `Përsërit: ${currentCount} / ${max}`;
+                
+                if (navigator.vibrate) navigator.vibrate(50);
+
+                if (currentCount === max) {
+                    btn.style.background = '#10B981'; 
+                    title.innerText = 'U krye! ✓';
+                    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+
+                    if (currentIndex + 1 < categoryDuas.length) {
+                        setTimeout(() => {
+                            this.openDuaBottomSheet(categoryDuas, currentIndex + 1, categoryId);
+                        }, 1000);
+                    } else {
+                        setTimeout(() => {
+                            title.innerText = 'Kategoria përfundoi!';
+                            document.getElementById('global-overlay').click(); 
+                        }, 1200);
+                    }
+                }
+            }
+        });
+    },
+
+    async bindSearch() {
+        // ... (Kodi i kërkimit mbetet i njëjtë, s'ka nevojë për ndryshime këtu)
+        const searchInput = document.getElementById('dua-search');
+        if (!searchInput) return;
+
+        const data = await this.loadData();
+        if (!data) return;
+
+        const resultsDiv = document.createElement('div');
+        resultsDiv.style.cssText = 'position: absolute; top: 100%; left: 0; right: 0; background: var(--color-bg-elevated); border: 1px solid var(--color-border); border-radius: var(--radius-md); margin-top: 8px; z-index: 100; max-height: 300px; overflow-y: auto; display: none; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);';
+        searchInput.parentElement.appendChild(resultsDiv);
+
+        const allDuas = data.categories.flatMap(cat => cat.duas.map(dua => ({...dua, categoryId: cat.id})));
+
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            if (term.length < 2) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+
+            const filtered = allDuas.filter(dua => 
+                dua.title.toLowerCase().includes(term) || 
+                dua.translation.toLowerCase().includes(term)
+            );
+
+            if (filtered.length > 0) {
+                resultsDiv.innerHTML = filtered.map(dua => `
+                    <div class="search-result-item" data-id="${dua.id}" data-cat="${dua.categoryId}" style="padding: 12px; border-bottom: 1px solid var(--color-border); cursor: pointer;">
+                        <div style="font-weight: 600; font-size: 14px; color: var(--color-text-primary);">${dua.title}</div>
+                        <div style="font-size: 12px; color: var(--color-text-tertiary);" class="line-clamp-1">${dua.translation}</div>
+                    </div>
+                `).join('');
+                resultsDiv.style.display = 'block';
+
+                resultsDiv.querySelectorAll('.search-result-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const catId = item.getAttribute('data-cat');
+                        const duaId = item.getAttribute('data-id');
+                        const cat = data.categories.find(c => c.id == catId);
+                        const duaIndex = cat.duas.findIndex(d => d.id == duaId);
+                        
+                        resultsDiv.style.display = 'none';
+                        searchInput.value = '';
+                        this.openDuaBottomSheet(cat.duas, duaIndex, catId);
+                    });
+                });
+            } else {
+                resultsDiv.innerHTML = '<div style="padding: 12px; font-size: 13px; color: var(--color-text-tertiary); text-align: center;">Nuk u gjet asnjë lutje.</div>';
+                resultsDiv.style.display = 'block';
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!searchInput.parentElement.contains(e.target)) {
+                resultsDiv.style.display = 'none';
+            }
+        });
     }
-  }
-
-  navigatePlayer(dir) {
-    const newIndex = this.currentIndex + dir;
-    if (newIndex >= 0 && newIndex < this.currentPlaylist.length) {
-      this.currentIndex = newIndex;
-      this.renderCurrentDua();
-    } else if (newIndex >= this.currentPlaylist.length) {
-      // Completed playlist
-      alert(`Ma sha Allah! Përfundove ${this.pTitle.textContent}. Zoti ta pranoftë!`);
-      this.switchView('home');
-    }
-  }
-
-  updatePlayerButtons() {
-    this.btnPPrev.style.opacity = this.currentIndex === 0 ? '0.3' : '1';
-    this.btnPPrev.style.pointerEvents = this.currentIndex === 0 ? 'none' : 'auto';
-  }
-
-  // --- FREE COUNTER LOGIC ---
-
-  handleFreeTap() {
-    this.freeCount++;
-    this.incrementGlobalCount(1);
-    this.fCount.textContent = this.freeCount;
-
-    if (this.freeCount === this.freeTarget) {
-      this.vibrate([100, 50, 100]);
-      this.freeCount = 0; // Auto reset
-      setTimeout(() => { this.fCount.textContent = '0'; }, 500);
-    } else {
-      this.vibrate(15);
-    }
-  }
-
-  // --- UTILS ---
-  vibrate(pattern) {
-    if (navigator.vibrate) navigator.vibrate(pattern);
-  }
-}
-
-export const dhikrModule = new DhikrModule();
+};

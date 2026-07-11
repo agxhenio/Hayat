@@ -432,3 +432,41 @@
 @keyframes spin-slow {
     100% { transform: rotate(360deg); }
 }
+
+
+/* Opsionet e Regjistrimit të Namazit në Bottom Sheet */
+.prayer-options-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.prayer-option-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    width: 100%;
+    text-align: left;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.prayer-option-btn:hover, 
+.prayer-option-btn:active {
+    border-color: var(--color-accent-teal);
+    background: linear-gradient(145deg, rgba(46, 204, 113, 0.05), transparent);
+}
+
+.prayer-option-btn .option-icon {
+    font-size: 24px;
+}
+
+.prayer-option-btn .option-text {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+}

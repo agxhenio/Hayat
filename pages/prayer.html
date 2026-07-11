@@ -40,8 +40,8 @@
 
     <!-- Lista e Namazeve -->
     <div class="prayer-list">
-        <!-- Namazi i Kalur (Falur) -->
-        <div class="prayer-card completed">
+        <!-- Sabahu -->
+        <div class="prayer-card">
             <div class="prayer-card-left">
                 <div class="prayer-icon-wrapper"><i data-lucide="sunrise"></i></div>
                 <div class="prayer-info">
@@ -49,13 +49,11 @@
                     <p>05:25</p>
                 </div>
             </div>
-            <div class="prayer-status">
-                <i data-lucide="check" style="width: 16px;"></i>
-            </div>
+            <div class="prayer-status"></div>
         </div>
 
-        <!-- Namazi Aktual -->
-        <div class="prayer-card active">
+        <!-- Dreka -->
+        <div class="prayer-card">
             <div class="prayer-card-left">
                 <div class="prayer-icon-wrapper"><i data-lucide="sun"></i></div>
                 <div class="prayer-info">
@@ -66,7 +64,7 @@
             <div class="prayer-status"></div>
         </div>
 
-        <!-- Namazet në Pritje -->
+        <!-- Ikindia -->
         <div class="prayer-card">
             <div class="prayer-card-left">
                 <div class="prayer-icon-wrapper"><i data-lucide="cloud-sun"></i></div>
@@ -78,6 +76,7 @@
             <div class="prayer-status"></div>
         </div>
 
+        <!-- Akshami -->
         <div class="prayer-card">
             <div class="prayer-card-left">
                 <div class="prayer-icon-wrapper"><i data-lucide="sunset"></i></div>
@@ -89,6 +88,7 @@
             <div class="prayer-status"></div>
         </div>
 
+        <!-- Jacia -->
         <div class="prayer-card">
             <div class="prayer-card-left">
                 <div class="prayer-icon-wrapper"><i data-lucide="moon"></i></div>
@@ -100,37 +100,37 @@
             <div class="prayer-status"></div>
         </div>
     </div>
-    
+
+    <!-- Bottom Sheet: Si u fale? -->
     <div id="prayer-action-sheet" class="bottom-sheet" aria-hidden="true">
-    <div class="bottom-sheet-overlay" data-close-sheet></div>
-    <div class="bottom-sheet-content">
-        <div class="bottom-sheet-header">
-            <div class="bottom-sheet-drag"></div>
-            <h3 id="action-sheet-title" style="text-align: center; margin: 0; font-size: 18px;">Regjistro Namazin</h3>
-        </div>
-        <div class="bottom-sheet-body" style="padding: var(--space-4);">
-            <p style="text-align: center; color: var(--color-text-secondary); margin-bottom: var(--space-4);">Si e fale këtë namaz?</p>
-            
-            <div class="prayer-options-list">
-                <button class="prayer-option-btn" data-method="mosque">
-                    <span class="option-icon">🕌</span>
-                    <span class="option-text">Në xhami me xhemat</span>
-                </button>
-                <button class="prayer-option-btn" data-method="home">
-                    <span class="option-icon">👨‍👦</span>
-                    <span class="option-text">Në shtëpi me xhemat</span>
-                </button>
-                <button class="prayer-option-btn" data-method="alone">
-                    <span class="option-icon">🧎</span>
-                    <span class="option-text">Vetëm</span>
-                </button>
-                <button class="prayer-option-btn" data-method="kaza">
-                    <span class="option-icon">⏰</span>
-                    <span class="option-text">Kaza (Jashtë kohës)</span>
-                </button>
+        <div class="bottom-sheet-overlay" data-close-sheet></div>
+        <div class="bottom-sheet-content">
+            <div class="bottom-sheet-header">
+                <div class="bottom-sheet-drag"></div>
+                <h3 id="action-sheet-title" style="text-align: center; margin: 0; font-size: 18px;">Regjistro Namazin</h3>
+            </div>
+            <div class="bottom-sheet-body" style="padding: var(--space-4);">
+                <p style="text-align: center; color: var(--color-text-secondary); margin-bottom: var(--space-4);">Si e fale këtë namaz?</p>
+                
+                <div class="prayer-options-list">
+                    <button class="prayer-option-btn" data-method="mosque">
+                        <span class="option-icon">🕌</span>
+                        <span class="option-text">Në xhami me xhemat</span>
+                    </button>
+                    <button class="prayer-option-btn" data-method="home">
+                        <span class="option-icon">👨‍👦</span>
+                        <span class="option-text">Në shtëpi me xhemat</span>
+                    </button>
+                    <button class="prayer-option-btn" data-method="alone">
+                        <span class="option-icon">🧎</span>
+                        <span class="option-text">Vetëm</span>
+                    </button>
+                    <button class="prayer-option-btn" data-method="kaza">
+                        <span class="option-icon">⏰</span>
+                        <span class="option-text">Kaza (Jashtë kohës)</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
 </div>

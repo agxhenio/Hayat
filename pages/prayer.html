@@ -1,0 +1,44 @@
+<!-- 
+  PAGES: Prayer Times (prayer.html)
+-->
+
+<div class="prayer-page animate-fade-in" style="padding: var(--space-4);">
+  
+  <header style="text-align: center; margin-bottom: var(--space-8); margin-top: var(--space-4);">
+    <h1 style="font-size: var(--font-size-3xl); margin-bottom: var(--space-1);">Kohët e Namazit</h1>
+    <p style="color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center; gap: var(--space-2);">
+      <i data-lucide="map-pin" style="width: 16px;"></i> 
+      <span id="location-name">Tiranë, Shqipëri</span>
+    </p>
+  </header>
+
+  <!-- Qibla Compass Button (Placeholder for feature) -->
+  <button class="card card--glass" style="width: 100%; display: flex; align-items: center; justify-content: space-between; padding: var(--space-4); margin-bottom: var(--space-6); border: 1px solid var(--color-accent-teal);">
+    <div style="display: flex; align-items: center; gap: var(--space-3);">
+      <div class="avatar avatar--md" style="background-color: var(--color-bg-elevated); color: var(--color-accent-teal);">
+        <i data-lucide="compass"></i>
+      </div>
+      <div style="text-align: left;">
+        <h3 style="font-size: var(--font-size-base);">Gjej Kiblën</h3>
+        <p style="font-size: var(--font-size-xs); margin: 0; color: var(--color-text-secondary);">Hap busullën interaktive</p>
+      </div>
+    </div>
+    <i data-lucide="chevron-right" style="color: var(--color-text-tertiary);"></i>
+  </button>
+
+  <!-- Prayer List Container -->
+  <div class="card card--elevated" style="padding: 0;">
+    <div id="prayer-list-container">
+      <!-- Injected by JS: 
+      <div class="list-item">
+        <div class="list-item__content">Sabahu</div>
+        <div style="font-weight: bold; font-size: 1.25rem;">04:12</div>
+      </div>
+      -->
+      <div style="padding: var(--space-6); text-align: center;">
+        <div class="spinner--islamic" style="margin: 0 auto;"></div>
+      </div>
+    </div>
+  </div>
+
+</div>

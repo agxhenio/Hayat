@@ -1,0 +1,12 @@
+[
+  { "id": "mengjes_mbremje", "name": "Mëngjes dhe Mbrëmje", "icon": "sunrise", "color": "var(--color-accent-gold)", "count": "30 lutje" },
+  { "id": "shtepia_familja", "name": "Shtëpia dhe Familja", "icon": "home", "color": "var(--color-success)", "count": "15 lutje" },
+  { "id": "udhetim", "name": "Udhëtim", "icon": "plane", "color": "var(--color-info)", "count": "8 lutje" },
+  { "id": "ushqim_pije", "name": "Ushqim dhe Pije", "icon": "coffee", "color": "var(--color-warning)", "count": "10 lutje" },
+  { "id": "gezim_shqetesim", "name": "Gëzim dhe Shqetësim", "icon": "heart", "color": "var(--color-danger)", "count": "12 lutje" },
+  { "id": "namazi", "name": "Namazi", "icon": "moon", "color": "var(--color-accent-teal)", "count": "20 lutje" },
+  { "id": "shendeti", "name": "Shëndeti", "icon": "activity", "color": "var(--color-success)", "count": "9 lutje" },
+  { "id": "dituria_puna", "name": "Dituria dhe Puna", "icon": "book-open", "color": "var(--color-info)", "count": "7 lutje" },
+  { "id": "rrizku_borxhi", "name": "Rrizku dhe Borxhi", "icon": "briefcase", "color": "var(--color-warning)", "count": "6 lutje" },
+  { "id": "vdekja", "name": "Vdekja dhe Varreza", "icon": "feather", "color": "var(--color-text-secondary)", "count": "11 lutje" }
+]

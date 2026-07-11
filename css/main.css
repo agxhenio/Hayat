@@ -1,0 +1,54 @@
+/* ==========================================================================
+   MAIN STYLESHEET (main.css)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+
+@import 'variables.css';
+@import 'reset.css';
+@import 'base.css';
+@import 'components.css';
+@import 'animations.css';
+@import 'themes.css';
+
+
+
+/* ==========================================
+   MBUROJA BOX GRID DESIGN
+   ========================================== */
+.mburoja-box {
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5) var(--space-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.1s ease, background-color 0.1s ease;
+  cursor: pointer;
+}
+
+.mburoja-box:active {
+  transform: scale(0.94);
+  background-color: var(--color-bg-tertiary);
+}
+
+.mburoja-box-icon {
+  width: 56px;
+  height: 56px;
+  background-color: var(--color-bg-primary); /* Sfond pak më i errët se kutia */
+  border-radius: 18px; /* Kënde të buta si app icon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-3);
+}
+/* Rregullimi i paragrafëve për Suret dhe Lutjet e gjata */
+.arabic-quran, 
+p[id*="transliteration"], 
+p[id*="translation"],
+p[id*="arabic"],
+p[id*="context"] {
+    white-space: pre-line !important;
+}

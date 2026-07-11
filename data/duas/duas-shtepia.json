@@ -1,0 +1,84 @@
+{
+  "category_id": "shtepia_familja",
+  "category_name": "Shtëpia dhe Familja",
+  "icon": "home",
+  "duas": [
+    {
+      "id": "veshja_rroba",
+      "name": "2. Duaja kur veshim rrobat",
+      "short_description": "Falënderimi për atë që na mundëson veshjen",
+      "arabic": "الْحَمْدُ لِلَّهِ الَّذِي كَسَانِي هَذَا (الثَّوْبَ) وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ",
+      "transliteration": "Elhamdu lil-lahil-ledhi kesani hadha (eth-thewbe) we razekanihi min gajri hawlin minni we la kuwweh.",
+      "translation": "Lavdia i takon Allahut, i Cili më mundësoi të vesh këtë rrobë dhe më furnizoi me të, pa lëvizje dhe pa fuqi nga ana ime.",
+      "repeat": 1,
+      "virtue": "Kush e thotë këtë, i falen mëkatet e mëparshme.",
+      "source": "Ebu Davudi, Tirmidhiu, Ibn Maxheh"
+    },
+    {
+      "id": "zhveshja",
+      "name": "5. Kur e zhveshim rrobën",
+      "short_description": "Për t'u mbrojtur nga sytë e xhindëve",
+      "arabic": "بِسْمِ اللَّهِ",
+      "transliteration": "Bismil-lah.",
+      "translation": "Me emrin e Allahut.",
+      "repeat": 1,
+      "virtue": "Mbulon auretin (pjesët e turpshme) nga sytë e xhindëve.",
+      "source": "Tirmidhiu"
+    },
+    {
+      "id": "hyrje_tualet",
+      "name": "6. Para se të hyjmë në tualet",
+      "short_description": "Mbrojtja nga e keqja e atij vendi",
+      "arabic": "(بِسْمِ اللَّهِ) اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبْثِ وَالْخَبَائِثِ",
+      "transliteration": "(Bismil-lah) Allahumme inni e'udhu bike minel-khubthi wel-khabaith.",
+      "translation": "(Me emrin e Allahut) O Allah, kërkoj mbrojtjen Tënde nga shejtanët dhe shejtanet.",
+      "repeat": 1,
+      "virtue": "Mbrojtje nga papastërtitë dhe shejtanët.",
+      "source": "Buhariu dhe Muslimi"
+    },
+    {
+      "id": "dalje_tualet",
+      "name": "7. Pasi të dalim nga tualeti",
+      "short_description": "Kërkimi i faljes",
+      "arabic": "غُفْرَانَكَ",
+      "transliteration": "Gufraneke.",
+      "translation": "Kërkoj faljen Tënde (O Allah).",
+      "repeat": 1,
+      "virtue": "Falënderim që trupi u pastrua nga ajo që e dëmton.",
+      "source": "Ebu Davudi, Tirmidhiu"
+    },
+    {
+      "id": "dalje_shtepi",
+      "name": "10. Kur dalim nga shtëpia",
+      "short_description": "Mbështetja tek Krijuesi para se të dalësh",
+      "arabic": "بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
+      "transliteration": "Bismil-lah, tewekkeltu 'alell-llah, we la hawle we la kuwwete il-la bil-lah.",
+      "translation": "Me emrin e Allahut, u mbështeta tek Allahu, s'ka ndryshim (nga një gjendje në tjetrën) e as fuqi pa ndihmën e Allahut.",
+      "repeat": 1,
+      "virtue": "Engjëlli të thotë: 'Je udhëzuar, je ruajtur dhe të mjafton (Allahu)', dhe shejtanët largohen.",
+      "source": "Ebu Davudi, Tirmidhiu"
+    },
+    {
+      "id": "hyrje_shtepi",
+      "name": "11. Kur hyjmë në shtëpi",
+      "short_description": "Lutja e hyrjes në vatër",
+      "arabic": "بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى رَبِّنَا تَوَكَّلْنَا",
+      "transliteration": "Bismil-lahi welexhna, we bismil-lahi kharexhna we 'ala Rabbina tewekkelna.",
+      "translation": "Me emrin e Allahut hymë dhe me emrin e Allahut dolëm, dhe tek Zoti ynë jemi mbështetur.\n(Pastaj le t'i japë selam familjes së tij).",
+      "repeat": 1,
+      "virtue": "Kur përmend Allahun në hyrje dhe në ushqim, shejtani thotë: 'S'ka fjetje e as darkë për ne këtu'.",
+      "source": "Ebu Davudi"
+    },
+    {
+      "id": "martese",
+      "name": "79. Duaja për të posamartuarit",
+      "short_description": "Kur viziton ose uron nusen/dhëndrin",
+      "arabic": "بَارَكَ اللَّهُ لَكَ، وَبَارَكَ عَلَيْكَ، وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ",
+      "transliteration": "Barekell-llahu leke we bareke 'alejke we xheme'a bejnekuma fi khajr.",
+      "translation": "Allahu ju bekoftë të dyve, derdhtë bekime mbi ju dhe ju bashkoftë në të mirë!",
+      "repeat": 1,
+      "virtue": "Lutje gjithëpërfshirëse për mbarësi dhe harmoni në çift.",
+      "source": "Ebu Davudi, Tirmidhiu"
+    }
+  ]
+}

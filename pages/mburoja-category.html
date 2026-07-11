@@ -1,0 +1,18 @@
+<!-- pages/mburoja-category.html -->
+<div class="mburoja-category-page animate-slide-up" style="padding: var(--space-4); padding-top: calc(var(--space-4) + env(safe-area-inset-top)); min-height: 100vh; background-color: var(--color-bg-primary); position: fixed; inset: 0; z-index: var(--z-modal); display: flex; flex-direction: column;">
+  
+  <header style="display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-6); border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-4);">
+    <button class="btn btn--ghost btn--icon btn-back-to-home" style="border-radius: var(--radius-full);">
+      <i data-lucide="chevron-left"></i>
+    </button>
+    <div>
+      <h2 id="category-title" style="font-size: var(--font-size-xl); margin: 0;">-</h2>
+      <p id="category-count" style="font-size: var(--font-size-sm); color: var(--color-text-tertiary); margin: 0;">-</p>
+    </div>
+  </header>
+
+  <div id="category-duas-list" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-3); padding-bottom: var(--space-20);" class="no-scrollbar">
+    <!-- Lista e lutjeve injektohet këtu -->
+  </div>
+
+</div>

@@ -1,0 +1,85 @@
+<!-- 
+  PAGES: Dashboard (dashboard.html)
+  Kjo injektohet në #app-content nga router.js 
+-->
+
+<div class="dashboard-page animate-fade-in" style="padding: var(--space-4);">
+  
+  <!-- Header / Greeting Section -->
+  <header style="margin-bottom: var(--space-6); display: flex; justify-content: space-between; align-items: flex-end;">
+    <div>
+      <p style="color: var(--color-text-tertiary); font-size: var(--font-size-sm); margin-bottom: var(--space-1);" id="dash-date">
+        <!-- Date will be injected here -->
+      </p>
+      <h1 style="font-size: var(--font-size-2xl);" id="dash-greeting">
+        <!-- Greeting will be injected here -->
+      </h1>
+      <p style="color: var(--color-accent-gold); font-weight: var(--font-weight-medium); font-size: var(--font-size-sm);" id="dash-hijri">
+        <!-- Hijri Date here -->
+      </p>
+    </div>
+    <div class="avatar avatar--md">
+      <i data-lucide="user"></i>
+    </div>
+  </header>
+
+  <!-- Next Prayer Hero Card -->
+  <section class="card card--gradient" style="margin-bottom: var(--space-6); text-align: center; padding: var(--space-6) var(--space-4);">
+    <div class="badge badge--gold" style="margin-bottom: var(--space-4);">Koha e ardhshme</div>
+    
+    <h2 style="font-size: var(--font-size-4xl); margin-bottom: var(--space-2); color: #fff;">Asr</h2>
+    <p style="font-size: var(--font-size-lg); color: rgba(255,255,255,0.8); margin-bottom: var(--space-6);">16:45 PM</p>
+    
+    <div style="display: flex; justify-content: center; align-items: center; gap: var(--space-4);">
+      <div style="text-align: center;">
+        <span style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); font-variant-numeric: tabular-nums;">02</span>
+        <div style="font-size: var(--font-size-xs); color: rgba(255,255,255,0.6); text-transform: uppercase;">Orë</div>
+      </div>
+      <span style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-top: -15px;">:</span>
+      <div style="text-align: center;">
+        <span style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); font-variant-numeric: tabular-nums;">34</span>
+        <div style="font-size: var(--font-size-xs); color: rgba(255,255,255,0.6); text-transform: uppercase;">Min</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Actions Grid -->
+  <section style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-6);">
+    <!-- Dhikr Button -->
+    <a href="#/dhikr" class="card card--elevated" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: var(--space-4);">
+      <div class="btn--icon" style="background-color: hsla(var(--h-accent-teal), var(--s-accent-teal), var(--l-accent-teal), 0.15); color: var(--color-accent-teal); margin-bottom: var(--space-3);">
+        <i data-lucide="activity"></i>
+      </div>
+      <h3 style="font-size: var(--font-size-base); margin-bottom: var(--space-1);">Dhikr</h3>
+      <p style="font-size: var(--font-size-xs); margin: 0;">Tespih digjital</p>
+    </a>
+    
+    <!-- Quran Button -->
+    <a href="#/quran" class="card card--elevated" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: var(--space-4);">
+      <div class="btn--icon" style="background-color: hsla(var(--h-accent-gold), var(--s-accent-gold), var(--l-accent-gold), 0.15); color: var(--color-accent-gold); margin-bottom: var(--space-3);">
+        <i data-lucide="book-open"></i>
+      </div>
+      <h3 style="font-size: var(--font-size-base); margin-bottom: var(--space-1);">Lexo</h3>
+      <p style="font-size: var(--font-size-xs); margin: 0;">Vazhdo Kuranin</p>
+    </a>
+  </section>
+
+  <!-- Daily Inspiration / Ayah of the day -->
+  <section class="card card--elevated">
+    <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-4);">
+      <i data-lucide="bookmark" style="color: var(--color-accent-gold); width: 16px;"></i>
+      <h3 style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">Ajeti i Ditës</h3>
+    </div>
+    
+    <p class="arabic-quran" style="font-size: var(--font-size-ar-sm); text-align: center; margin-bottom: var(--space-4);">
+      إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا
+    </p>
+    <p style="font-style: italic; color: var(--color-text-secondary); text-align: center; margin-bottom: var(--space-2);">
+      "Me të vërtetë, pas vështirësisë vjen lehtësimi."
+    </p>
+    <p style="font-size: var(--font-size-xs); color: var(--color-text-tertiary); text-align: center; margin: 0;">
+      — Surah Ash-Sharh (94:6)
+    </p>
+  </section>
+  
+</div>

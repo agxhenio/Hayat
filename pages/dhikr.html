@@ -1,0 +1,184 @@
+<div class="dhikr-module animate-fade-in" style="height: 100%; display: flex; flex-direction: column;">
+
+  <!-- ==========================================
+       VIEW 1: DHIKR HOME (HUB)
+       ========================================== -->
+  <div id="dhikr-view-home" class="view-container" style="padding: var(--space-4);">
+    
+    <header style="margin-bottom: var(--space-6); margin-top: var(--space-4);">
+      <h1 style="font-size: var(--font-size-3xl);">Dhikri</h1>
+      <p style="color: var(--color-text-secondary); margin-bottom: var(--space-2);">Përmendja e Allahut</p>
+      <blockquote style="border-left: 2px solid var(--color-accent-gold); padding-left: var(--space-3); font-style: italic; font-size: var(--font-size-sm); color: var(--color-text-tertiary);">
+        "Përmendni Allahun, përmendje të shpeshtë." <br><span style="font-size: var(--font-size-xs);">- Sure El-Ahzab: 41</span>
+      </blockquote>
+    </header>
+
+    <!-- Today's Stats -->
+    <div class="card card--elevated" style="margin-bottom: var(--space-4); display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <p style="color: var(--color-text-tertiary); font-size: var(--font-size-sm); margin: 0;">Sot ke bërë</p>
+        <div style="display: flex; align-items: baseline; gap: var(--space-2);">
+          <span id="stat-today-count" style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-accent-gold);">0</span>
+          <span style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">dhikr</span>
+        </div>
+      </div>
+      <div class="badge" style="background-color: hsla(38, 92%, 50%, 0.15); color: var(--color-warning);">
+        <span id="stat-streak">🔥 0 ditë radhazi</span>
+      </div>
+    </div>
+
+    <!-- Dynamic Suggestion Card -->
+    <div id="dhikr-suggestion-card" class="card card--gradient" style="margin-bottom: var(--space-6); text-align: center; padding: var(--space-5);">
+      <!-- Injected via JS based on time -->
+    </div>
+
+    <h3 style="font-size: var(--font-size-lg); margin-bottom: var(--space-4);">Zgjidh Programin</h3>
+    
+    <!-- Navigation Grid -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-8);">
+      
+      <!-- Morning -->
+      <button class="card card--elevated dhikr-nav-btn" data-type="morning" style="text-align: left; background: linear-gradient(to bottom right, var(--color-bg-elevated), rgba(201, 168, 76, 0.05)); border: 1px solid rgba(201, 168, 76, 0.2);">
+        <i data-lucide="sunrise" style="color: var(--color-accent-gold); margin-bottom: var(--space-3); width: 28px; height: 28px;"></i>
+        <h4 style="font-size: var(--font-size-base); margin-bottom: var(--space-1);">Mëngjesi</h4>
+        <p style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin: 0;">Adhkar Sabahu</p>
+        <p style="font-size: var(--font-size-xs); color: var(--color-text-tertiary); margin-top: var(--space-2);">~10 min</p>
+      </button>
+
+      <!-- Evening -->
+      <button class="card card--elevated dhikr-nav-btn" data-type="evening" style="text-align: left; background: linear-gradient(to bottom right, var(--color-bg-elevated), rgba(234, 88, 12, 0.05)); border: 1px solid rgba(234, 88, 12, 0.2);">
+        <i data-lucide="sunset" style="color: #ea580c; margin-bottom: var(--space-3); width: 28px; height: 28px;"></i>
+        <h4 style="font-size: var(--font-size-base); margin-bottom: var(--space-1);">Mbrëmja</h4>
+        <p style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin: 0;">Adhkar Akshami</p>
+        <p style="font-size: var(--font-size-xs); color: var(--color-text-tertiary); margin-top: var(--space-2);">~10 min</p>
+      </button>
+
+      <!-- Sleep -->
+      <button class="card card--elevated dhikr-nav-btn" data-type="sleep" style="text-align: left; background: linear-gradient(to bottom right, var(--color-bg-elevated), rgba(13, 148, 136, 0.05)); border: 1px solid rgba(13, 148, 136, 0.2);">
+        <i data-lucide="moon" style="color: var(--color-accent-teal); margin-bottom: var(--space-3); width: 28px; height: 28px;"></i>
+        <h4 style="font-size: var(--font-size-base); margin-bottom: var(--space-1);">Para Fjetjes</h4>
+        <p style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin: 0;">Adhkar Gjumi</p>
+        <p style="font-size: var(--font-size-xs); color: var(--color-text-tertiary); margin-top: var(--space-2);">~5 min</p>
+      </button>
+
+      <!-- Free Counter -->
+      <button class="card card--elevated dhikr-nav-btn" data-type="free" style="text-align: left;">
+        <i data-lucide="activity" style="color: var(--color-text-primary); margin-bottom: var(--space-3); width: 28px; height: 28px;"></i>
+        <h4 style="font-size: var(--font-size-base); margin-bottom: var(--space-1);">I Lirë</h4>
+        <p style="font-size: var(--font-size-xs); color: var(--color-text-secondary); margin: 0;">Counter Personal</p>
+        <p style="font-size: var(--font-size-xs); color: var(--color-text-tertiary); margin-top: var(--space-2);">E Pafund</p>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ==========================================
+       VIEW 2: GUIDED PLAYER (Morning/Evening/Sleep)
+       ========================================== -->
+  <div id="dhikr-view-player" class="view-container animate-slide-up" style="display: none; height: 100%; flex-direction: column; background-color: var(--color-bg-primary); position: fixed; inset: 0; z-index: var(--z-fixed);">
+    
+    <!-- Top Nav & Progress -->
+    <header style="padding: var(--space-4) var(--space-4) 0; background-color: var(--color-bg-elevated); border-bottom: 1px solid var(--color-border);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+        <button class="btn--icon btn-close-player" style="color: var(--color-text-primary);"><i data-lucide="chevron-left"></i></button>
+        <h2 id="player-title" style="font-size: var(--font-size-lg);">Dhikri</h2>
+        <span id="player-progress-text" style="font-size: var(--font-size-sm); color: var(--color-text-secondary); font-variant-numeric: tabular-nums;">1/20</span>
+      </div>
+      <!-- Progress Bar -->
+      <div style="height: 4px; background-color: var(--color-bg-secondary); border-radius: var(--radius-full); margin-bottom: var(--space-4); overflow: hidden;">
+        <div id="player-progress-bar" style="height: 100%; width: 5%; background-color: var(--color-accent-gold); transition: width var(--transition-base);"></div>
+      </div>
+    </header>
+
+    <!-- Content Area (Scrollable) -->
+    <div style="flex: 1; overflow-y: auto; padding: var(--space-4) var(--space-4) calc(var(--space-20) * 2);" class="no-scrollbar">
+      
+      <div class="card card--elevated" style="min-height: 60vh; display: flex; flex-direction: column; padding: var(--space-6) var(--space-4);">
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-6);">
+          <span id="player-dua-title" style="color: var(--color-text-tertiary); font-size: var(--font-size-sm); text-transform: uppercase; letter-spacing: 1px;">Lutja 1</span>
+          <div class="badge badge--gold"><i data-lucide="repeat" style="width: 12px; margin-inline-end: 4px;"></i> <span id="player-target-text">3 herë</span></div>
+        </div>
+
+        <p id="player-arabic" class="arabic-quran" style="font-size: var(--font-size-ar-lg); text-align: center; line-height: var(--line-height-arabic); margin-bottom: var(--space-8); direction: rtl; color: var(--color-accent-gold);"></p>
+        
+        <p id="player-transliteration" style="font-size: var(--font-size-base); color: var(--color-text-secondary); text-align: center; font-style: italic; margin-bottom: var(--space-6);"></p>
+        
+        <p id="player-translation" style="font-size: var(--font-size-lg); color: var(--color-text-primary); text-align: center; margin-bottom: var(--space-8); line-height: var(--line-height-relaxed);"></p>
+
+        <div style="margin-top: auto; border-top: 1px solid var(--color-divider); padding-top: var(--space-4);">
+          <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--space-2);">
+            <i data-lucide="book" style="width: 14px; display: inline-block; vertical-align: middle;"></i> <span id="player-source"></span>
+          </p>
+          <p id="player-virtue" style="font-size: var(--font-size-sm); color: var(--color-accent-teal);"></p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Floating Action Area -->
+    <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: var(--space-4) var(--space-4) env(safe-area-inset-bottom); background: linear-gradient(transparent, var(--color-bg-primary) 20%); display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none;">
+      
+      <button id="btn-player-prev" class="btn btn--ghost btn--icon" style="pointer-events: auto; background-color: var(--color-bg-elevated); border-radius: var(--radius-full); width: 50px; height: 50px;">
+        <i data-lucide="chevron-left"></i>
+      </button>
+
+      <!-- The Main Counter Button -->
+      <button id="btn-player-tap" style="
+        pointer-events: auto;
+        width: 100px; height: 100px; 
+        border-radius: 50%; 
+        background-color: var(--color-bg-elevated);
+        border: 4px solid var(--color-accent-gold);
+        box-shadow: var(--shadow-gold);
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        transition: transform 0.1s ease;
+      ">
+        <span id="player-count" style="font-size: var(--font-size-3xl); font-weight: bold; color: var(--color-accent-gold); line-height: 1;">0</span>
+        <span style="font-size: var(--font-size-xs); color: var(--color-text-tertiary);">Prek</span>
+      </button>
+
+      <button id="btn-player-next" class="btn btn--primary btn--icon" style="pointer-events: auto; border-radius: var(--radius-full); width: 50px; height: 50px;">
+        <i data-lucide="chevron-right"></i>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ==========================================
+       VIEW 3: FREE COUNTER (Tasbih)
+       ========================================== -->
+  <div id="dhikr-view-free" class="view-container animate-scale-in" style="display: none; padding: var(--space-4); height: 100%; flex-direction: column; background-color: var(--color-bg-primary); position: fixed; inset: 0; z-index: var(--z-fixed);">
+    
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-8); padding-top: env(safe-area-inset-top);">
+      <button class="btn--icon btn-close-player" style="color: var(--color-text-primary);"><i data-lucide="chevron-left"></i></button>
+      <h1 style="font-size: var(--font-size-2xl);">Dhikri i Lirë</h1>
+      <button id="btn-reset-free" class="btn btn--ghost btn--icon" style="border-radius: var(--radius-full);">
+        <i data-lucide="rotate-ccw"></i>
+      </button>
+    </header>
+
+    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: var(--space-20);">
+      <div class="segmented" style="margin-bottom: var(--space-8); width: 100%; max-width: 300px;">
+        <button class="segmented__btn is-active" data-target="33">33</button>
+        <button class="segmented__btn" data-target="99">99</button>
+        <button class="segmented__btn" data-target="infinity">∞</button>
+      </div>
+
+      <button id="btn-tap-free" style="
+        width: 280px; height: 280px; border-radius: 50%; 
+        background: linear-gradient(135deg, var(--color-bg-elevated) 0%, var(--color-bg-secondary) 100%);
+        border: 4px solid var(--color-accent-teal);
+        box-shadow: var(--shadow-teal), inset 0 4px 20px rgba(0,0,0,0.5);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        transition: transform 0.1s ease;
+        -webkit-tap-highlight-color: transparent;
+      ">
+        <span id="free-count" style="font-size: 5rem; font-weight: var(--font-weight-bold); font-variant-numeric: tabular-nums; color: var(--color-accent-teal); line-height: 1;">0</span>
+        <span style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: var(--space-2); text-transform: uppercase; letter-spacing: 2px;">Prek Këtu</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- End of Module -->
+</div>

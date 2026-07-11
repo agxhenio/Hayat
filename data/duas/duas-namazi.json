@@ -1,0 +1,29 @@
+{
+  "category_id": "namazi",
+  "category_name": "Namazi",
+  "icon": "moon",
+  "duas": [
+    {
+      "id": "namaz_pas_selamit",
+      "name": "Pas dhënies së selamit",
+      "short_description": "Menjëherë pas namazit farz",
+      "arabic": "أَسْتَغْفِرُ اللَّهَ (ثَلاَثاً) اللَّهُمَّ أَنْتَ السَّلاَمُ، وَمِنْكَ السَّلاَمُ، تَبَارَكْتَ يَا ذَا الْجَلاَلِ وَالإِكْرَامِ",
+      "transliteration": "Astaghfirullah (3 herë). Allahumma antas-salamu wa minkas-salamu, tabarakta ya dhal-jalali wal-ikram.",
+      "translation": "Kërkoj falje nga Allahu (3 herë). O Allah, Ti je Paqja dhe nga Ti buron paqja! I Lartësuar qofsh, o Posedues i Madhështisë dhe i Nderit!",
+      "repeat": 1,
+      "virtue": "Dhikri i parë që Pejgamberi ﷺ bënte pas përfundimit të namazit.",
+      "source": "Muslimi 1/414"
+    },
+    {
+      "id": "namaz_istihara",
+      "name": "Lutja e Istihares",
+      "short_description": "Për të marrë një vendim",
+      "arabic": "اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ، وَأَسْتَقْدِرُكَ بِقُدْرَتِكَ، وَأَسْأَلُكَ مِنْ فَضْلِكَ الْعَظِيمِ...",
+      "transliteration": "Allahumma inni astakhiruka bi'ilmika, wa astaqdiruka biqudratika...",
+      "translation": "O Allah, unë kërkoj zgjedhjen e mirë prej Teje nëpërmjet dijes Sate dhe kërkoj sukses nëpërmjet fuqisë Sate...",
+      "repeat": 1,
+      "virtue": "Bëhet pasi falen 2 rekate nafile, për t'i lënë zgjedhjen në dorë Allahut.",
+      "source": "Buhariu 7/162"
+    }
+  ]
+}

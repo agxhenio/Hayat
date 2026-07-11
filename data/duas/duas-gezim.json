@@ -1,0 +1,67 @@
+{
+  "category_id": "gezim_shqetesim",
+  "category_name": "Gëzim dhe Shqetësim",
+  "icon": "heart",
+  "duas": [
+    {
+      "id": "dua_hasbunallah",
+      "name": "Kur ke ankth dhe frikë",
+      "short_description": "Më mjafton Allahu...",
+      "arabic": "حَسْبِيَ اللَّهُ لاَ إِلَهَ إِلاَّ هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",
+      "transliteration": "HasbijAll-llahu la Ilahe il-la hu(ve), Alejhi tevekkeltu ve Huve Rabbul-'arshil-'adhim.",
+      "translation": "Më mjafton mua All-llahu; s'ka të adhuruar tjetër përveç Tij. Tek Ai jam mbështetur dhe Ai është Zoti i Arshit të Madh.",
+      "repeat": 7,
+      "virtue": "Kush e thotë këtë në mëngjes dhe në mbrëmje shtatë herë i mjafton për atë që e brengos çështja e kësaj bote dhe e ahiretit.",
+      "source": "Ibën Sunnijj 71, Ebu Davudi 4/321",
+      "context_note": "Senedin e këtij hadithi dijetari Ibën Bazi e ka bërë të mirë (hasen)."
+    },
+    {
+      "id": "dua_hammi",
+      "name": "Për largimin e mërzisë dhe dëshpërimit",
+      "short_description": "O Allah kërkoj mbrojtjen Tënde nga mërzia...",
+      "arabic": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ وَغَلَبَةِ الرِّجَالِ",
+      "transliteration": "Allahumma inni a'udhu bika minal-hammi wal-hazan, wal-'ajzi wal-kasal, wal-bukhli wal-jubn, wa dhala'id-dayni wa ghalabatir-rijal.",
+      "translation": "O Allah! Kërkoj mbrojtjen Tënde nga brenga dhe mërzia, nga pafuqia dhe dembelia, nga koprracia dhe frika, nga zhytja në borxhe dhe nga mposhtja e njerëzve.",
+      "repeat": 1,
+      "virtue": "Lutje e fuqishme që Pejgamberi ﷺ e bënte shpesh për t'u mbrojtur nga gjendjet e rënduara psikologjike.",
+      "source": "Buhariu 7/158",
+      "context_note": ""
+    },
+    {
+      "id": "dua_dhiq",
+      "name": "Në raste të vështira dhe kur ndjen ngushtim",
+      "short_description": "S'ka të adhuruar tjetër përveç Teje...",
+      "arabic": "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
+      "transliteration": "La ilaha illa Anta subhanaka inni kuntu minadh-dhalimin.",
+      "translation": "S'ka të adhuruar tjetër përveç Teje, i Lartësuar qofsh Ti! Vërtet unë isha prej të padrejtëve.",
+      "repeat": 1,
+      "virtue": "Kjo është lutja e Dhu Nun-it (Junusit). Nuk ka musliman që lutet me të për diçka, e që Allahu të mos i përgjigjet.",
+      "source": "Tirmidhiu 5/529",
+      "context_note": "Hadith i saktë, i vërtetuar nga Albani."
+    },
+    {
+      "id": "dua_fatkeqesi",
+      "name": "Kur të godet një fatkeqësi",
+      "short_description": "Të Allahut jemi dhe tek Ai do të kthehemi...",
+      "arabic": "إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ، اللَّهُمَّ أْجُرْنِي فِي مُصِيبَتِي، وَأَخْلِفْ لِي خَيْرًا مِنْهَا",
+      "transliteration": "Inna lillahi wa inna ilayhi raji'un. Allahumma'jurni fi musibati, wa akhlif li khayran minha.",
+      "translation": "Ne jemi të Allahut dhe tek Ai do të kthehemi. O Allah, më shpërble në këtë fatkeqësinë time dhe ma zëvendëso me diçka më të mirë se ajo.",
+      "repeat": 1,
+      "virtue": "Allahu ia zëvendëson atij që e thotë këtë me diçka më të mirë.",
+      "source": "Muslimi 2/632",
+      "context_note": ""
+    },
+    {
+      "id": "dua_ya_hayyu",
+      "name": "Kur goditesh nga diçka e papritur",
+      "short_description": "O i Gjallë, O Mbajtës...",
+      "arabic": "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ",
+      "transliteration": "Ya Hayyu, Ya Qayyum, birahmatika astaghith.",
+      "translation": "O i Gjallë përgjithmonë, O Mbajtës i gjithçkaje, nëpërmjet Mëshirës Tënde kërkoj ndihmë.",
+      "repeat": 3,
+      "virtue": "Këtë lutej Pejgamberi ﷺ kur i vinte diçka e rëndë dhe e papritur.",
+      "source": "Tirmidhiu 3/522",
+      "context_note": "Hadith i vërtetë (Hasan)."
+    }
+  ]
+}

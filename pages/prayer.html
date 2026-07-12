@@ -1,47 +1,23 @@
 <div class="page-container">
-    <!-- Header i Faqes -->
     <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
         <div>
             <h1 style="font-size: 24px; font-weight: 700; color: var(--color-text-primary); margin: 0;">Namazi</h1>
             <p style="font-size: 14px; color: var(--color-text-secondary); margin: 4px 0 0 0;">Shtylla e fesë</p>
         </div>
-        <div style="display: flex; gap: var(--space-2);">
-            <button class="btn btn--icon btn--secondary" style="border-radius: var(--radius-full);">
-                <i data-lucide="compass"></i>
-            </button>
-            <button class="btn btn--icon btn--secondary" style="border-radius: var(--radius-full);">
-                <i data-lucide="bar-chart-2"></i>
-            </button>
-        </div>
     </header>
 
-    <!-- Rrethi Progresiv (Hero) -->
     <div class="prayer-hero">
         <div class="prayer-progress-circle">
             <div class="prayer-progress-inner">
                 <span class="prayer-current-label">Deri në Ikindinë</span>
-                <h2 class="prayer-countdown">- 01:38:22</h2>
+                <h2 class="prayer-countdown">- 00:00:00</h2>
                 <span class="prayer-current-time">Koha aktuale: Dreka</span>
             </div>
         </div>
     </div>
 
-    <!-- Përmbledhja Ditore -->
-    <div class="card" style="margin-bottom: var(--space-4); display: flex; justify-content: space-between; align-items: center; padding: var(--space-3) var(--space-4);">
-        <div>
-            <span style="font-size: 13px; color: var(--color-text-secondary);">Progresi i Sotëm</span>
-            <div style="font-weight: 600; font-size: 15px; color: var(--color-text-primary);">2/5 Namaze</div>
-        </div>
-        <div style="text-align: right;">
-            <span style="font-size: 13px; color: var(--color-text-secondary);">Streak</span>
-            <div style="font-weight: 600; font-size: 15px; color: var(--color-accent-gold);">🔥 15 Ditë</div>
-        </div>
-    </div>
-
-    <!-- Lista e Namazeve -->
     <div class="prayer-list">
-        <!-- Sabahu -->
-        <div class="prayer-card">
+        <div class="prayer-card" data-prayer="Sabahu">
             <div class="prayer-card-left">
                 <div class="prayer-icon-wrapper"><i data-lucide="sunrise"></i></div>
                 <div class="prayer-info">
@@ -52,8 +28,7 @@
             <div class="prayer-status"></div>
         </div>
 
-        <!-- Dreka -->
-        <div class="prayer-card">
+        <div class="prayer-card" data-prayer="Dreka">
             <div class="prayer-card-left">
                 <div class="prayer-icon-wrapper"><i data-lucide="sun"></i></div>
                 <div class="prayer-info">
@@ -64,8 +39,7 @@
             <div class="prayer-status"></div>
         </div>
 
-        <!-- Ikindia -->
-        <div class="prayer-card">
+        <div class="prayer-card" data-prayer="Ikindia">
             <div class="prayer-card-left">
                 <div class="prayer-icon-wrapper"><i data-lucide="cloud-sun"></i></div>
                 <div class="prayer-info">
@@ -76,8 +50,7 @@
             <div class="prayer-status"></div>
         </div>
 
-        <!-- Akshami -->
-        <div class="prayer-card">
+        <div class="prayer-card" data-prayer="Akshami">
             <div class="prayer-card-left">
                 <div class="prayer-icon-wrapper"><i data-lucide="sunset"></i></div>
                 <div class="prayer-info">
@@ -88,8 +61,7 @@
             <div class="prayer-status"></div>
         </div>
 
-        <!-- Jacia -->
-        <div class="prayer-card">
+        <div class="prayer-card" data-prayer="Jacia">
             <div class="prayer-card-left">
                 <div class="prayer-icon-wrapper"><i data-lucide="moon"></i></div>
                 <div class="prayer-info">
@@ -101,7 +73,6 @@
         </div>
     </div>
 
-    <!-- Bottom Sheet: Si u fale? -->
     <div id="prayer-action-sheet" class="bottom-sheet" aria-hidden="true">
         <div class="bottom-sheet-overlay" data-close-sheet></div>
         <div class="bottom-sheet-content">
@@ -111,7 +82,6 @@
             </div>
             <div class="bottom-sheet-body" style="padding: var(--space-4);">
                 <p style="text-align: center; color: var(--color-text-secondary); margin-bottom: var(--space-4);">Si e fale këtë namaz?</p>
-                
                 <div class="prayer-options-list">
                     <button class="prayer-option-btn" data-method="mosque">
                         <span class="option-icon">🕌</span>
@@ -124,10 +94,6 @@
                     <button class="prayer-option-btn" data-method="alone">
                         <span class="option-icon">🧎</span>
                         <span class="option-text">Vetëm</span>
-                    </button>
-                    <button class="prayer-option-btn" data-method="kaza">
-                        <span class="option-icon">⏰</span>
-                        <span class="option-text">Kaza (Jashtë kohës)</span>
                     </button>
                 </div>
             </div>

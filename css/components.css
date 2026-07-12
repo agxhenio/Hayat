@@ -289,8 +289,6 @@
 /* =========================================
    MODULI I NAMAZIT
    ========================================= */
-
-/* Rrethi i Progresit (Hero) */
 .prayer-hero {
     display: flex;
     justify-content: center;
@@ -302,7 +300,6 @@
     width: 240px;
     height: 240px;
     border-radius: 50%;
-    /* Gradienti që tregon progresin (65% e mbushur për test) */
     background: conic-gradient(var(--color-accent-teal) 0% 65%, var(--color-surface-hover) 65% 100%);
     display: flex;
     align-items: center;
@@ -324,32 +321,16 @@
     box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.prayer-current-label {
-    font-size: 13px;
-    color: var(--color-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
+.prayer-current-label { font-size: 13px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+.prayer-countdown { font-size: 32px; color: var(--color-text-primary); font-weight: 800; margin: var(--space-2) 0; font-variant-numeric: tabular-nums; }
+.prayer-current-time { font-size: 14px; color: var(--color-accent-gold); font-weight: 500; }
 
-.prayer-countdown {
-    font-size: 32px;
-    color: var(--color-text-primary);
-    font-weight: 800;
-    margin: var(--space-2) 0;
-    font-variant-numeric: tabular-nums; /* Mban numrat të rreshtuar bukur */
-}
+.prayer-list { display: flex; flex-direction: column; gap: var(--space-3); }
 
-.prayer-current-time {
-    font-size: 14px;
-    color: var(--color-accent-gold);
-    font-weight: 500;
-}
-
-/* Kartat e Listës së Vakteve */
-.prayer-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
+/* Pjesa kritike për klikimet */
+.prayer-card, .prayer-option-btn {
+    cursor: pointer; /* E detyrueshme për iOS */
+    -webkit-tap-highlight-color: transparent;
 }
 
 .prayer-card {
@@ -363,110 +344,21 @@
     transition: all 0.3s ease;
 }
 
-.prayer-card-left {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-}
+.prayer-card-left { display: flex; align-items: center; gap: var(--space-4); }
+.prayer-icon-wrapper { width: 40px; height: 40px; border-radius: var(--radius-md); background: var(--color-surface-hover); display: flex; align-items: center; justify-content: center; color: var(--color-text-secondary); }
+.prayer-info h3 { font-size: 16px; font-weight: 600; color: var(--color-text-primary); margin: 0 0 2px 0; pointer-events: none; }
+.prayer-info p { font-size: 14px; color: var(--color-text-secondary); margin: 0; font-weight: 500; pointer-events: none; }
+.prayer-status { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--color-border); display: flex; align-items: center; justify-content: center; color: transparent; pointer-events: none; }
 
-.prayer-icon-wrapper {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-md);
-    background: var(--color-surface-hover);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-secondary);
-}
+.prayer-card.active { border-color: var(--color-accent-teal); background: linear-gradient(145deg, rgba(46, 204, 113, 0.05), transparent); }
+.prayer-card.active .prayer-icon-wrapper { background: var(--color-accent-teal); color: var(--color-background); }
+.prayer-card.active .prayer-status { border-color: var(--color-accent-teal); border-style: dashed; animation: spin-slow 4s linear infinite; }
+.prayer-card.completed .prayer-status { background: var(--color-accent-teal); border-color: var(--color-accent-teal); color: var(--color-background); }
 
-.prayer-info h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    margin: 0 0 2px 0;
-}
+.prayer-options-list { display: flex; flex-direction: column; gap: var(--space-3); }
+.prayer-option-btn { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); width: 100%; text-align: left; transition: all 0.2s ease; }
+.prayer-option-btn:hover, .prayer-option-btn:active { border-color: var(--color-accent-teal); background: linear-gradient(145deg, rgba(46, 204, 113, 0.05), transparent); }
+.prayer-option-btn .option-icon { font-size: 24px; pointer-events: none; }
+.prayer-option-btn .option-text { font-size: 16px; font-weight: 500; color: var(--color-text-primary); pointer-events: none; }
 
-.prayer-info p {
-    font-size: 14px;
-    color: var(--color-text-secondary);
-    margin: 0;
-    font-weight: 500;
-}
-
-.prayer-status {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 2px solid var(--color-border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: transparent;
-}
-
-/* Gjendja: Namazi Aktual */
-.prayer-card.active {
-    border-color: var(--color-accent-teal);
-    background: linear-gradient(145deg, rgba(46, 204, 113, 0.05), transparent);
-}
-
-.prayer-card.active .prayer-icon-wrapper {
-    background: var(--color-accent-teal);
-    color: var(--color-background);
-}
-
-.prayer-card.active .prayer-status {
-    border-color: var(--color-accent-teal);
-    border-style: dashed;
-    animation: spin-slow 4s linear infinite;
-}
-
-/* Gjendja: E Falur (Completed) */
-.prayer-card.completed .prayer-status {
-    background: var(--color-accent-teal);
-    border-color: var(--color-accent-teal);
-    color: var(--color-background);
-}
-
-@keyframes spin-slow {
-    100% { transform: rotate(360deg); }
-}
-
-
-/* Opsionet e Regjistrimit të Namazit në Bottom Sheet */
-.prayer-options-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-}
-
-.prayer-option-btn {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-3) var(--space-4);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    width: 100%;
-    text-align: left;
-    transition: all 0.2s ease;
-    cursor: pointer;
-}
-
-.prayer-option-btn:hover, 
-.prayer-option-btn:active {
-    border-color: var(--color-accent-teal);
-    background: linear-gradient(145deg, rgba(46, 204, 113, 0.05), transparent);
-}
-
-.prayer-option-btn .option-icon {
-    font-size: 24px;
-}
-
-.prayer-option-btn .option-text {
-    font-size: 16px;
-    font-weight: 500;
-    color: var(--color-text-primary);
-}
+@keyframes spin-slow { 100% { transform: rotate(360deg); } }

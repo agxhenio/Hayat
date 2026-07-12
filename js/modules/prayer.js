@@ -5,7 +5,7 @@ class PrayerModule {
         this.mockTimes = { Fajr: "05:25", Sunrise: "06:15", Dhuhr: "12:46", Asr: "16:45", Maghrib: "19:36", Isha: "21:12" };
         this.timerInterval = null;
         
-        console.log("🟢 Moduli i Namazit u ngarkua me sukses!");
+        console.log("🟢 Moduli i Namazit u nis.");
         this.init();
     }
     
@@ -15,7 +15,7 @@ class PrayerModule {
     }
     
     updateUI() {
-        if (!document.querySelector('.prayer-hero')) return; // Nëse s'jemi te faqja, mos harxho bateri
+        if (!document.querySelector('.prayer-hero')) return;
         
         const now = new Date();
         const currentTime = now.getHours() * 60 + now.getMinutes();
@@ -67,63 +67,78 @@ class PrayerModule {
             }
         });
     }
-    
-    markCompleted(prayerName) {
-        document.querySelectorAll('.prayer-card').forEach(card => {
-            if (card.dataset.prayer === prayerName) {
-                card.classList.remove('active');
-                card.classList.add('completed');
-                const status = card.querySelector('.prayer-status');
-                if (status) status.innerHTML = '<i data-lucide="check" style="width: 16px;"></i>';
-                if (window.lucide) window.lucide.createIcons();
-            }
-        });
-    }
 }
 
-// Global Event Listener për klikimet (Imun ndaj Router-it)
-document.body.addEventListener('click', (e) => {
-    // 1. Klikimi mbi Kartë
-    const card = e.target.closest('.prayer-card');
-    if (card) {
-        const prayerName = card.dataset.prayer;
-        const sheet = document.getElementById('prayer-action-sheet');
-        if (sheet) {
-            document.getElementById('action-sheet-title').textContent = `Regjistro: ${prayerName}`;
-            sheet.setAttribute('aria-hidden', 'false');
-            sheet.classList.add('active');
-        }
-        return;
-    }
-    
-    // 2. Klikimi mbi Overlay (Për ta mbyllur)
-    if (e.target.closest('.bottom-sheet-overlay') || e.target.closest('[data-close-sheet]')) {
-        const sheet = document.getElementById('prayer-action-sheet');
-        if (sheet) {
-            sheet.setAttribute('aria-hidden', 'true');
-            sheet.classList.remove('active');
-        }
-        return;
-    }
-    
-    // 3. Klikimi mbi "Në xhami", "Shtëpi" etj.
-    const optionBtn = e.target.closest('.prayer-option-btn');
-    if (optionBtn) {
-        const sheet = document.getElementById('prayer-action-sheet');
-        if (sheet) {
-            const prayerName = document.getElementById('action-sheet-title').textContent.replace('Regjistro: ', '');
-            sheet.setAttribute('aria-hidden', 'true');
-            sheet.classList.remove('active');
-            
-            if (window.currentPrayerApp) {
-                window.currentPrayerApp.markCompleted(prayerName);
-            }
-        }
-        return;
-    }
-});
+// ==========================================
+// FUNKSIONET GLOBALE (TË PAGABUESHME)
+// ==========================================
+window.currentSelectedPrayer = ""; // Mban mend cilin namaz klikuam
 
-// Inicializimi me Router
+// Hap fletën
+window.openPrayerSheet = function(prayerName) {
+    window.currentSelectedPrayer = prayerName;
+    const sheet = document.getElementById('prayer-action-sheet');
+    const content = document.getElementById('sheet-content');
+    const title = document.getElementById('action-sheet-title');
+    
+    if (sheet && content && title) {
+        title.textContent = `Regjistro: ${prayerName}`;
+        sheet.style.display = 'block';
+        
+        // Përdorim setTimeout për të bërë animacionin smooth të hyrjes
+        setTimeout(() => {
+            content.style.transform = 'translateY(0)';
+        }, 10);
+    }
+};
+
+// Mbyll fletën
+window.closePrayerSheet = function() {
+    const sheet = document.getElementById('prayer-action-sheet');
+    const content = document.getElementById('sheet-content');
+    
+    if (sheet && content) {
+        content.style.transform = 'translateY(100%)'; // Zbret poshtë
+        // Presim të mbarojë animacioni para se ta fshehim komplet
+        setTimeout(() => {
+            sheet.style.display = 'none';
+        }, 300);
+    }
+};
+
+// Regjistro namazin dhe vendos tik-un e gjelbër (✔)
+window.registerPrayer = function(method) {
+    const prayerName = window.currentSelectedPrayer;
+    
+    // Gjejmë rrethin e statusit për namazin specifik
+    const statusDiv = document.getElementById(`status-${prayerName}`);
+    if (statusDiv) {
+        // I vendosim një ngjyrë të gjelbër rrethit
+        statusDiv.style.background = '#2ECC71';
+        statusDiv.style.borderColor = '#2ECC71';
+        
+        // Nëse kemi ikonat lucide, i shtojmë ikonën check
+        if (window.lucide) {
+            statusDiv.innerHTML = '<i data-lucide="check" style="color: white; width: 16px;"></i>';
+            window.lucide.createIcons();
+        } else {
+            statusDiv.innerHTML = '<span style="color: white; font-size: 14px;">✔</span>';
+        }
+        
+        // Gjejmë kartën prind dhe i heqim klasën "active"
+        const card = statusDiv.closest('.prayer-card');
+        if (card) {
+            card.classList.remove('active');
+            card.classList.add('completed');
+        }
+    }
+    
+    window.closePrayerSheet();
+};
+
+// ==========================================
+// INICIALIZIMI
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     const appView = document.getElementById('app-view');
     const checkInit = () => {

@@ -17,7 +17,7 @@
     </div>
 
     <div class="prayer-list">
-        <div class="prayer-card" data-prayer="Sabahu">
+        <div class="prayer-card" onclick="window.openPrayerSheet('Sabahu')">
             <div class="prayer-card-left">
                 <div class="prayer-icon-wrapper"><i data-lucide="sunrise"></i></div>
                 <div class="prayer-info">
@@ -25,10 +25,10 @@
                     <p>05:25</p>
                 </div>
             </div>
-            <div class="prayer-status"></div>
+            <div class="prayer-status" id="status-Sabahu"></div>
         </div>
 
-        <div class="prayer-card" data-prayer="Dreka">
+        <div class="prayer-card" onclick="window.openPrayerSheet('Dreka')">
             <div class="prayer-card-left">
                 <div class="prayer-icon-wrapper"><i data-lucide="sun"></i></div>
                 <div class="prayer-info">
@@ -36,10 +36,10 @@
                     <p>12:46</p>
                 </div>
             </div>
-            <div class="prayer-status"></div>
+            <div class="prayer-status" id="status-Dreka"></div>
         </div>
 
-        <div class="prayer-card" data-prayer="Ikindia">
+        <div class="prayer-card" onclick="window.openPrayerSheet('Ikindia')">
             <div class="prayer-card-left">
                 <div class="prayer-icon-wrapper"><i data-lucide="cloud-sun"></i></div>
                 <div class="prayer-info">
@@ -47,10 +47,10 @@
                     <p>16:45</p>
                 </div>
             </div>
-            <div class="prayer-status"></div>
+            <div class="prayer-status" id="status-Ikindia"></div>
         </div>
 
-        <div class="prayer-card" data-prayer="Akshami">
+        <div class="prayer-card" onclick="window.openPrayerSheet('Akshami')">
             <div class="prayer-card-left">
                 <div class="prayer-icon-wrapper"><i data-lucide="sunset"></i></div>
                 <div class="prayer-info">
@@ -58,10 +58,10 @@
                     <p>19:36</p>
                 </div>
             </div>
-            <div class="prayer-status"></div>
+            <div class="prayer-status" id="status-Akshami"></div>
         </div>
 
-        <div class="prayer-card" data-prayer="Jacia">
+        <div class="prayer-card" onclick="window.openPrayerSheet('Jacia')">
             <div class="prayer-card-left">
                 <div class="prayer-icon-wrapper"><i data-lucide="moon"></i></div>
                 <div class="prayer-info">
@@ -69,33 +69,27 @@
                     <p>21:12</p>
                 </div>
             </div>
-            <div class="prayer-status"></div>
+            <div class="prayer-status" id="status-Jacia"></div>
         </div>
     </div>
 
-    <div id="prayer-action-sheet" class="bottom-sheet" aria-hidden="true">
-        <div class="bottom-sheet-overlay" data-close-sheet></div>
-        <div class="bottom-sheet-content">
-            <div class="bottom-sheet-header">
-                <div class="bottom-sheet-drag"></div>
-                <h3 id="action-sheet-title" style="text-align: center; margin: 0; font-size: 18px;">Regjistro Namazin</h3>
-            </div>
-            <div class="bottom-sheet-body" style="padding: var(--space-4);">
-                <p style="text-align: center; color: var(--color-text-secondary); margin-bottom: var(--space-4);">Si e fale këtë namaz?</p>
-                <div class="prayer-options-list">
-                    <button class="prayer-option-btn" data-method="mosque">
-                        <span class="option-icon">🕌</span>
-                        <span class="option-text">Në xhami me xhemat</span>
-                    </button>
-                    <button class="prayer-option-btn" data-method="home">
-                        <span class="option-icon">👨‍👦</span>
-                        <span class="option-text">Në shtëpi me xhemat</span>
-                    </button>
-                    <button class="prayer-option-btn" data-method="alone">
-                        <span class="option-icon">🧎</span>
-                        <span class="option-text">Vetëm</span>
-                    </button>
-                </div>
+    <div id="prayer-action-sheet" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999;">
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);" onclick="window.closePrayerSheet()"></div>
+        
+        <div style="position: absolute; bottom: 0; left: 0; width: 100%; background: #1C2431; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 24px; box-sizing: border-box; transform: translateY(100%); transition: transform 0.3s ease-out;" id="sheet-content">
+            <div style="width: 40px; height: 4px; background: #374151; border-radius: 2px; margin: 0 auto 16px auto;"></div>
+            <h3 id="action-sheet-title" style="text-align: center; margin: 0 0 16px 0; font-size: 18px; color: #FFFFFF;">Regjistro Namazin</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button onclick="window.registerPrayer('Në xhami')" style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #2A3441; border: 1px solid #374151; border-radius: 12px; color: #FFFFFF; font-size: 16px; text-align: left; width: 100%;">
+                    <span>🕌</span> Në xhami me xhemat
+                </button>
+                <button onclick="window.registerPrayer('Në shtëpi')" style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #2A3441; border: 1px solid #374151; border-radius: 12px; color: #FFFFFF; font-size: 16px; text-align: left; width: 100%;">
+                    <span>👨‍👦</span> Në shtëpi me xhemat
+                </button>
+                <button onclick="window.registerPrayer('Vetëm')" style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #2A3441; border: 1px solid #374151; border-radius: 12px; color: #FFFFFF; font-size: 16px; text-align: left; width: 100%;">
+                    <span>🧎</span> Vetëm
+                </button>
             </div>
         </div>
     </div>

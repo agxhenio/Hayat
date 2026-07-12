@@ -5,7 +5,6 @@ class PrayerModule {
         this.prayerNames = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
         this.albanianNames = ['Sabahu', 'Lindja e Diellit', 'Dreka', 'Ikindia', 'Akshami', 'Jacia'];
         
-        // Kohët e testit (më vonë i lidhim me API-në)
         this.mockTimes = {
             Fajr: "05:25",
             Sunrise: "06:15",
@@ -15,15 +14,13 @@ class PrayerModule {
             Isha: "21:12"
         };
 
+        this.timerInterval = null;
         this.init();
     }
 
     init() {
-        if (!document.querySelector('.prayer-hero')) return;
-        
         this.updateUI();
-        setInterval(() => this.updateUI(), 1000); // Llogaritja çdo sekondë
-        this.attachListeners(); // Aktivizon butonat dhe Bottom Sheet
+        this.timerInterval = setInterval(() => this.updateUI(), 1000);
     }
 
     updateUI() {
@@ -51,6 +48,7 @@ class PrayerModule {
 
         this.updateHero(currentPrayerIndex, nextPrayerIndex, now);
         this.updateCards(currentPrayerIndex);
+        this.bindMobileEvents(); // Lidh klikimet në mënyrë të pavarur çdo sekondë
     }
 
     updateHero(currentIdx, nextIdx, now) {
@@ -73,85 +71,155 @@ class PrayerModule {
         const percentage = 100 - (diffSeconds / (24 * 3600) * 100 * 5);
         const clampedPercentage = Math.max(0, Math.min(100, percentage));
 
-        document.querySelector('.prayer-countdown').textContent = countdownText;
-        document.querySelector('.prayer-current-label').textContent = `Deri në ${this.albanianNames[nextIdx]}`;
-        document.querySelector('.prayer-current-time').textContent = `Koha aktuale: ${this.albanianNames[currentIdx] === 'Sunrise' ? 'Pas Lindjes' : this.albanianNames[currentIdx]}`;
-        
+        const countdownEl = document.querySelector('.prayer-countdown');
+        const labelEl = document.querySelector('.prayer-current-label');
+        const timeEl = document.querySelector('.prayer-current-time');
         const circle = document.querySelector('.prayer-progress-circle');
-        circle.style.background = `conic-gradient(var(--color-accent-teal) 0% ${clampedPercentage}%, var(--color-surface-hover) ${clampedPercentage}% 100%)`;
+
+        if (countdownEl) countdownEl.textContent = countdownText;
+        if (labelEl) labelEl.textContent = `Deri në ${this.albanianNames[nextIdx]}`;
+        if (timeEl) timeEl.textContent = `Koha aktuale: ${this.albanianNames[currentIdx] === 'Sunrise' ? 'Pas Lindjes' : this.albanianNames[currentIdx]}`;
+        if (circle) circle.style.background = `conic-gradient(var(--color-accent-teal) 0% ${clampedPercentage}%, var(--color-surface-hover) ${clampedPercentage}% 100%)`;
     }
 
     updateCards(currentIdx) {
         const cards = document.querySelectorAll('.prayer-card');
         if (!cards.length) return;
 
-        const uiCards = Array.from(cards);
-        
-        uiCards.forEach((card, index) => {
-            // Hiqim të gjitha klasat përpara se të shtojmë të rejat (përveç atyre të mbaruara manualisht)
+        cards.forEach((card, index) => {
             if (!card.classList.contains('completed')) {
                 card.classList.remove('active');
-                
-                // Namazi i kaluar (automatikisht aktivizon vetëm UI)
-                if (index < currentIdx && this.albanianNames[currentIdx] !== 'Sunrise') {
-                    // Mund ta bëjmë gri, por për momentin lëre bosh nëse s'është shënuar manualisht
-                } else if (index === currentIdx || (currentIdx === 1 && index === 0)) {
-                    card.classList.add('active'); // Thekson namazin aktual
+                if (index === currentIdx || (currentIdx === 1 && index === 0)) {
+                    card.classList.add('active');
                 }
             }
         });
     }
 
-    attachListeners() {
+    // Lidhja e klikimeve me metodën .onclick direkte (Imune ndaj iOS/Safari/Spck bugs)
+    bindMobileEvents() {
         const cards = document.querySelectorAll('.prayer-card');
-        const sheet = document.getElementById('prayer-action-sheet');
-        const overlay = sheet.querySelector('.bottom-sheet-overlay');
-        const optionBtns = document.querySelectorAll('.prayer-option-btn');
-        const titleEl = document.getElementById('action-sheet-title');
-
-        // Hap Bottom Sheet
+        
         cards.forEach(card => {
-            card.addEventListener('click', () => {
-                const prayerName = card.querySelector('h3').textContent;
-                titleEl.textContent = `Regjistro: ${prayerName}`;
-                sheet.setAttribute('aria-hidden', 'false');
-            });
+            card.style.cursor = 'pointer';
+            
+            // Përdorim .onclick që mbishkruan çdo bug të eventListener-ave në mobile
+            card.onclick = () => {
+                // Gjejmë titullin e namazit me disa opsione fallback (në rast se s'është h3)
+                const titleEl = card.querySelector('h3') || card.querySelector('h4') || card.querySelector('.prayer-name') || card.querySelector('p');
+                const prayerName = titleEl ? titleEl.textContent.trim() : 'Namazi';
+                
+                this.openBottomSheet(prayerName);
+            };
         });
 
-        // Mbyll Bottom Sheet
-        overlay.addEventListener('click', () => {
-            sheet.setAttribute('aria-hidden', 'true');
-        });
+        // Gjejmë fletën (Bottom Sheet) me disa emra të mundshëm ID-sh ose Klasash
+        const sheet = document.getElementById('prayer-action-sheet') || document.querySelector('.bottom-sheet') || document.getElementById('action-sheet');
+        if (!sheet) return; // Nëse s'ka fletë, ndalon këtu por KARTAT e mësipërme kanë marrë tashmë klikimin!
 
-        // Kur zgjedh opsionin (Xhami, Shtëpi, etj.)
+        // Lidhja e klikimit te Overlay (pjesa e errët mbrapa) për ta mbyllur
+        const overlay = sheet.querySelector('.bottom-sheet-overlay') || sheet.querySelector('.overlay');
+        if (overlay) {
+            overlay.onclick = () => this.closeBottomSheet();
+        }
+
+        // Lidhja e butonave të opsioneve ("Në xhami", "Vetëm", etj.)
+        const optionBtns = sheet.querySelectorAll('.prayer-option-btn') || sheet.querySelectorAll('.option-btn');
         optionBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const method = e.currentTarget.dataset.method;
-                const prayerName = titleEl.textContent.replace('Regjistro: ', '');
+            btn.onclick = () => {
+                const actionTitleEl = sheet.querySelector('#action-sheet-title') || sheet.querySelector('.sheet-title');
+                let prayerName = '';
+                if (actionTitleEl) {
+                    prayerName = actionTitleEl.textContent.replace('Regjistro: ', '').replace('Regjistro', '').trim();
+                }
                 
-                // Mbyll fletën
-                sheet.setAttribute('aria-hidden', 'true');
-                
-                // Bëj kartën e gjelbër!
-                this.markPrayerAsCompleted(prayerName);
-            });
+                this.closeBottomSheet();
+                if (prayerName) {
+                    this.markPrayerAsCompleted(prayerName);
+                }
+            };
         });
+    }
+
+    openBottomSheet(prayerName) {
+        // Kërkojmë elementin e fletës me të gjitha mënyrat e mundshme të emërtimit
+        const sheet = document.getElementById('prayer-action-sheet') || document.querySelector('.bottom-sheet') || document.getElementById('action-sheet');
+        
+        if (!sheet) {
+            // Inteligjencë artificiale ndihmuese: Nëse klikohet karta por fleta nuk hapet, të tregon PSE në ekran!
+            alert(`Kartela "${prayerName}" u klikua me sukses! Por në HTML nuk po gjendet elementi i Bottom Sheet. Kontrollo nëse ID-ja ose klasa e tij përputhet me kodin.`);
+            return;
+        }
+
+        const titleEl = sheet.querySelector('#action-sheet-title') || sheet.querySelector('.sheet-title');
+        if (titleEl) titleEl.textContent = `Regjistro: ${prayerName}`;
+
+        // Shfaqja me forcë maksimale (Inline CSS) që të mposhtë çdo mangësi të CSS-së
+        sheet.setAttribute('aria-hidden', 'false');
+        sheet.classList.add('active');
+        sheet.style.display = 'block';
+        sheet.style.position = 'fixed';
+        sheet.style.zIndex = '9999';
+
+        const content = sheet.querySelector('.bottom-sheet-content') || sheet.querySelector('.sheet-content');
+        if (content) {
+            content.style.transform = 'translateY(0)';
+            content.style.opacity = '1';
+            content.style.display = 'block';
+        }
+    }
+
+    closeBottomSheet() {
+        const sheet = document.getElementById('prayer-action-sheet') || document.querySelector('.bottom-sheet') || document.getElementById('action-sheet');
+        if (!sheet) return;
+
+        sheet.setAttribute('aria-hidden', 'true');
+        sheet.classList.remove('active');
+        sheet.style.display = 'none';
     }
 
     markPrayerAsCompleted(prayerName) {
         const cards = document.querySelectorAll('.prayer-card');
         cards.forEach(card => {
-            if(card.querySelector('h3').textContent === prayerName) {
+            const titleEl = card.querySelector('h3') || card.querySelector('h4') || card.querySelector('.prayer-name') || card.querySelector('p');
+            if(titleEl && titleEl.textContent.trim() === prayerName.trim()) {
                 card.classList.remove('active');
                 card.classList.add('completed');
-                card.querySelector('.prayer-status').innerHTML = '<i data-lucide="check" style="width: 16px;"></i>';
-                if (window.lucide) window.lucide.createIcons(); // Siguron që ikona 'check' të shfaqet
+                const statusEl = card.querySelector('.prayer-status');
+                if (statusEl) statusEl.innerHTML = '<i data-lucide="check" style="width: 16px;"></i>';
+                if (window.lucide) window.lucide.createIcons();
             }
         });
     }
 }
 
-// Nisja e Modulit
+// ========================================================
+// MENAXHIMI I ROUTER-IT (SPA)
+// ========================================================
 document.addEventListener('DOMContentLoaded', () => {
-    new PrayerModule();
+    const appView = document.getElementById('app-view');
+    
+    function checkAndInitialize() {
+        if (document.querySelector('.prayer-hero')) {
+            if (!window.currentPrayerApp) {
+                window.currentPrayerApp = new PrayerModule();
+            }
+        } else {
+            if (window.currentPrayerApp) {
+                if (window.currentPrayerApp.timerInterval) {
+                    clearInterval(window.currentPrayerApp.timerInterval);
+                }
+                window.currentPrayerApp = null;
+            }
+        }
+    }
+
+    if (appView) {
+        const observer = new MutationObserver(() => {
+            checkAndInitialize();
+        });
+        observer.observe(appView, { childList: true, subtree: true });
+    }
+    
+    checkAndInitialize();
 });

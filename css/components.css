@@ -249,6 +249,9 @@
   opacity: 1;
 }
 
+/* ==========================================
+   RREGULLIMI DEFINITIV PËR BOTTOM SHEET
+   ========================================== */
 .bottom-sheet {
   position: fixed;
   bottom: 0;
@@ -258,12 +261,25 @@
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   padding: var(--space-6);
   z-index: var(--z-modal);
-  transform: translateY(100%);
-  transition: transform var(--transition-bounce);
   box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  
+  /* Lartësia e saktë - i bindet ekranit pavarësisht nëse është iPhone apo jo */
+  height: auto;
+  max-height: 85vh; 
+  
+  /* Ky është çelësi: e fsheh fletën poshtë plotësisht (100% e gjatësisë së vet) */
+  transform: translateY(100%);
+  
+  /* Bën ngritjen të butë dhe natyrale */
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.bottom-sheet.is-open {
+/* Kur JavaScript i shton cilëndo nga këto klasa, dritarja NUK KA ZGJIDHJE veçse të dalë sipër */
+.bottom-sheet.is-open,
+.bottom-sheet.is-active,
+.bottom-sheet.active {
   transform: translateY(0);
 }
 
@@ -273,7 +289,16 @@
   background: var(--color-divider);
   border-radius: var(--radius-full);
   margin: 0 auto var(--space-6);
+  flex-shrink: 0; /* Siguron që ky vizimi lart mos të shtypet */
 }
+
+/* Pjesa ku ndodhen butonat */
+#bottom-sheet-content {
+  overflow-y: auto; /* Krijon scroll nëse ka shumë butona */
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: env(safe-area-inset-bottom, 30px); /* Bën një llogaritje inteligjente për fundin e ekranit */
+}
+
 
 /* =========================================
    8. CAROUSEL & SCROLLBAR HIDING
@@ -362,3 +387,35 @@
 .prayer-option-btn .option-text { font-size: 16px; font-weight: 500; color: var(--color-text-primary); pointer-events: none; }
 
 @keyframes spin-slow { 100% { transform: rotate(360deg); } }
+
+/* ==========================================
+   RREGULLIMI DEFINITIV DHE TOTAL PËR BOTTOM SHEET
+   ========================================== */
+   
+/* 1. Kur dritarja ka NDO NJË nga këto klasa, duhet të dalë 100% në ekran */
+.bottom-sheet.is-open,
+.bottom-sheet.is-active,
+.bottom-sheet.active,
+.bottom-sheet.show,
+#global-bottom-sheet.is-open,
+#global-bottom-sheet.is-active,
+#global-bottom-sheet.active {
+    transform: translateY(0) !important;
+}
+
+/* 2. Detyrojmë dritaren të përshtatet me ekranin dhe të mos pritet */
+#global-bottom-sheet {
+    height: auto !important;
+    max-height: 80vh !important; /* Nuk lejohet të dalë mbi 80% të ekranit */
+    bottom: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* 3. Aktivizojmë scroll-in e brendshëm nëse butonat janë shumë */
+#bottom-sheet-content {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important; /* Scroll i butë për iOS/iPhone */
+    padding-bottom: 40px !important; /* Hapësirë që butonat të mos mbulohen nga fundi i ekranit */
+    flex: 1 !important;
+}

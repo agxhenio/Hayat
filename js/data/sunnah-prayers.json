@@ -1,43 +1,99 @@
 {
-  "fajr": {
-    "name": "Sabahu",
-    "farz": 2,
-    "sunnah": {
-      "before": { "count": 2, "type": "muekked", "label": "2 rekate Sunet (para farzit)" }
-    },
-    "quote": "\"Dy rekatet sunet të sabahut janë më të mira se e gjithë dynjaja.\" — Muslim"
+  "title": "Namazi dhe Sunetet",
+  "daily_totals": {
+    "farz": 17,
+    "sunet_muekked": 12,
+    "vitr": 3,
+    "total": 32
   },
-  "dhuhr": {
-    "name": "Dreka",
-    "farz": 4,
-    "sunnah": {
-      "before": { "count": 4, "type": "muekked", "label": "4 rekate Sunet (para farzit)" },
-      "after": { "count": 2, "type": "muekked", "label": "2 rekate Sunet (pas farzit)" }
+  "prayers": {
+    "sabahu": {
+      "id": "sabahu",
+      "name": "Sabahu",
+      "farz": 2,
+      "sunnah": [
+        {
+          "id": "before_2",
+          "position": "before",
+          "rakats": 2,
+          "type": "Muekked",
+          "label": "2 rekate Sunet (para farzit)",
+          "hadith": "\"Dy rekatet sunet të sabahut janë më të mira se e gjithë dynjaja.\" — Muslim"
+        }
+      ]
     },
-    "quote": "\"Kush fal 4 para Drekës dhe 2 pas saj, Allahu ia ndalon zjarrin e Xhehenemit.\" — Tirmidhi"
-  },
-  "asr": {
-    "name": "Ikindia",
-    "farz": 4,
-    "sunnah": {
-      "before": { "count": 4, "type": "mustehab", "label": "4 rekate Sunet (para farzit, mustehab)" }
+    "dreka": {
+      "id": "dreka",
+      "name": "Dreka",
+      "farz": 4,
+      "sunnah": [
+        {
+          "id": "before_4",
+          "position": "before",
+          "rakats": 4,
+          "type": "Muekked",
+          "label": "4 rekate Sunet (para farzit)"
+        },
+        {
+          "id": "after_2",
+          "position": "after",
+          "rakats": 2,
+          "type": "Muekked",
+          "label": "2 rekate Sunet (pas farzit)",
+          "hadith": "\"Kush fal 4 para Drekës dhe 2 pas saj...\""
+        }
+      ]
     },
-    "quote": "\"Allahu e mëshiroftë atë që fal 4 rekate para Ikindisë.\" — Tirmidhi"
-  },
-  "maghrib": {
-    "name": "Akshami",
-    "farz": 3,
-    "sunnah": {
-      "after": { "count": 2, "type": "muekked", "label": "2 rekate Sunet (pas farzit)" }
+    "ikindia": {
+      "id": "ikindia",
+      "name": "Ikindia",
+      "farz": 4,
+      "sunnah": [
+        {
+          "id": "before_4",
+          "position": "before",
+          "rakats": 4,
+          "type": "Mustehab",
+          "label": "4 rekate Sunet (para farzit, mustehab)",
+          "hadith": "\"Allahu e mëshiroftë atë që fal 4 rekate para Ikindisë.\" — Tirmidhi"
+        }
+      ]
+    },
+    "akshami": {
+      "id": "akshami",
+      "name": "Akshami",
+      "farz": 3,
+      "sunnah": [
+        {
+          "id": "after_2",
+          "position": "after",
+          "rakats": 2,
+          "type": "Muekked",
+          "label": "2 rekate Sunet (pas farzit)"
+        }
+      ]
+    },
+    "jacia": {
+      "id": "jacia",
+      "name": "Jacia",
+      "farz": 4,
+      "sunnah": [
+        {
+          "id": "after_2",
+          "position": "after",
+          "rakats": 2,
+          "type": "Muekked",
+          "label": "2 rekate Sunet (pas farzit)"
+        },
+        {
+          "id": "witr_3",
+          "position": "after",
+          "rakats": 3,
+          "type": "Muekked",
+          "label": "3 rekate Vitr (pas Jacisë, Sunet i fortë - Muekked)",
+          "hadith": "\"Vitri është hak (i vërtetë) për çdo musliman.\" — Ebu Daud"
+        }
+      ]
     }
-  },
-  "isha": {
-    "name": "Jacia",
-    "farz": 4,
-    "sunnah": {
-      "after": { "count": 2, "type": "muekked", "label": "2 rekate Sunet (pas farzit)" },
-      "witr": { "count": 3, "type": "muekked", "label": "3 rekate Vitr (pas Jacisë, Sunet i fortë)" }
-    },
-    "quote": "\"Vitri është hak (i vërtetë) për çdo musliman.\" — Ebu Daud"
   }
 }

@@ -1,0 +1,91 @@
+<div class="page-container" id="prayer-log-page" style="padding-bottom: 80px; display: none;">
+    
+    <header style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+        <button id="btn-back-prayer" style="background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0;">
+            ←
+        </button>
+        <div>
+            <h1 style="font-size: 20px; font-weight: 700; color: white; margin: 0;" id="log-prayer-title">Dreka - 12:46</h1>
+            <p style="font-size: 14px; color: #9CA3AF; margin: 4px 0 0 0;" id="log-prayer-date">E Mërkurë, 15 Korrik</p>
+        </div>
+    </header>
+
+    <section style="margin-bottom: 24px;">
+        <h2 style="font-size: 16px; font-weight: 600; color: white; margin-bottom: 16px;">🕌 Si u fale?</h2>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px;" id="prayer-method-options">
+            
+            <button class="method-btn" data-method="mosque_congregation" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #1C2431; border-radius: 12px; border: 1px solid #374151; color: white; cursor: pointer; text-align: left; width: 100%;">
+                <span style="font-size: 20px;">🕌</span>
+                <div style="flex: 1;">
+                    <h3 style="margin: 0; font-size: 15px;">Në xhami me xhemat</h3>
+                </div>
+                <div class="radio-circle" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #374151; transition: 0.2s;"></div>
+            </button>
+
+            <button class="method-btn" data-method="home_congregation" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #1C2431; border-radius: 12px; border: 1px solid #374151; color: white; cursor: pointer; text-align: left; width: 100%;">
+                <span style="font-size: 20px;">👨‍👦</span>
+                <div style="flex: 1;">
+                    <h3 style="margin: 0; font-size: 15px;">Në shtëpi me xhemat</h3>
+                </div>
+                <div class="radio-circle" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #374151; transition: 0.2s;"></div>
+            </button>
+
+            <button class="method-btn" data-method="alone" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #1C2431; border-radius: 12px; border: 1px solid #374151; color: white; cursor: pointer; text-align: left; width: 100%;">
+                <span style="font-size: 20px;">🧎</span>
+                <div style="flex: 1;">
+                    <h3 style="margin: 0; font-size: 15px;">Vetëm</h3>
+                </div>
+                <div class="radio-circle" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #374151; transition: 0.2s;"></div>
+            </button>
+
+            <button class="method-btn" data-method="qada" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #1C2431; border-radius: 12px; border: 1px solid #374151; color: white; cursor: pointer; text-align: left; width: 100%;">
+                <span style="font-size: 20px;">⏰</span>
+                <div style="flex: 1;">
+                    <h3 style="margin: 0; font-size: 15px;">Kaza (Jashtë kohës)</h3>
+                </div>
+                <div class="radio-circle" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #374151; transition: 0.2s;"></div>
+            </button>
+
+            <button class="method-btn" data-method="missed" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #1C2431; border-radius: 12px; border: 1px solid #374151; color: white; cursor: pointer; text-align: left; width: 100%;">
+                <span style="font-size: 20px;">❌</span>
+                <div style="flex: 1;">
+                    <h3 style="margin: 0; font-size: 15px; color: #EF4444;">Nuk u fala</h3>
+                </div>
+                <div class="radio-circle" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #374151; transition: 0.2s;"></div>
+            </button>
+        </div>
+    </section>
+
+    <section id="sunnah-section" style="margin-bottom: 24px;">
+        <h2 style="font-size: 16px; font-weight: 600; color: white; margin-bottom: 16px;">📿 Sunetet</h2>
+        
+        <div style="background: #1C2431; border-radius: 12px; border: 1px solid #374151; overflow: hidden;">
+            <div style="padding: 16px; border-bottom: 1px solid #374151; display: flex; flex-direction: column; gap: 12px;" id="sunnah-list-container">
+                <p style="color: #9CA3AF; font-size: 14px; margin: 0;">Po ngarkon sunetet...</p>
+            </div>
+            
+            <div style="padding: 16px; background: rgba(59, 130, 246, 0.1); display: flex; gap: 12px; align-items: flex-start;" id="sunnah-hadith-container">
+                <span style="font-size: 18px;">💡</span>
+                <p style="margin: 0; font-size: 13px; color: #9CA3AF; line-height: 1.5; font-style: italic;" id="sunnah-hadith-text">
+                    Loading...
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section style="margin-bottom: 32px;">
+        <h2 style="font-size: 16px; font-weight: 600; color: white; margin-bottom: 12px;">📝 Shënim (Opsional)</h2>
+        <textarea id="prayer-note" placeholder="P.sh: U fala në xhaminë e lagjes..." style="width: 100%; box-sizing: border-box; background: #1C2431; border: 1px solid #374151; border-radius: 12px; padding: 16px; color: white; font-family: inherit; font-size: 14px; min-height: 80px; resize: vertical;"></textarea>
+    </section>
+
+    <section style="display: flex; flex-direction: column; gap: 12px;">
+        <button id="btn-continue-dhikr" style="width: 100%; padding: 16px; background: #3B82F6; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: opacity 0.2s;">
+            📿 Vazhdo me Dhikrin →
+        </button>
+        <button id="btn-save-no-dhikr" style="width: 100%; padding: 16px; background: transparent; color: #9CA3AF; border: 1px solid #374151; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+            💾 Ruaj pa Dhikër
+        </button>
+    </section>
+
+</div>

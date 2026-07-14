@@ -1,66 +1,85 @@
-<!-- 📄 index.html -->
 <!DOCTYPE html>
 <html lang="sq">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#0B131E">
-    <title>Hayat - Islamic Life Manager</title>
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Hayat - Aplikacioni Islamik</title>
     <link rel="stylesheet" href="css/main.css">
-    
-    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Rregullime shtesë për pamjen Dashboard */
+        .page-content { padding-top: var(--space-4); }
+        .hero-card { margin-bottom: var(--space-4); cursor: pointer; }
+        .modules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+        .module-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-5); align-items: center; text-align: center; cursor: pointer; }
+    </style>
 </head>
 <body>
+    <header class="page-header" style="padding: var(--space-4);">
+        <h1 class="page-title">Shtëpia</h1>
+        <p class="page-subtitle">Mirë se erdhe, Arbr!</p>
+    </header>
 
-    <!-- Këtu injektohet përmbajtja e faqeve nga router.js -->
-    <main id="app-view" class="animate-fade-in"></main>
+    <main class="page-content" style="padding-bottom: 100px;">
+        <!-- Karta e Namazit (Hero Card) -->
+        <section class="card card--gradient card--padding-md hero-card" onclick="window.location.href='pages/prayer.html'">
+            <h3 style="font-size: var(--font-size-sm); color: var(--color-accent-gold); margin-bottom: 4px;">Namazi i ardhshëm</h3>
+            <p id="next-prayer-name" style="font-size: var(--font-size-xl); font-weight: bold; margin: 4px 0;">Duke u ngarkuar...</p>
+            <div id="prayer-countdown" class="tabular-nums" style="font-size: 2rem; font-weight: bold;">--:--:--</div>
+        </section>
 
-    <!-- Menuja e Poshtme (Fixed Shell) -->
+        <!-- Grida e Modulëve -->
+        <section class="modules-grid">
+            <div class="card module-card" onclick="window.location.href='pages/quran.html'">
+                <i data-lucide="book-open" style="color: var(--color-accent-teal); width: 32px; height: 32px;"></i>
+                <span style="font-weight: 500;">Kur'ani</span>
+            </div>
+            <div class="card module-card" onclick="window.location.href='pages/mburoja.html'">
+                <i data-lucide="shield" style="color: var(--color-accent-teal); width: 32px; height: 32px;"></i>
+                <span style="font-weight: 500;">Mburoja</span>
+            </div>
+            <div class="card module-card" onclick="window.location.href='pages/dhikr.html'">
+                <i data-lucide="sun" style="color: var(--color-accent-teal); width: 32px; height: 32px;"></i>
+                <span style="font-weight: 500;">Dhikri</span>
+            </div>
+            <div class="card module-card" onclick="window.location.href='pages/pasqyra.html'">
+                <i data-lucide="bar-chart-2" style="color: var(--color-accent-teal); width: 32px; height: 32px;"></i>
+                <span style="font-weight: 500;">Pasqyra</span>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
-        <a href="#/" class="bottom-nav__item is-active" data-route="/">
-            <i data-lucide="activity"></i>
-            <span>Kryefaqja</span>
+        <a href="index.html" class="bottom-nav__item bottom-nav__item--active">
+            <i data-lucide="home"></i> <span>Shtëpia</span>
         </a>
-        <a href="#/namazi" class="bottom-nav__item" data-route="/namazi">
-            <i data-lucide="clock"></i>
-            <span>Namazi</span>
-            <div class="bottom-nav__badge">0</div>
+        <a href="pages/prayer.html" class="bottom-nav__item">
+            <i data-lucide="clock"></i> <span>Namazi</span>
         </a>
-        <a href="#/kurani" class="bottom-nav__item" data-route="/kurani">
-            <i data-lucide="book-open"></i>
-            <span>Kurani</span>
+        <a href="pages/quran.html" class="bottom-nav__item">
+            <i data-lucide="book-open"></i> <span>Kur'an</span>
         </a>
-        <a href="#/dhikr" class="bottom-nav__item" data-route="/dhikr">
-            <i data-lucide="circle-dot"></i>
-            <span>Dhikr</span>
+        <a href="pages/mburoja.html" class="bottom-nav__item">
+            <i data-lucide="shield"></i> <span>Mburoja</span>
         </a>
-        <a href="#/menu" class="bottom-nav__item" data-route="/menu">
-            <i data-lucide="more-horizontal"></i>
-            <span>Menu</span>
+        <a href="pages/settings.html" class="bottom-nav__item">
+            <i data-lucide="settings"></i> <span>Settings</span>
         </a>
     </nav>
 
-    <!-- Global Bottom Sheet (Këtu do luhen videot/podcastet) -->
-    <div class="modal-overlay" id="global-overlay"></div>
-    <div class="bottom-sheet" id="global-bottom-sheet">
-        <div class="sheet-handle"></div>
-        <div id="bottom-sheet-content"></div>
-    </div>
-
-    <!-- Core App Logic -->
-    <script type="module" src="js/app.js"></script>
-    <script src="js/modules/prayer.js"></script>
-    
+    <script src="js/services/prayer-times.js"></script>
+    <script>
+        async function initDashboard() {
+            const status = await PrayerTimesService.getCurrentAndNextPrayer();
+            if (status) {
+                document.getElementById('next-prayer-name').innerText = status.next.name;
+                document.getElementById('prayer-countdown').innerText = PrayerTimesService.getCountdownTo(status.next.time, status.next.isNextDay);
+            }
+        }
+        initDashboard();
+        setInterval(initDashboard, 1000);
+        lucide.createIcons();
+    </script>
 </body>
 </html>

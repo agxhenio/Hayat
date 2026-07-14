@@ -1,11 +1,17 @@
-/* * 📄 css/main.css
- * Master stylesheet for Hayat PWA
- * Import this file into your HTML.
+/**
+ * 🕋 Hayat - Islamic Life Manager PWA
+ * 🔌 Main Architecture Stylesheet Bundle
  */
 
-@import 'variables.css';
-@import 'themes.css';
-@import 'reset.css';
-@import 'base.css';
-@import 'components.css';
-@import 'animations.css';
+/* Renditja strikte e ngarkimit të kornizës së dizajnit */
+@import url('variables.css');   /* 1. Variablat dhe Tokens bazë */
+@import url('reset.css');       /* 2. Pastrimi i browser-it */
+@import url('base.css');        /* 3. Stilet globale të tekstit dhe trupit */
+@import url('components.css');  /* 4. 15 Komponentët UI (Buttons, Cards, Modals) */
+@import url('animations.css');  /* 5. Efektet vizuale dhe Keyframes */
+@import url('themes.css');      /* 6. Automatizimi i dritës/errësirës */
+
+/**
+ * Shënim: Stilet specifike për faqet e moduleve do të thirren 
+ * në dokumentet përkatëse pas këtij skedari ose do të shtohen këtu.
+ */

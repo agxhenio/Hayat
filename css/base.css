@@ -1,67 +1,94 @@
-/* * 📄 css/base.css
- * Base typography, utilities, and RTL support
+/**
+ * 🕋 Hayat - Islamic Life Manager PWA
+ * 🏛️ Global Base Styles & Typography Configuration
  */
 
 body {
-  /* Safe area paddings for iPhone notches/home bars */
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
-  /* Leaves space for bottom navigation */
-  margin-bottom: calc(4rem + env(safe-area-inset-bottom)); 
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: var(--font-latin);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+    
+    /* Mbështetje për Notch e iPhone dhe Home Indicator */
+    padding-top: var(--safe-area-top);
+    padding-bottom: var(--safe-area-bottom);
+    
+    transition: background-color var(--transition-base), color var(--transition-base);
 }
 
-/* Typography Classes */
-.text-xs { font-size: var(--font-size-xs); }
-.text-sm { font-size: var(--font-size-sm); }
-.text-base { font-size: var(--font-size-base); }
-.text-lg { font-size: var(--font-size-lg); }
-.text-xl { font-size: var(--font-size-xl); }
-.text-2xl { font-size: var(--font-size-2xl); }
-.text-3xl { font-size: var(--font-size-3xl); }
-
-.font-normal { font-weight: var(--font-weight-normal); }
-.font-medium { font-weight: var(--font-weight-medium); }
-.font-semibold { font-weight: var(--font-weight-semibold); }
-.font-bold { font-weight: var(--font-weight-bold); }
-
-.text-primary { color: var(--color-text-primary); }
-.text-secondary { color: var(--color-text-secondary); }
-.text-tertiary { color: var(--color-text-tertiary); }
-.text-teal { color: var(--color-accent-teal); }
-.text-gold { color: var(--color-accent-gold); }
-
-/* Arabic RTL Support */
-[dir="rtl"] {
-  font-family: var(--font-family-arabic);
-  line-height: var(--line-height-arabic);
-  text-align: right;
+/* ==========================================================================
+   Stilet e Tipografisë Latine (UI & Përkthimet Shqip)
+   ========================================================================== */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
 }
 
+h1 { font-size: var(--font-size-3xl); }
+h2 { font-size: var(--font-size-2xl); }
+h3 { font-size: var(--font-size-xl); }
+h4 { font-size: var(--font-size-lg); }
+
+p {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+}
+
+small {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+/* Links */
+a {
+    color: var(--color-accent-teal);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:active {
+    color: var(--color-accent-teal-dark);
+}
+
+/* ==========================================================================
+   Stilet e Tipografisë Arabe (Teksti i Kur'anit dhe Dhikrit)
+   ========================================================================== */
 .arabic-text {
-  font-family: var(--font-family-arabic);
-  font-size: var(--font-size-arabic-base);
-  direction: rtl;
+    font-family: var(--font-arabic-quran);
+    font-size: var(--font-size-arabic-base);
+    line-height: var(--line-height-arabic);
+    color: var(--color-text-primary);
+    text-align: center;
+    direction: rtl; /* E detyrueshme për shkrimin nga e djathta në të majtë */
+    user-select: none; /* Parandalon përzgjedhjen aksidentale gjatë leximit */
 }
 
-.quran-text {
-  font-family: var(--font-family-quran);
-  font-size: var(--font-size-arabic-lg);
-  line-height: var(--line-height-arabic);
-  direction: rtl;
+.arabic-ui {
+    font-family: var(--font-arabic-ui);
+    font-size: var(--font-size-arabic-sm);
+    direction: rtl;
 }
 
-/* Focus visibility for accessibility */
+/* ==========================================================================
+   Elementet Globale Ndihmëse (A11y & Focus)
+   ========================================================================== */
 :focus-visible {
-  outline: 2px solid var(--color-accent-teal);
-  outline-offset: 2px;
+    outline: 2px solid var(--color-accent-gold);
+    outline-offset: 2px;
 }
 
-/* Container limits */
-.container {
-  width: 100%;
-  max-width: 600px; /* Mobile focused, readable on desktop */
-  margin: 0 auto;
-  padding: 0 var(--space-4);
+/* Dividers (Linjat ndarëse të pastra) */
+hr {
+    border: 0;
+    height: 1px;
+    background-color: var(--color-divider);
+    margin: var(--space-4) 0;
+}
+
+/* Rregullimi i numrave tabularë për kohët e Namazit dhe Countdown-et */
+.tabular-nums {
+    font-variant-numeric: tabular-nums;
 }

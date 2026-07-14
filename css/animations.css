@@ -1,45 +1,130 @@
-/* * 📄 css/animations.css
- * Keyframes and Animation Utilities
+/**
+ * 🕋 Hayat - Islamic Life Manager PWA
+ * 🎬 GPU-Accelerated Animations & Keyframes
  */
 
+/* ==========================================================================
+   1. UTILITY CLASSES (Klasat gati për përdorim)
+   ========================================================================== */
+.animate-fade-in       { animation: fadeIn var(--transition-base) forwards; }
+.animate-fade-out      { animation: fadeOut var(--transition-base) forwards; }
+.animate-slide-up      { animation: slideInUp var(--transition-base) forwards; }
+.animate-slide-down    { animation: slideOutDown var(--transition-base) forwards; }
+.animate-scale-in      { animation: scaleIn var(--transition-base) var(--transition-bounce) forwards; }
+.animate-pulse         { animation: pulse 2s infinite ease-in-out; }
+.animate-shimmer       { animation: shimmer 1.5s infinite linear; }
+
+/* Ngarkuesi Islamik (Rotating 8-point geometric star pattern) */
+.animate-star-loader {
+    animation: rotate 3s infinite linear;
+    transform-origin: center;
+}
+
+/* ==========================================================================
+   2. KEYFRAMES DEFINITIONS
+   ========================================================================== */
+
+/* Fade In / Out */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Slide In Up (Ideale për Bottom Sheet dhe Toasts) */
 @keyframes slideInUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
+/* Slide Out Down */
+@keyframes slideOutDown {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+/* Slide In Left */
+@keyframes slideInLeft {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(0); }
+}
+
+/* Slide In Right */
+@keyframes slideInRight {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(0); }
+}
+
+/* Scale In (Për Modals premium dhe Badges) */
+@keyframes scaleIn {
+    from {
+        transform: scale(0.92);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Skeleton Loading Shimmer (Efekti i dritës që kalon te kartat para ngarkimit) */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Pulse (Për të tërhequr vëmendjen te countdown-i i namazit të radhës) */
 @keyframes pulse {
-  0% { transform: scale(1); box-shadow: 0 0 0 0 hsla(161, 100%, 35%, 0.4); }
-  70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(0, 180, 125, 0); }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 180, 125, 0); }
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.02);
+        opacity: 0.9;
+    }
 }
 
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+/* Visual Bounce (Efekt kërcimi kur preket numëruesi i Dhikrit) */
+.animate-bounce-click {
+    animation: bounceClick var(--transition-fast) var(--transition-bounce);
+}
+@keyframes bounceClick {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(0.93); }
 }
 
-/* Utility Classes */
-.animate-fade-in { animation: fadeIn var(--transition-base) forwards; }
-.animate-slide-up { animation: slideInUp var(--transition-bounce) forwards; }
-.animate-pulse { animation: pulse 2s infinite; }
-.animate-spin { animation: rotate 1s linear infinite; }
-
-/* Staggered delays for lists */
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-
-/* Reduced Motion Preference */
+/* ==========================================================================
+   3. ACCESSIBILITY (Mbrojtja nga ndjeshmëria ndaj lëvizjeve)
+   ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .animate-shimmer {
+        background: var(--color-bg-elevated) !important;
+    }
 }

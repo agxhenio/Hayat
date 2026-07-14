@@ -1,64 +1,76 @@
-/* * 📄 css/reset.css
- * Modern CSS Reset for PWA
+/**
+ * 🕋 Hayat - Islamic Life Manager PWA
+ * 🧹 Modern CSS Reset (Optimized for Mobile-First & PWA Apps)
  */
+
+/* Rregulli i artë i kutive */
 *, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
+/* Parandalimi i zmadhimit automatik të tekstit në iOS gjatë ndryshimit të orientimit */
 html {
-  -webkit-text-size-adjust: 100%;
-  -webkit-tap-highlight-color: transparent;
-  scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    height: 100%;
 }
 
+/* Konfigurimi i trupit për aplikacionet mobile (Anti-Scroll i egër) */
 body {
-  min-height: 100vh;
-  min-height: 100dvh; /* Dynamic viewport for mobile */
-  text-rendering: optimizeSpeed;
-  line-height: var(--line-height-normal);
-  font-family: var(--font-family-base);
-  background-color: var(--color-bg-primary);
-  color: var(--color-text-primary);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    min-height: -webkit-fill-available; /* Rregullon problemet e lartësisë në Safari mobil */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
 }
 
-img, picture, svg, video {
-  display: block;
-  max-width: 100%;
+/* Rregullimi i elementeve interaktive për ekrane me prekje (Touch) */
+a, button, input, select, textarea {
+    -webkit-tap-highlight-color: transparent; /* Heq kutinë e zezë/blu që shfaqet në iOS kur prek diçka */
+    font: inherit;
 }
 
-input, button, textarea, select {
-  font: inherit;
-  color: inherit;
-  border: none;
-  background: none;
-  outline: none;
+/* Heqja e stileve të paracaktuara për listat (pasi navigimi dhe ndërfaqet bazohen në to) */
+ol, ul {
+    list-style: none;
 }
 
+/* Optimizimi i imazheve dhe elementeve mediatike */
+img, picture, svg, video, canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Siguron që butonat dhe inputet të mos kenë sfonde të egra të browser-it */
 button {
-  cursor: pointer;
+    background: none;
+    border: none;
+    cursor: pointer;
 }
 
-ul, ol {
-  list-style: none;
+/* Heqja e shigjetave të paracaktuara në inpute dhe selektorë */
+input, textarea, select {
+    background: none;
+    border: none;
+    outline: none;
 }
 
-a {
-  text-decoration: none;
-  color: inherit;
+/* Rregullimi i textarea-ve që mos të dalin jashtë kornizës */
+textarea {
+    resize: vertical;
 }
 
-/* Remove default dialog styles */
-dialog {
-  border: none;
-  background: none;
-  padding: 0;
-  margin: auto;
+/* Fshehja e scrollbar-it për elementet që duam të bëjmë horizontal scroll (si p.sh. tabet e namazeve) */
+.no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+.no-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
 }

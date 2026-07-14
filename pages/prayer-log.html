@@ -1,91 +1,141 @@
-<div class="page-container" id="prayer-log-page" style="padding-bottom: 80px; display: none;">
-    
-    <header style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
-        <button id="btn-back-prayer" style="background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0;">
-            ←
-        </button>
-        <div>
-            <h1 style="font-size: 20px; font-weight: 700; color: white; margin: 0;" id="log-prayer-title">Dreka - 12:46</h1>
-            <p style="font-size: 14px; color: #9CA3AF; margin: 4px 0 0 0;" id="log-prayer-date">E Mërkurë, 15 Korrik</p>
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Regjistro Namazin - Hayat</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/pages/prayer.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Stile specifike për format e regjistrimit */
+        .log-option {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-4);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-3);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        .log-option:has(input:checked) {
+            border-color: var(--color-accent-gold);
+            background-color: rgba(201, 168, 76, 0.05);
+        }
+        .log-option input[type="radio"], .sunnah-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--color-accent-gold);
+        }
+        .sunnah-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+            padding: var(--space-3) 0;
+            border-bottom: 1px solid var(--color-divider);
+        }
+        .sunnah-info h4 { margin-bottom: 4px; }
+        .hadith-quote {
+            margin-top: var(--space-3);
+            padding: var(--space-3);
+            background-color: var(--color-bg-elevated);
+            border-left: 3px solid var(--color-accent-teal);
+            font-size: var(--font-size-xs);
+            font-style: italic;
+            color: var(--color-text-secondary);
+        }
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+            margin-top: var(--space-6);
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <div class="header-content">
+            <button class="btn btn--icon-only" onclick="history.back()" aria-label="Kthehu">
+                <i data-lucide="arrow-left"></i>
+            </button>
+            <div style="text-align: right;">
+                <h1 class="page-title" style="font-size: var(--font-size-xl);" id="log-prayer-name">Namazi</h1>
+                <p class="page-subtitle" id="log-prayer-date">Sot</p>
+            </div>
         </div>
     </header>
 
-    <section style="margin-bottom: 24px;">
-        <h2 style="font-size: 16px; font-weight: 600; color: white; margin-bottom: 16px;">🕌 Si u fale?</h2>
-        
-        <div style="display: flex; flex-direction: column; gap: 12px;" id="prayer-method-options">
+    <main class="page-content animate-slide-up">
+        <!-- Hapi 1: Si u fale? -->
+        <section class="log-section">
+            <h3 class="form-label" style="margin-bottom: var(--space-3); font-size: var(--font-size-base);">🕌 Si u fale?</h3>
             
-            <button class="method-btn" data-method="mosque_congregation" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #1C2431; border-radius: 12px; border: 1px solid #374151; color: white; cursor: pointer; text-align: left; width: 100%;">
-                <span style="font-size: 20px;">🕌</span>
-                <div style="flex: 1;">
-                    <h3 style="margin: 0; font-size: 15px;">Në xhami me xhemat</h3>
+            <label class="log-option">
+                <input type="radio" name="prayer_method" value="mosque_congregation" required>
+                <div>
+                    <strong>Në xhami me xhemat</strong>
+                    <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">27 gradë më i vlefshëm</div>
                 </div>
-                <div class="radio-circle" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #374151; transition: 0.2s;"></div>
-            </button>
+            </label>
+            
+            <label class="log-option">
+                <input type="radio" name="prayer_method" value="home_congregation">
+                <div>
+                    <strong>Në shtëpi me xhemat</strong>
+                    <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">Me familjen ose miqtë</div>
+                </div>
+            </label>
+            
+            <label class="log-option">
+                <input type="radio" name="prayer_method" value="alone">
+                <div>
+                    <strong>Vetëm</strong>
+                    <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">Individulisht në kohë</div>
+                </div>
+            </label>
+            
+            <label class="log-option">
+                <input type="radio" name="prayer_method" value="qada">
+                <div>
+                    <strong>Kaza (Jashtë kohës)</strong>
+                    <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">Zëvendësim i vonuar</div>
+                </div>
+            </label>
+        </section>
 
-            <button class="method-btn" data-method="home_congregation" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #1C2431; border-radius: 12px; border: 1px solid #374151; color: white; cursor: pointer; text-align: left; width: 100%;">
-                <span style="font-size: 20px;">👨‍👦</span>
-                <div style="flex: 1;">
-                    <h3 style="margin: 0; font-size: 15px;">Në shtëpi me xhemat</h3>
-                </div>
-                <div class="radio-circle" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #374151; transition: 0.2s;"></div>
-            </button>
+        <!-- Hapi 2: Sunetet (Gjenerohet nga JS bazuar te namazi) -->
+        <section class="log-section" id="sunnah-section" style="margin-top: var(--space-5); display: none;">
+            <h3 class="form-label" style="margin-bottom: var(--space-3); font-size: var(--font-size-base);">📿 Sunetet</h3>
+            <div id="sunnah-container">
+                <!-- Checkboxes mbushen nga JS -->
+            </div>
+            <div class="hadith-quote" id="sunnah-hadith"></div>
+        </section>
 
-            <button class="method-btn" data-method="alone" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #1C2431; border-radius: 12px; border: 1px solid #374151; color: white; cursor: pointer; text-align: left; width: 100%;">
-                <span style="font-size: 20px;">🧎</span>
-                <div style="flex: 1;">
-                    <h3 style="margin: 0; font-size: 15px;">Vetëm</h3>
-                </div>
-                <div class="radio-circle" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #374151; transition: 0.2s;"></div>
-            </button>
+        <!-- Hapi 3: Shënime Opsionale -->
+        <section class="log-section" style="margin-top: var(--space-5);">
+            <div class="form-group">
+                <label class="form-label">📝 Shënim (Opsionale)</label>
+                <textarea id="prayer-note" class="form-input" rows="2" placeholder="Ku u fale? Diçka për të kujtuar..."></textarea>
+            </div>
+        </section>
 
-            <button class="method-btn" data-method="qada" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #1C2431; border-radius: 12px; border: 1px solid #374151; color: white; cursor: pointer; text-align: left; width: 100%;">
-                <span style="font-size: 20px;">⏰</span>
-                <div style="flex: 1;">
-                    <h3 style="margin: 0; font-size: 15px;">Kaza (Jashtë kohës)</h3>
-                </div>
-                <div class="radio-circle" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #374151; transition: 0.2s;"></div>
+        <!-- Veprimet -->
+        <div class="action-buttons">
+            <button class="btn btn--primary btn--lg" id="btn-save-dhikr">
+                <i data-lucide="arrow-right"></i> Vazhdo me Dhikrin
             </button>
-
-            <button class="method-btn" data-method="missed" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #1C2431; border-radius: 12px; border: 1px solid #374151; color: white; cursor: pointer; text-align: left; width: 100%;">
-                <span style="font-size: 20px;">❌</span>
-                <div style="flex: 1;">
-                    <h3 style="margin: 0; font-size: 15px; color: #EF4444;">Nuk u fala</h3>
-                </div>
-                <div class="radio-circle" style="width: 20px; height: 20px; border-radius: 50%; border: 2px solid #374151; transition: 0.2s;"></div>
+            <button class="btn btn--ghost btn--lg" id="btn-save-only">
+                <i data-lucide="save"></i> Ruaj pa Dhikër
             </button>
         </div>
-    </section>
+    </main>
 
-    <section id="sunnah-section" style="margin-bottom: 24px;">
-        <h2 style="font-size: 16px; font-weight: 600; color: white; margin-bottom: 16px;">📿 Sunetet</h2>
-        
-        <div style="background: #1C2431; border-radius: 12px; border: 1px solid #374151; overflow: hidden;">
-            <div style="padding: 16px; border-bottom: 1px solid #374151; display: flex; flex-direction: column; gap: 12px;" id="sunnah-list-container">
-                <p style="color: #9CA3AF; font-size: 14px; margin: 0;">Po ngarkon sunetet...</p>
-            </div>
-            
-            <div style="padding: 16px; background: rgba(59, 130, 246, 0.1); display: flex; gap: 12px; align-items: flex-start;" id="sunnah-hadith-container">
-                <span style="font-size: 18px;">💡</span>
-                <p style="margin: 0; font-size: 13px; color: #9CA3AF; line-height: 1.5; font-style: italic;" id="sunnah-hadith-text">
-                    Loading...
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <section style="margin-bottom: 32px;">
-        <h2 style="font-size: 16px; font-weight: 600; color: white; margin-bottom: 12px;">📝 Shënim (Opsional)</h2>
-        <textarea id="prayer-note" placeholder="P.sh: U fala në xhaminë e lagjes..." style="width: 100%; box-sizing: border-box; background: #1C2431; border: 1px solid #374151; border-radius: 12px; padding: 16px; color: white; font-family: inherit; font-size: 14px; min-height: 80px; resize: vertical;"></textarea>
-    </section>
-
-    <section style="display: flex; flex-direction: column; gap: 12px;">
-        <button id="btn-continue-dhikr" style="width: 100%; padding: 16px; background: #3B82F6; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: opacity 0.2s;">
-            📿 Vazhdo me Dhikrin →
-        </button>
-        <button id="btn-save-no-dhikr" style="width: 100%; padding: 16px; background: transparent; color: #9CA3AF; border: 1px solid #374151; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
-            💾 Ruaj pa Dhikër
-        </button>
-    </section>
-
-</div>
+    <script src="../js/db.js"></script>
+    <script src="../js/services/prayer-times.js"></script>
+    <script src="../js/modules/prayer-log.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

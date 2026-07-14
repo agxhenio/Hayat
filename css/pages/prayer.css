@@ -1,0 +1,184 @@
+/**
+ * 🕋 Hayat - Moduli i Namazit
+ * Stilet specifike për faqet e Namazit
+ */
+
+.page-header {
+    padding: var(--space-4) var(--space-4) var(--space-2) var(--space-4);
+    position: sticky;
+    top: 0;
+    background-color: var(--color-bg-primary);
+    z-index: var(--z-sticky);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.page-title {
+    margin-bottom: 2px;
+}
+
+.page-subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--color-accent-gold);
+}
+
+.page-content {
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding-bottom: calc(var(--space-20) + var(--safe-area-bottom)); /* Për bottom nav */
+}
+
+/* Hero Card Styles */
+.hero-prayer-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.prayer-name-large {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+}
+
+.prayer-time-large {
+    font-size: var(--font-size-2xl);
+    color: var(--color-text-secondary);
+}
+
+.countdown-text {
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-2);
+}
+
+/* Progress Bars */
+.progress-bar-container {
+    width: 100%;
+    height: 6px;
+    background-color: var(--color-bg-elevated);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: var(--color-accent-gold);
+    border-radius: var(--radius-full);
+    transition: width 1s linear;
+}
+
+.bg-success {
+    background-color: var(--color-success);
+}
+
+/* Timeline e Namazeve Horizontale */
+.prayer-timeline {
+    width: 100%;
+    margin: 0 calc(var(--space-4) * -1); /* Full width bleed */
+    padding: 0 var(--space-4);
+}
+
+.timeline-container {
+    display: flex;
+    gap: var(--space-3);
+    min-width: max-content;
+    padding-bottom: var(--space-2);
+}
+
+.prayer-mini-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-3);
+    min-width: 70px;
+    gap: var(--space-1);
+    transition: all var(--transition-fast);
+}
+
+.prayer-mini-card.active {
+    background-color: var(--color-bg-elevated);
+    border-color: var(--color-accent-gold);
+    box-shadow: var(--shadow-gold);
+}
+
+.prayer-mini-card .icon-placeholder {
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+}
+
+.prayer-mini-card .name {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.prayer-mini-card .time {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+}
+
+/* Quick Actions Grid */
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-3);
+}
+
+.quick-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.quick-action-btn:active {
+    background-color: var(--color-bg-elevated);
+}
+
+.quick-action-btn i {
+    color: var(--color-accent-teal);
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+    text-align: center;
+    border-top: 1px solid var(--color-divider);
+    padding-top: var(--space-3);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.stat-item strong {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+}

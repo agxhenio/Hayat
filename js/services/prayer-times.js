@@ -1,203 +1,139 @@
 /**
- * Shërbimi i Kohëve të Namazit
- * Përdor adhan.js për llogaritje offline dhe Aladhan API si backup
+ * 🕋 Hayat - Islamic Life Manager PWA
+ * ⏱️ Prayer Times Service (Aladhan API + Offline Cache)
  */
 
-class PrayerTimesService {
-    constructor() {
-        this.cacheKey = 'prayer_cache';
-        this.configKey = 'prayer_config';
-        this.defaultConfig = {
-            calculation_method: 3, // Muslim World League
-            asr_method: 'hanafi',
-            location: {
-                city: 'Tiranë',
-                country: 'Shqipëri',
-                latitude: 41.3275,
-                longitude: 19.8187,
-                auto_detect: true
-            }
-        };
+const PrayerTimesService = {
+    // Konfigurimet bazë (Default: Tiranë, MWL, Hanefi)
+    config: {
+        city: 'Tiranë',
+        country: 'Albania',
+        latitude: 41.3275,
+        longitude: 19.8187,
+        method: 3, // 3 = Muslim World League (MWL)
+        school: 1  // 1 = Hanefi (Për Ikindinë), 0 = Shafi
+    },
 
-        this.init();
-    }
+    // Emrat e namazeve në Shqip
+    prayerNames: {
+        Fajr: 'Sabahu',
+        Sunrise: 'Lindja',
+        Dhuhr: 'Dreka',
+        Asr: 'Ikindia',
+        Maghrib: 'Akshami',
+        Isha: 'Jacia'
+    },
 
-    init() {
-        // Inicializo konfigurimet nëse nuk ekzistojnë
-        if (!localStorage.getItem(this.configKey)) {
-            localStorage.setItem(this.configKey, JSON.stringify(this.defaultConfig));
-        }
-        
-        if (!localStorage.getItem(this.cacheKey)) {
-            localStorage.setItem(this.cacheKey, JSON.stringify({}));
-        }
+    /**
+     * Merr kohët e namazit për ditën e sotme (Nga Cache ose API)
+     */
+    async getTodayTimings() {
+        const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+        const cacheKey = `hayat_prayers_${today}`;
 
-        this.config = JSON.parse(localStorage.getItem(this.configKey));
-        this.cache = JSON.parse(localStorage.getItem(this.cacheKey));
-    }
-
-    getConfig() {
-        return this.config;
-    }
-
-    updateConfig(newConfig) {
-        this.config = { ...this.config, ...newConfig };
-        localStorage.setItem(this.configKey, JSON.stringify(this.config));
-        this.clearCache(); // Fshi cache-in nëse ndryshon lokacioni/metoda
-    }
-
-    clearCache() {
-        this.cache = {};
-        localStorage.setItem(this.cacheKey, JSON.stringify(this.cache));
-    }
-
-    // Funksioni kryesor për të marrë kohët e namazit për një ditë
-    async getTimesForDate(dateObj = new Date()) {
-        const dateStr = this.formatDate(dateObj);
-
-        // Kthe nga cache nëse ekziston
-        if (this.cache[dateStr]) {
-            return this.cache[dateStr];
+        // 1. Kontrollo nëse i kemi ruajtur offline në localStorage
+        const cachedData = localStorage.getItem(cacheKey);
+        if (cachedData) {
+            console.log('[Prayer Service] Kohët u morën nga Cache (Offline)');
+            return JSON.parse(cachedData);
         }
 
+        // 2. Nëse s'i kemi, i marrim nga Aladhan API
         try {
-            // Provo me adhan.js (Offline)
-            const times = this.calculateWithAdhan(dateObj);
-            this.saveToCache(dateStr, times);
-            return times;
+            console.log('[Prayer Service] Po marrim kohët nga API...');
+            const url = `https://api.aladhan.com/v1/timingsByCity?city=${this.config.city}&country=${this.config.country}&method=${this.config.method}&school=${this.config.school}`;
+            
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.code === 200) {
+                const timings = data.data.timings;
+                
+                // Ruajmë në Cache vetëm ato që na duhen për të kursyer hapësirë
+                const essentialTimings = {
+                    Fajr: timings.Fajr,
+                    Sunrise: timings.Sunrise,
+                    Dhuhr: timings.Dhuhr,
+                    Asr: timings.Asr,
+                    Maghrib: timings.Maghrib,
+                    Isha: timings.Isha,
+                    hijri: data.data.date.hijri.date,
+                    hijri_month: data.data.date.hijri.month.en
+                };
+
+                // Ruajmë në localStorage për përdorim offline
+                localStorage.setItem(cacheKey, JSON.stringify(essentialTimings));
+                return essentialTimings;
+            } else {
+                throw new Error("Gabim nga API i Aladhan");
+            }
         } catch (error) {
-            console.warn("Llogaritja lokale dështoi, po provojmë API-në...", error);
-            try {
-                // Backup: Aladhan API
-                const times = await this.fetchFromAPI(dateStr);
-                this.saveToCache(dateStr, times);
-                return times;
-            } catch (apiError) {
-                console.error("Të dyja metodat dështuan:", apiError);
-                return null;
+            console.error('[Prayer Service] Dështoi marrja e kohëve:', error);
+            // Këtu mund të bëjmë fallback te adhan.js nëse do ta integroshim lokalisht
+            return null;
+        }
+    },
+
+    /**
+     * Llogarit cili është namazi i kaluar dhe cili është namazi i radhës
+     */
+    async getCurrentAndNextPrayer() {
+        const timings = await this.getTodayTimings();
+        if (!timings) return null;
+
+        const now = new Date();
+        const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+
+        // Renditja e namazeve për krahasim
+        const schedule = [
+            { id: 'Fajr', time: timings.Fajr },
+            { id: 'Dhuhr', time: timings.Dhuhr },
+            { id: 'Asr', time: timings.Asr },
+            { id: 'Maghrib', time: timings.Maghrib },
+            { id: 'Isha', time: timings.Isha }
+        ];
+
+        let currentPrayer = null;
+        let nextPrayer = schedule[0]; // Default: Sabahu i ditës tjetër
+
+        for (let i = 0; i < schedule.length; i++) {
+            const prayerTimeParts = schedule[i].time.split(':');
+            const prayerTimeInMinutes = parseInt(prayerTimeParts[0]) * 60 + parseInt(prayerTimeParts[1]);
+
+            if (currentTimeInMinutes >= prayerTimeInMinutes) {
+                currentPrayer = schedule[i];
+                // Përditëso namazin e radhës
+                nextPrayer = (i + 1 < schedule.length) ? schedule[i + 1] : { id: 'Fajr_NextDay', time: timings.Fajr };
             }
         }
-    }
-
-    // Gjenero cache për 7 ditët e ardhshme
-    async prefetchWeek() {
-        let today = new Date();
-        for (let i = 0; i < 7; i++) {
-            let nextDate = new Date(today);
-            nextDate.setDate(today.getDate() + i);
-            await this.getTimesForDate(nextDate);
-        }
-    }
-
-    calculateWithAdhan(date) {
-        if (typeof adhan === 'undefined') {
-            throw new Error("Libraria adhan.js nuk është ngarkuar.");
-        }
-
-        const coordinates = new adhan.Coordinates(
-            this.config.location.latitude, 
-            this.config.location.longitude
-        );
-
-        // Parametrat: Muslim World League (3)
-        let params = adhan.CalculationMethod.MuslimWorldLeague();
-        
-        // Asr Method
-        if (this.config.asr_method === 'hanafi') {
-            params.madhab = adhan.Madhab.Hanafi;
-        } else {
-            params.madhab = adhan.Madhab.Shafi;
-        }
-
-        const prayerTimes = new adhan.PrayerTimes(coordinates, date, params);
 
         return {
-            fajr: this.formatTime(prayerTimes.fajr),
-            sunrise: this.formatTime(prayerTimes.sunrise),
-            dhuhr: this.formatTime(prayerTimes.dhuhr),
-            asr: this.formatTime(prayerTimes.asr),
-            maghrib: this.formatTime(prayerTimes.maghrib),
-            isha: this.formatTime(prayerTimes.isha)
+            current: currentPrayer ? { id: currentPrayer.id, name: this.prayerNames[currentPrayer.id], time: currentPrayer.time } : null,
+            next: { id: nextPrayer.id.replace('_NextDay', ''), name: this.prayerNames[nextPrayer.id.replace('_NextDay', '')], time: nextPrayer.time, isNextDay: nextPrayer.id.includes('_NextDay') }
         };
-    }
+    },
 
-    async fetchFromAPI(dateStr) {
-        // dateStr duhet të jetë DD-MM-YYYY për Aladhan API
-        const dateParts = dateStr.split('-');
-        const apiDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`; 
+    /**
+     * Përgatit string-un e numërimit mbrapsht (Countdown HH:MM:SS)
+     */
+    getCountdownTo(targetTimeString, isNextDay = false) {
+        const now = new Date();
+        const targetParts = targetTimeString.split(':');
+        
+        let targetDate = new Date();
+        targetDate.setHours(parseInt(targetParts[0]), parseInt(targetParts[1]), 0, 0);
 
-        const url = `https://api.aladhan.com/v1/timings/${apiDate}?latitude=${this.config.location.latitude}&longitude=${this.config.location.longitude}&method=${this.config.calculation_method}&school=${this.config.asr_method === 'hanafi' ? 1 : 0}`;
-
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (data.code === 200) {
-            const timings = data.data.timings;
-            return {
-                fajr: timings.Fajr,
-                sunrise: timings.Sunrise,
-                dhuhr: timings.Dhuhr,
-                asr: timings.Asr,
-                maghrib: timings.Maghrib,
-                isha: timings.Isha
-            };
-        } else {
-            throw new Error("API u përgjigj me gabim.");
+        if (isNextDay) {
+            targetDate.setDate(targetDate.getDate() + 1);
         }
+
+        const diff = targetDate - now;
+        if (diff <= 0) return "00:00:00";
+
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((diff / 1000 / 60) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     }
-
-    // Përditëso vendndodhjen automatikisht
-    async autoDetectLocation() {
-        return new Promise((resolve, reject) => {
-            if (!navigator.geolocation) {
-                reject(new Error("Gjeolokacioni nuk mbështetet në këtë shfletues."));
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    this.updateConfig({
-                        location: {
-                            ...this.config.location,
-                            latitude: position.coords.latitude,
-                            longitude: position.coords.longitude,
-                            auto_detect: true
-                        }
-                    });
-                    this.prefetchWeek(); // Rigjenero kohët me lokacionin e ri
-                    resolve(this.config.location);
-                },
-                (error) => {
-                    reject(error);
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000
-                }
-            );
-        });
-    }
-
-    /* --- Helpers --- */
-
-    saveToCache(dateStr, times) {
-        this.cache[dateStr] = times;
-        localStorage.setItem(this.cacheKey, JSON.stringify(this.cache));
-    }
-
-    formatDate(date) {
-        const d = String(date.getDate()).padStart(2, '0');
-        const m = String(date.getMonth() + 1).padStart(2, '0');
-        const y = date.getFullYear();
-        return `${y}-${m}-${d}`;
-    }
-
-    formatTime(date) {
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        return `${hours}:${minutes}`;
-    }
-}
-
-// Eksporto si instancë globale për t'u përdorur në module të tjera
-const prayerTimesService = new PrayerTimesService();
+};

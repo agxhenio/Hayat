@@ -2,150 +2,74 @@
 <html lang="sq">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Hayat Design System</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hayat - Design System Preview</title>
+    <!-- Thërrasim stilin kryesor që mbledh të gjithë komponentët -->
     <link rel="stylesheet" href="css/main.css">
-    
     <script src="https://unpkg.com/lucide@latest"></script>
-
     <style>
-        /* Inline structural styles just for the documentation layout */
-        .doc-section { margin-bottom: var(--space-8); padding-bottom: var(--space-8); border-bottom: 1px solid var(--color-divider); }
-        .doc-title { margin-bottom: var(--space-4); color: var(--color-accent-gold); font-size: var(--font-size-sm); text-transform: uppercase; letter-spacing: 1px;}
-        .flex-row { display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center; }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Custom avatar just for preview */
-        .avatar-h { width: 40px; height: 40px; background: var(--color-accent-teal); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; color: white;}
+        body { padding: var(--space-4); }
+        section { margin-bottom: var(--space-10); }
+        h2 { margin-bottom: var(--space-4); border-bottom: 1px solid var(--color-divider); padding-bottom: var(--space-2); }
+        .demo-group { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
     </style>
 </head>
 <body>
 
-<div class="container" style="padding-top: var(--space-4);">
-    
-    <div class="doc-section animate-slide-up">
-        <div class="doc-title">UI Mockup (Match Image)</div>
+    <h1>Design System Preview</h1>
+    <button class="btn btn--ghost" onclick="toggleTheme()" style="margin-bottom: var(--space-4);">🌓 Ndërro Temën (Light/Dark)</button>
+
+    <section>
+        <h2>Butonat</h2>
+        <div class="demo-group">
+            <button class="btn btn--primary btn--md">Primary Gold</button>
+            <button class="btn btn--secondary btn--md">Secondary Teal</button>
+            <button class="btn btn--ghost btn--md">Ghost</button>
+        </div>
+    </section>
+
+    <section>
+        <h2>Karta (Cards)</h2>
+        <div class="card card--padding-md" style="margin-bottom: var(--space-3);">
+            <h3>Default Card</h3>
+            <p>Kjo është një kartë standarte me padding dhe border të rrumbullakosur.</p>
+        </div>
+        <div class="card card--gradient card--padding-md">
+            <h3>Gradient Card</h3>
+            <p>Përdoret për namazin e radhës ose njoftime të rëndësishme.</p>
+        </div>
+    </section>
+
+    <section>
+        <h2>Badges</h2>
+        <div class="demo-group">
+            <span class="badge badge--success">Kompletuar</span>
+            <span class="badge badge--warning">Në pritje</span>
+            <span class="badge badge--danger">Humbur</span>
+            <span class="badge badge--gold">Sunet</span>
+        </div>
+    </section>
+
+    <section>
+        <h2>Ikonat</h2>
+        <div class="demo-group">
+            <i data-lucide="sun"></i>
+            <i data-lucide="moon"></i>
+            <i data-lucide="book-open"></i>
+            <i data-lucide="shield"></i>
+        </div>
+    </section>
+
+    <script>
+        // Funksioni për të ndërruar temën
+        function toggleTheme() {
+            const root = document.documentElement;
+            const current = root.getAttribute('data-theme');
+            root.setAttribute('data-theme', current === 'light' ? 'dark' : 'light');
+        }
         
-        <header class="flex-between" style="margin-bottom: var(--space-4);">
-            <div style="display: flex; align-items: center; gap: var(--space-3);">
-                <div class="avatar-h">H</div>
-                <div>
-                    <h1 class="font-bold text-teal text-base" style="line-height: 1;">HAYAT</h1>
-                    <span class="text-xs text-tertiary">ISLAMIC LIFE MANAGER</span>
-                </div>
-            </div>
-            <div class="flex-row">
-                <button class="btn btn--gold" style="padding: 4px 8px; font-size: 11px;">
-                    <i data-lucide="sparkles" style="width: 12px; height: 12px;"></i> Hayat AI
-                </button>
-                <div class="btn btn--secondary" style="padding: 4px 8px; font-size: 11px;">
-                    Tiranë, AL <i data-lucide="chevron-down" style="width: 12px; height: 12px;"></i>
-                </div>
-            </div>
-        </header>
-
-        <div class="card card--elevated" style="margin-bottom: var(--space-4);">
-            <div class="text-teal font-medium" style="display:flex; align-items:center; gap: 4px;">
-                Sabah El-Kheir <i data-lucide="sun" style="color: var(--color-accent-gold); width:16px;"></i>
-            </div>
-            <h2 class="text-2xl font-bold" style="margin: var(--space-2) 0;">Eselamu Alejkum, i nderuar</h2>
-            <div class="text-xs text-tertiary flex-row" style="margin-bottom: var(--space-3);">
-                <i data-lucide="calendar" style="width:14px;"></i> E Shtunë, 11 Korrik 2026 
-                <span style="color: var(--color-accent-teal); margin-left: 8px;">• 25 Muharrem 1448 AH</span>
-            </div>
-            <div class="badge badge--dark">
-                <i data-lucide="navigation" style="width:12px; color:var(--color-accent-teal);"></i> Tiranë, Shqipëri
-            </div>
-        </div>
-
-        <div class="card card--glow-teal">
-            <div class="flex-between">
-                <span class="text-teal font-semibold text-xs tracking-wide">NAMAZI I RADHËS</span>
-                <span class="text-4xl font-bold font-tabular">01:23:49</span>
-            </div>
-            <div class="flex-between" style="align-items: flex-end; margin-top: -8px;">
-                <div>
-                    <h3 class="text-3xl font-bold" style="margin-bottom: 4px;">DREKA</h3>
-                    <p class="text-xs text-secondary">Llogaritur sipas koordinatave lokale</p>
-                </div>
-                <div class="badge badge--teal" style="background: transparent; padding: 2px 8px;">
-                    orari: 12:06
-                </div>
-            </div>
-
-            <div class="flex-between" style="margin-top: var(--space-6); margin-bottom: var(--space-2);">
-                <span class="text-sm font-medium">Progresi i namazeve sot:</span>
-                <span class="badge badge--teal">0/5 falur</span>
-            </div>
-
-            <div class="prayer-circles-row">
-                <div class="prayer-circle"><span class="prayer-circle__name">IMS</span><div class="circle-indicator"></div></div>
-                <div class="prayer-circle"><span class="prayer-circle__name">DRE</span><div class="circle-indicator"></div></div>
-                <div class="prayer-circle"><span class="prayer-circle__name">IKI</span><div class="circle-indicator"></div></div>
-                <div class="prayer-circle"><span class="prayer-circle__name">AKS</span><div class="circle-indicator"></div></div>
-                <div class="prayer-circle"><span class="prayer-circle__name">JAC</span><div class="circle-indicator"></div></div>
-            </div>
-            
-            <p class="text-xs text-tertiary" style="margin-top: var(--space-4); text-align: center; display:flex; align-items:center; justify-content:center; gap:4px;">
-                <i data-lucide="info" style="width:12px;"></i> Prek për të shënuar si të falur. Shtyp gjatë për të zgjedhur "Në Xhami" ose "Sunete".
-            </p>
-        </div>
-    </div>
-
-    <div class="doc-section animate-slide-up delay-100">
-        <div class="doc-title">Typography & Colors</div>
-        <h1 class="text-3xl font-bold">Inter Titull H1</h1>
-        <p class="text-base text-secondary">Ky është një tekst normal (base). Hayat është dizajnuar me kujdes për komunitetin Shqiptar.</p>
-        <div class="arabic-text" style="margin-top: var(--space-2); color: var(--color-accent-gold);">
-            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-        </div>
-    </div>
-
-    <div class="doc-section animate-slide-up delay-200">
-        <div class="doc-title">Buttons & Actions</div>
-        <div class="flex-row">
-            <button class="btn btn--primary">Ruaj Ndryshimet</button>
-            <button class="btn btn--secondary">Anulo</button>
-            <button class="btn btn--gold"><i data-lucide="star" style="width:16px;"></i> Premium</button>
-            <button class="btn btn--ghost">Pastro</button>
-        </div>
-    </div>
-
-</div> <nav class="bottom-nav">
-    <a href="#" class="bottom-nav__item is-active">
-        <i data-lucide="activity"></i>
-        <span>Kryefaqja</span>
-    </a>
-    <a href="#" class="bottom-nav__item">
-        <i data-lucide="book-open"></i>
-        <span>Namazi</span>
-        <div class="bottom-nav__badge">0</div>
-    </a>
-    <a href="#" class="bottom-nav__item">
-        <i data-lucide="library"></i>
-        <span>Kurani</span>
-    </a>
-    <a href="#" class="bottom-nav__item">
-        <i data-lucide="circle-dot"></i>
-        <span>Dhikr</span>
-    </a>
-    <a href="#" class="bottom-nav__item">
-        <i data-lucide="more-horizontal"></i>
-        <span>Më Shumë</span>
-    </a>
-</nav>
-
-<script>
-    // Initialize Lucide Icons
-    lucide.createIcons();
-    
-    // Simple theme toggle for documentation testing
-    // To test light mode, you would add `document.body.classList.toggle('light-theme')`
-</script>
+        // Inicializimi i ikonave
+        lucide.createIcons();
+    </script>
 </body>
 </html>

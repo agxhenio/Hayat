@@ -1,34 +1,57 @@
-/* * 📄 css/themes.css
- * Theme Overrides (Light Mode)
- * Default is Dark Mode (Night). This applies Day mode variables.
+/**
+ * 🕋 Hayat - Islamic Life Manager PWA
+ * 🌓 Theme Automation & System Preference Override
  */
 
-.light-theme {
-  --color-bg-primary: hsl(48, 40%, 98%);     /* #FEFDF8 - Cream */
-  --color-bg-secondary: hsl(45, 30%, 94%);   /* #F5F1E8 */
-  --color-bg-tertiary: hsl(0, 0%, 100%);     /* #FFFFFF */
-  --color-bg-elevated: hsl(0, 0%, 100%);
-
-  --color-text-primary: hsl(215, 30%, 15%);  /* #1E293B */
-  --color-text-secondary: hsl(215, 20%, 35%);/* #475569 */
-  --color-text-tertiary: hsl(215, 15%, 45%); /* #64748B */
-
-  --color-border: hsla(215, 20%, 80%, 0.5);
-  --color-divider: hsla(215, 20%, 80%, 0.3);
-
-  --color-accent-teal: hsl(175, 75%, 25%);   /* Darker teal for contrast */
-  --color-accent-gold: hsl(43, 70%, 45%);    /* Darker gold for text readability */
-  
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.05);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.05);
-}
-
-/* Optional: System preference auto-switch (Uncomment if needed) */
-/*
+/* Detektimi Automatik i Light Mode nga Sistemi i Telefonit */
 @media (prefers-color-scheme: light) {
-  :root {
-    // Paste light-theme variables here to auto-switch based on OS
-  }
+    :root:not([data-theme="dark"]) {
+        /* Aplikon vlerat e Light Mode nëse përdoruesi nuk e ka detyruar temën Errët */
+        --color-bg-primary: #fefdf8;
+        --color-bg-secondary: #f5f1e8;
+        --color-bg-tertiary: #ffffff;
+        --color-bg-elevated: #ffffff;
+
+        --color-accent-gold: #a68938;
+        --color-accent-gold-light: #c9a84c;
+        --color-accent-gold-dark: #7d6523;
+
+        --color-accent-teal: #0f766e;
+        --color-accent-teal-light: #14b8a6;
+        --color-accent-teal-dark: #0b4f4a;
+
+        --color-text-primary: #1e293b;
+        --color-text-secondary: #475569;
+        --color-text-tertiary: #64748b;
+        --color-text-muted: #94a3b8;
+
+        --color-border: rgba(166, 137, 56, 0.15);
+        --color-border-strong: rgba(166, 137, 56, 0.3);
+        --color-divider: rgba(71, 85, 105, 0.08);
+
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px rgba(166, 137, 56, 0.05);
+        --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.04);
+        --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.06);
+        --shadow-gold: 0 4px 20px rgba(166, 137, 56, 0.1);
+        --shadow-teal: 0 4px 20px rgba(15, 118, 110, 0.1);
+    }
 }
-*/
+
+/* Ndërrimi i lëmuar i elementeve gjatë ndryshimit të temës */
+body, .card, .btn, .form-input, .bottom-nav, .list-item, .tab-item {
+    transition: background-color var(--transition-base), 
+                border-color var(--transition-base), 
+                color var(--transition-base),
+                box-shadow var(--transition-base);
+}
+
+/* Sfondi i veçantë Shimmer i përshtatshëm për të dyja temat */
+.skeleton-shimmer {
+    background: linear-gradient(90deg, 
+        var(--color-bg-tertiary) 25%, 
+        var(--color-bg-elevated) 50%, 
+        var(--color-bg-tertiary) 75%
+    );
+    background-size: 200% 100%;
+}

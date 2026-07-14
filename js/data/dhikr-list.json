@@ -1,0 +1,8 @@
+{
+    "morning": [
+        {"text": "Ajet el-Kursi", "repeat": 1},
+        {"text": "Sure El-Ikhlas", "repeat": 3}
+    ],
+    "evening": [],
+    "bedtime": []
+}

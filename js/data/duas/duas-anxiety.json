@@ -1,0 +1,29 @@
+{
+  "category_id": "gezim_shqetesim",
+  "category_name": "Gëzim dhe Shqetësim",
+  "icon": "heart",
+  "color": "var(--color-danger)",
+  "duas": [
+    {
+      "id": "dua_hasbunallah",
+      "name": "Kur ke ankth dhe shqetësim",
+      "short_description": "Më mjafton mua Allahu...",
+      "arabic": "حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",
+      "transliteration": "HasbijAll-llahu la Ilahe il-la hu(ve), Alejhi tevekkeltu ve Huve Rabbul-'arshil-'adhim.",
+      "translation": "Më mjafton mua All-llahu; s'ka të adhuruar tjetër përveç Tij. Tek Ai jam mbështetur dhe Ai është Zoti i Arshit të Madh.",
+      "repeat": 7,
+      "virtue": "Kush e thotë këtë në mëngjes dhe në mbrëmje shtatë herë i mjafton për atë që e brengos çështja e kësaj bote dhe e ahiretit.",
+      "source": "Ibën Sunnijj hadithi nr:71. Shuajb dhe Abdulkadër Arnauti 'Zadul-Me'ad' 2/376"
+    },
+    {
+      "id": "dua_merzitje",
+      "name": "Kur je i mërzitur (Lutja e Junusit a.s)",
+      "short_description": "Nuk ka Zot tjetër përveç Teje...",
+      "arabic": "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ",
+      "transliteration": "La ilahe il-la Ente subhaneke inni kuntu minedh-dhalimin.",
+      "translation": "Nuk ka Zot tjetër përveç Teje! Qofsh i lavdëruar! Me të vërtetë unë kam qenë nga zullumqarët.",
+      "repeat": 1,
+      "source": "Tirmidhiu 5/529. Hakimi, i cili e bën atë të vërtetë."
+    }
+  ]
+}

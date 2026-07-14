@@ -1,208 +1,324 @@
 /**
- * 🕋 Hayat - Quran Module Controller
+ * 🕋 Hayat - Moduli i Kur'anit (Reading Mode me Ruajtje Progresi)
  */
 
-const QuranModule = {
-    currentSurah: 1,
-    fontSizeMultiplier: 0, // 0 = default, mund të jetë + ose -
+let currentSura = 1; 
+let currentMode = 'parallel'; 
+let surahList = [];
+let savedProgress = null; // Ruajmë progresin e fundit
 
-    init: async function() {
-        console.log("Moduli i Kur'anit u inicializua.");
-        this.populateSurahSelector();
-        this.loadSettings();
+// --- SHËRBIMI I INDEXEDDB PËR PROGRESIN E KUR'ANIT ---
+const DB_NAME = 'hayat_db';
+const DB_VERSION = 1;
+const STORE_NAME = 'quran_progress';
+
+function initDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
         
-        // Ngarko suren e fundit të lexuar (nëse ekziston), ose Al-Fatihah
-        const lastRead = localStorage.getItem("quran_last_read_surah");
-        this.currentSurah = lastRead ? parseInt(lastRead) : 1;
-        document.getElementById('surah-select').value = this.currentSurah;
-
-        await this.loadSurah(this.currentSurah);
-        this.bindEvents();
-        
-        // Aktivizo ikonat Lucide nëse janë të gatshme
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-    },
-
-    // Shto të 114 suret tek përzgjedhësi automatikisht
-    populateSurahSelector: function() {
-        const selector = document.getElementById('surah-select');
-        selector.innerHTML = ""; // Pastro
-        
-        const list = QuranService.getSurahList();
-        list.forEach(surah => {
-            const option = document.createElement('option');
-            option.value = surah.id;
-            option.textContent = `${surah.id}. ${surah.name} (${surah.translation})`;
-            selector.appendChild(option);
-        });
-    },
-
-    bindEvents: function() {
-        const selector = document.getElementById('surah-select');
-        const nextBtn = document.getElementById('btn-next-surah');
-        const prevBtn = document.getElementById('btn-prev-surah');
-        const settingsToggle = document.getElementById('quran-settings-toggle');
-        const settingsPanel = document.getElementById('quran-settings-panel');
-        
-        const fontIncrease = document.getElementById('btn-font-increase');
-        const fontDecrease = document.getElementById('btn-font-decrease');
-        const toggleTrans = document.getElementById('toggle-translation');
-        const askGeminiBtn = document.getElementById('btn-ask-gemini');
-
-        // Kur ndryshohet sura nga Dropdown
-        selector.addEventListener('change', async (e) => {
-            this.currentSurah = parseInt(e.target.value);
-            await this.loadSurah(this.currentSurah);
-        });
-
-        // Butoni Sura tjetër
-        nextBtn.addEventListener('click', async () => {
-            if (this.currentSurah < 114) {
-                this.currentSurah++;
-                selector.value = this.currentSurah;
-                await this.loadSurah(this.currentSurah);
+        request.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME, { keyPath: 'id' });
             }
-        });
+        };
 
-        // Butoni Sura e kaluar
-        prevBtn.addEventListener('click', async () => {
-            if (this.currentSurah > 1) {
-                this.currentSurah--;
-                selector.value = this.currentSurah;
-                await this.loadSurah(this.currentSurah);
-            }
-        });
+        request.onsuccess = (e) => resolve(e.target.result);
+        request.onerror = (e) => reject(e.target.error);
+    });
+}
 
-        // Shfaq/Fsheh panelin e cilësimeve
-        settingsToggle.addEventListener('click', () => {
-            settingsPanel.classList.toggle('hidden');
-        });
+// Ruan progresin (Suren dhe Ajetin) në IndexedDB
+async function saveReadingProgress(suraNumber, ayahNumber, suraName) {
+    try {
+        const db = await initDB();
+        const transaction = db.transaction(STORE_NAME, 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
 
-        // Rrit madhësinë e shkronjave
-        fontIncrease.addEventListener('click', () => {
-            if (this.fontSizeMultiplier < 5) {
-                this.fontSizeMultiplier++;
-                this.updateFontSize();
-            }
-        });
+        const progress = {
+            id: 'last_read', // Çelës unik për të mbajtur vetëm 1 rekord të fundit
+            suraNumber: parseInt(suraNumber),
+            ayahNumber: parseInt(ayahNumber),
+            suraName: suraName,
+            timestamp: new Date().getTime()
+        };
 
-        // Zvogëlo madhësinë e shkronjave
-        fontDecrease.addEventListener('click', () => {
-            if (this.fontSizeMultiplier > -3) {
-                this.fontSizeMultiplier--;
-                this.updateFontSize();
-            }
-        });
-
-        // Aktivizo/Çaktivizo Përkthimin
-        toggleTrans.addEventListener('change', (e) => {
-            const transTexts = document.querySelectorAll('.translation-text');
-            transTexts.forEach(el => {
-                if (e.target.checked) {
-                    el.classList.remove('hidden');
-                } else {
-                    el.classList.add('hidden');
-                }
-            });
-            localStorage.setItem('quran_show_translation', e.target.checked);
-        });
-
-        // Butoni i Tefsirit me AI (Integrimi me Gemini)
-        askGeminiBtn.addEventListener('click', () => {
-            const surahInfo = QuranService.getSurahList().find(s => s.id === this.currentSurah);
-            alert(`✨ Gemini Tefsir: Së shpejti do të mund të pyesni Gemini për tefsirin dhe urtësitë e Sures ${surahInfo.name} (${surahInfo.translation})!`);
-        });
-    },
-
-    loadSurah: async function(surahNumber) {
-        const container = document.getElementById('quran-verses-container');
-        const bismillah = document.getElementById('bismillah-container');
+        store.put(progress);
+        savedProgress = progress;
         
-        container.innerHTML = '<div class="loading-spinner">Duke ngarkuar suren...</div>';
+        // Përditësojmë pamjen e kartelës së re
+        showResumeCard();
         
-        // Fshih bismilahin për suren e parë (Fatiha) pasi e ka brenda, dhe Suren At-Tawbah (9) e cila nuk ka Bismilah.
-        if (surahNumber === 1 || surahNumber === 9) {
-            bismillah.classList.add('hidden');
-        } else {
-            bismillah.classList.remove('hidden');
-        }
-
-        const data = await QuranService.getSurah(surahNumber);
-        
-        if (!data) {
-            container.innerHTML = '<div class="loading-spinner" style="color: var(--color-accent-gold);">Nuk u morën dot të dhënat. Sigurohu që je i lidhur me internetin.</div>';
-            return;
-        }
-
-        container.innerHTML = ""; // Pastro Loading
-        
-        // Ruaj statusin e leximit
-        localStorage.setItem("quran_last_read_surah", surahNumber);
-
-        // Kontrollo statusin e përkthimit (shfaq/fshih)
-        const showTrans = document.getElementById('toggle-translation').checked;
-
-        // Injekto ajetet një nga një
-        data.verses.forEach(verse => {
-            const verseDiv = document.createElement('div');
-            verseDiv.className = 'verse-item';
+        // Ndryshojmë klasat e kartave vizualisht
+        document.querySelectorAll('.verse-card').forEach(card => {
+            const num = parseInt(card.getAttribute('data-num'));
+            const btn = card.querySelector('.bookmark-btn');
             
-            // Heqim fjalën "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ" nga ajeti i parë i çdo sureje (përveç Fatihas), pasi e shfaqim në kokë.
-            let arabicText = verse.text;
-            if (surahNumber !== 1 && verse.number === 1 && arabicText.startsWith("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ")) {
-                arabicText = arabicText.replace("بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ", "").trim();
+            if (num === parseInt(ayahNumber)) {
+                card.classList.add('verse-card--active');
+                if (btn) btn.classList.add('bookmark-btn--saved');
+            } else {
+                card.classList.remove('verse-card--active');
+                if (btn) btn.classList.remove('bookmark-btn--saved');
             }
-
-            // Kthe numrin e ajetit në formatin arab (Opsionale, ose e lëmë numër të thjeshtë)
-            const numSpan = `<span class="verse-number">${verse.number}</span>`;
-
-            verseDiv.innerHTML = `
-                <div class="arabic-text">${arabicText} ${numSpan}</div>
-                <div class="translation-text ${showTrans ? '' : 'hidden'}">${verse.translation}</div>
-            `;
-            
-            container.appendChild(verseDiv);
         });
 
-        this.updateFontSize();
-        
-        // Rrëshqit në fillim të faqes
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    },
-
-    updateFontSize: function() {
-        const root = document.documentElement;
-        
-        // Madhësitë bazë
-        const baseArabicSize = 2.2; // rem
-        const baseTransSize = 1.0; // rem
-
-        // Ndryshimi dinamik
-        const newArabicSize = baseArabicSize + (this.fontSizeMultiplier * 0.2);
-        const newTransSize = baseTransSize + (this.fontSizeMultiplier * 0.08);
-
-        root.style.setProperty('--quran-arabic-size', `${newArabicSize}rem`);
-        root.style.setProperty('--quran-trans-size', `${newTransSize}rem`);
-        
-        localStorage.setItem('quran_font_multiplier', this.fontSizeMultiplier);
-    },
-
-    loadSettings: function() {
-        const storedMultiplier = localStorage.getItem('quran_font_multiplier');
-        if (storedMultiplier !== null) {
-            this.fontSizeMultiplier = parseInt(storedMultiplier);
-        }
-
-        const storedTrans = localStorage.getItem('quran_show_translation');
-        if (storedTrans !== null) {
-            document.getElementById('toggle-translation').checked = (storedTrans === 'true');
-        }
+    } catch (error) {
+        console.error("Gabim gjatë ruajtjes së progresit në DB:", error);
     }
-};
+}
 
-// Start
+// Lexon progresin nga IndexedDB
+async function getReadingProgress() {
+    try {
+        const db = await initDB();
+        return new Promise((resolve) => {
+            const transaction = db.transaction(STORE_NAME, 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get('last_read');
+            
+            request.onsuccess = (e) => resolve(e.target.result || null);
+            request.onerror = () => resolve(null);
+        });
+    } catch (error) {
+        console.error("Gabim gjatë leximit të progresit:", error);
+        return null;
+    }
+}
+
+// Shfaq kartelën "Vazhdo Leximin" në krye nëse ka progres të ruajtur
+async function showResumeCard() {
+    const progress = savedProgress || await getReadingProgress();
+    const resumeCard = document.getElementById('resume-reading-card');
+    
+    if (progress && resumeCard) {
+        savedProgress = progress;
+        document.getElementById('resume-title').innerText = `${progress.suraNumber}. Sura ${progress.suraName}`;
+        document.getElementById('resume-subtitle').innerText = `Ajeti i fundit i lexuar: Ajeti ${progress.ayahNumber}`;
+        resumeCard.style.display = 'block';
+    }
+}
+
+// --- LOGJIKA E NDËRFAQES SË KUR'ANIT ---
+
+async function loadSurahList() {
+    try {
+        const response = await fetch('https://api.alquran.cloud/v1/surah');
+        const data = await response.json();
+        
+        if (data.status === "OK") {
+            surahList = data.data;
+            const select = document.getElementById('sura-select');
+            if (!select) return;
+
+            select.innerHTML = '';
+            
+            surahList.forEach(sura => {
+                const option = document.createElement('option');
+                option.value = sura.number;
+                option.innerText = `${sura.number}. ${sura.englishName} (${sura.name})`;
+                select.appendChild(option);
+            });
+
+            select.addEventListener('change', (e) => {
+                currentSura = e.target.value;
+                loadSurahContent(currentSura);
+            });
+
+            // Kontrollojmë fillimisht nëse ka progres të ruajtur që të ngarkojmë atë sure
+            const progress = await getReadingProgress();
+            if (progress) {
+                currentSura = progress.suraNumber;
+                select.value = currentSura;
+            }
+
+            loadSurahContent(currentSura);
+            showResumeCard();
+        }
+    } catch (error) {
+        console.error("Gabim te lista e sureve:", error);
+    }
+}
+
+async function loadSurahContent(surahNumber, scrollToAyah = null) {
+    const container = document.getElementById('verses-container');
+    const bismillahContainer = document.getElementById('bismillah-container');
+    if (!container) return;
+
+    container.innerHTML = '<div class="card card--padding-md" style="text-align: center;"><p>Duke ngarkuar suren...</p></div>';
+
+    try {
+        const [arRes, sqRes] = await Promise.all([
+            fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/quran-uthmani`),
+            fetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/sq.ahmeti`)
+        ]);
+
+        const arData = await arRes.json();
+        const sqData = await sqRes.json();
+
+        if (arData.status === "OK" && sqData.status === "OK") {
+            const arAyahs = arData.data.ayahs;
+            const sqAyahs = sqData.data.ayahs;
+            const suraName = arData.data.englishName;
+
+            if (parseInt(surahNumber) !== 9 && parseInt(surahNumber) !== 1) {
+                bismillahContainer.style.display = 'block';
+            } else {
+                bismillahContainer.style.display = 'none';
+            }
+
+            container.innerHTML = ''; 
+
+            const progress = savedProgress || await getReadingProgress();
+
+            arAyahs.forEach((ayah, index) => {
+                const sqAyah = sqAyahs[index];
+                let arabicText = ayah.text;
+
+                if (parseInt(surahNumber) !== 1 && index === 0 && arabicText.startsWith("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ")) {
+                    arabicText = arabicText.replace("بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", "").trim();
+                }
+
+                const card = document.createElement('div');
+                card.className = `card card--padding-md verse-card`;
+                card.id = `verse-${ayah.numberInSurah}`;
+                
+                // Kontrollojmë nëse ky është ajeti i ruajtur për t'i dhënë stilin aktiv
+                const isSaved = progress && progress.suraNumber === parseInt(surahNumber) && progress.ayahNumber === ayah.numberInSurah;
+                if (isSaved) {
+                    card.classList.add('verse-card--active');
+                }
+
+                updateCardHTML(card, ayah.numberInSurah, arabicText, sqAyah.text, isSaved);
+
+                // Dëgjuesi për butonin e Bookmark-ut
+                const bookmarkBtn = card.querySelector('.bookmark-btn');
+                if (bookmarkBtn) {
+                    bookmarkBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        saveReadingProgress(surahNumber, ayah.numberInSurah, suraName);
+                    });
+                }
+
+                container.appendChild(card);
+            });
+
+            // Nëse përdoruesi klikoi "Shko tek Ajeti", bëjmë scroll të butë tek ai ajet
+            if (scrollToAyah) {
+                setTimeout(() => {
+                    const targetCard = document.getElementById(`verse-${scrollToAyah}`);
+                    if (targetCard) {
+                        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 300);
+            }
+        }
+    } catch (error) {
+        console.error("Gabim te ngarkimi i sures:", error);
+        container.innerHTML = '<div class="card card--padding-md"><p>Dështoi ngarkimi. Provoni përsëri.</p></div>';
+    }
+}
+
+function updateCardHTML(card, numberInSurah, arabic, albanian, isSaved = false) {
+    card.setAttribute('data-arabic', arabic);
+    card.setAttribute('data-albanian', albanian);
+    card.setAttribute('data-num', numberInSurah);
+
+    const activeClass = isSaved ? 'bookmark-btn--saved' : '';
+
+    const bookmarkHTML = `
+        <button class="bookmark-btn ${activeClass}" title="Shëno ajetin">
+            <i data-lucide="bookmark" style="width: 16px; height: 16px;"></i>
+        </button>
+    `;
+
+    if (currentMode === 'parallel') {
+        card.innerHTML = `
+            <div class="verse-header">
+                <span class="verse-number">Ajeti ${numberInSurah}</span>
+                ${bookmarkHTML}
+            </div>
+            <p class="arabic-text">${arabic}</p>
+            <p class="translation-text">${albanian}</p>
+        `;
+    } else if (currentMode === 'arabic') {
+        card.innerHTML = `
+            <div class="verse-header">
+                <span class="verse-number">Ajeti ${numberInSurah}</span>
+                ${bookmarkHTML}
+            </div>
+            <p class="arabic-text">${arabic}</p>
+        `;
+    } else if (currentMode === 'albanian') {
+        card.innerHTML = `
+            <div class="verse-header">
+                <span class="verse-number">Ajeti ${numberInSurah}</span>
+                ${bookmarkHTML}
+            </div>
+            <p class="translation-text">${albanian}</p>
+        `;
+    } else if (currentMode === 'focus') {
+        card.innerHTML = `
+            <div class="verse-header">
+                <span class="verse-number">Ajeti ${numberInSurah}</span>
+                ${bookmarkHTML}
+            </div>
+            <p class="arabic-text" style="font-size: 2.2rem; text-align: center; padding-left: 0;">${arabic}</p>
+            <p class="translation-text" style="text-align: center; margin-top: var(--space-3); font-size: var(--font-size-md);">${albanian}</p>
+        `;
+    }
+    
+    if (window.lucide) lucide.createIcons();
+}
+
+function setViewMode(mode) {
+    currentMode = mode;
+    
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        if (btn.getAttribute('data-mode') === mode) {
+            btn.classList.add('mode-btn--active');
+        } else {
+            btn.classList.remove('mode-btn--active');
+        }
+    });
+
+    document.querySelectorAll('.verse-card').forEach(card => {
+        const arabic = card.getAttribute('data-arabic');
+        const albanian = card.getAttribute('data-albanian');
+        const num = card.getAttribute('data-num');
+        const isSaved = card.classList.contains('verse-card--active');
+        updateCardHTML(card, num, arabic, albanian, isSaved);
+    });
+}
+
+// Inicializimi
 document.addEventListener('DOMContentLoaded', () => {
-    QuranModule.init();
+    loadSurahList();
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const mode = e.target.getAttribute('data-mode');
+            setViewMode(mode);
+        });
+    });
+
+    // Lidhim dëgjuesin për butonin "Shko tek Ajeti"
+    const resumeBtn = document.getElementById('resume-btn');
+    if (resumeBtn) {
+        resumeBtn.addEventListener('click', async () => {
+            const progress = savedProgress || await getReadingProgress();
+            if (progress) {
+                const select = document.getElementById('sura-select');
+                if (select) select.value = progress.suraNumber;
+                
+                currentSura = progress.suraNumber;
+                // Ngarkojmë suren dhe bëjmë scroll tek ajeti i ruajtur
+                loadSurahContent(progress.suraNumber, progress.ayahNumber);
+            }
+        });
+    }
+
+    if (window.lucide) {
+        lucide.createIcons();
+    }
 });

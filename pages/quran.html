@@ -3,78 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Kur'ani - Hayat</title>
+    <title>Kur'ani Fisnik - Hayat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/main.css">
-    <link rel="stylesheet" href="../css/pages/quran.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .quran-header-controls {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+        }
+        .select-input {
+            width: 100%;
+            padding: var(--space-2) var(--space-3);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            background-color: var(--color-bg-secondary);
+            color: var(--color-text-primary);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+        }
+        .view-modes {
+            display: flex;
+            gap: var(--space-2);
+            overflow-x: auto;
+            padding-bottom: var(--space-2);
+            margin-bottom: var(--space-4);
+        }
+        .view-modes::-webkit-scrollbar {
+            display: none;
+        }
+        .mode-btn {
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-full);
+            background-color: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-secondary);
+            font-size: var(--font-size-xs);
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mode-btn--active {
+            background-color: var(--color-accent-teal);
+            color: white;
+            border-color: var(--color-accent-teal);
+        }
+        .quran-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+        .verse-card {
+            border-left: 3px solid transparent;
+            transition: border-color 0.2s;
+            position: relative;
+        }
+        .verse-card--active {
+            border-left-color: var(--color-accent-gold) !important;
+            background-color: rgba(var(--color-accent-gold-rgb), 0.05);
+        }
+        .arabic-text {
+            font-family: 'Amiri', serif;
+            font-size: 1.8rem;
+            line-height: 2.8rem;
+            text-align: right;
+            direction: rtl;
+            color: var(--color-text-primary);
+            margin-bottom: var(--space-2);
+            padding-left: var(--space-4); /* Hapësirë për butonin e bookmark-ut */
+        }
+        .translation-text {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+        }
+        .verse-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-2);
+        }
+        .verse-number {
+            font-size: var(--font-size-xs);
+            color: var(--color-accent-gold);
+            font-weight: bold;
+        }
+        .bookmark-btn {
+            background: none;
+            border: none;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+        }
+        .bookmark-btn:hover {
+            color: var(--color-accent-gold);
+            background-color: var(--color-bg-secondary);
+        }
+        .bookmark-btn--saved {
+            color: var(--color-accent-gold) !important;
+        }
+        .bismillah {
+            font-family: 'Amiri', serif;
+            font-size: 2rem;
+            text-align: center;
+            margin: var(--space-4) 0;
+            color: var(--color-accent-gold);
+        }
+        /* Kartela e vazhdimit të leximit */
+        .resume-card {
+            background: linear-gradient(135deg, var(--color-accent-teal), #0f5c5c);
+            color: white;
+            margin-bottom: var(--space-4);
+            display: none; /* Do të shfaqet me JS vetëm nëse ka progres */
+        }
+    </style>
 </head>
 <body>
-    
-    <header class="page-header">
-        <div class="header-content">
-            <div>
-                <h1 class="page-title">Kur'ani Fisnik</h1>
-                <div class="surah-selector-container">
-                    <select id="surah-select" class="select-control">
-                        <option value="1">1. Al-Fatihah</option>
-                    </select>
-                </div>
-            </div>
-            <div class="header-actions">
-                <button class="btn btn--icon-only" id="quran-settings-toggle" aria-label="Cilësimet e Leximit">
-                    <i data-lucide="sliders"></i>
-                </button>
-            </div>
-        </div>
+    <header class="page-header" style="padding: var(--space-4) var(--space-4) var(--space-2) var(--space-4);">
+        <h1 class="page-title">Kur'ani Fisnik</h1>
+        <p class="page-subtitle">Lexo, Mëso dhe Medito</p>
     </header>
 
-    <main class="page-content" style="padding-bottom: 110px;">
+    <main class="page-content" style="padding-bottom: 100px;">
         
-        <section id="quran-settings-panel" class="card card--padding-md settings-panel hidden animate-fade-in">
-            <h3 style="font-size: var(--font-size-sm); color: var(--color-accent-teal); margin-bottom: var(--space-3);">Cilësimet e leximit</h3>
-            
-            <div class="setting-row">
-                <span>Madhësia e shkrimit arab</span>
-                <div class="font-controls">
-                    <button class="btn btn--secondary btn--sm" id="btn-font-decrease">A-</button>
-                    <button class="btn btn--secondary btn--sm" id="btn-font-increase">A+</button>
-                </div>
+        <!-- Kartela "Vazhdo Leximin" -->
+        <div class="card card--padding-md resume-card" id="resume-reading-card">
+            <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2);">
+                <i data-lucide="bookmark" style="width: 18px; height: 18px;"></i>
+                <span style="font-size: var(--font-size-xs); font-weight: bold; text-transform: uppercase;">Vazhdo Leximin</span>
             </div>
-
-            <div class="setting-row" style="margin-top: var(--space-3);">
-                <span>Shfaq përkthimin shqip</span>
-                <label class="switch">
-                    <input type="checkbox" id="toggle-translation" checked>
-                    <span class="slider"></span>
-                </label>
-            </div>
-        </section>
-
-        <section class="card card--padding-lg quran-container">
-            <div id="bismillah-container" class="bismillah-text">
-                بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
-            </div>
-            
-            <div id="quran-verses-container" class="quran-verses-flow">
-                <div class="loading-spinner">Duke ngarkuar suren...</div>
-            </div>
-        </section>
-
-        <div class="quran-navigation-controls">
-            <button id="btn-prev-surah" class="btn btn--secondary">
-                <i data-lucide="chevron-left"></i> Sura e kaluar
-            </button>
-            <button id="btn-next-surah" class="btn btn--secondary">
-                Sura tjetër <i data-lucide="chevron-right"></i>
+            <h3 id="resume-title" style="font-size: var(--font-size-md); font-weight: 600; margin-bottom: 4px;">Sura --</h3>
+            <p id="resume-subtitle" style="font-size: var(--font-size-xs); opacity: 0.8; margin-bottom: var(--space-3);">Ajeti --</p>
+            <button class="btn btn--secondary btn--sm" id="resume-btn" style="background: white; color: var(--color-accent-teal); width: auto;">
+                Shko tek Ajeti
             </button>
         </div>
 
-        <button id="btn-ask-gemini" class="btn btn--primary gemini-ai-btn" style="margin-top: var(--space-3);">
-            <i data-lucide="sparkles"></i> Shpjegimi i sures me AI (Tefsiri)
-        </button>
+        <!-- Kontrollet e përzgjedhjes -->
+        <div class="quran-header-controls">
+            <select id="sura-select" class="select-input">
+                <option value="">Duke ngarkuar suret...</option>
+            </select>
+        </div>
 
+        <!-- Butonat e Modaliteteve të Shikimit -->
+        <div class="view-modes">
+            <button class="mode-btn mode-btn--active" data-mode="parallel">Arabisht + Shqip</button>
+            <button class="mode-btn" data-mode="arabic">Vetëm Arabisht</button>
+            <button class="mode-btn" data-mode="albanian">Vetëm Shqip</button>
+            <button class="mode-btn" data-mode="focus">Modaliteti Fokus</button>
+        </div>
+
+        <!-- Bismillah -->
+        <div id="bismillah-container" class="bismillah" style="display: none;">
+            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+        </div>
+
+        <!-- Zona e leximit -->
+        <div class="quran-container" id="verses-container">
+            <div class="card card--padding-md" style="text-align: center;">
+                <p style="color: var(--color-text-muted);">Zgjidh një sure për të filluar leximin...</p>
+            </div>
+        </div>
     </main>
 
+    <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
         <a href="../index.html" class="bottom-nav__item">
             <i data-lucide="home"></i> <span>Shtëpia</span>
@@ -93,7 +194,6 @@
         </a>
     </nav>
 
-    <script src="../js/services/quran-service.js"></script>
     <script src="../js/modules/quran.js"></script>
 </body>
 </html>

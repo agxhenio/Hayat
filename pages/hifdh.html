@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Hifdh (Memorizimi) - Hayat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .hifdh-wizard {
+            background-color: var(--color-bg-secondary);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            padding: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+        .steps-bar {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            margin-bottom: var(--space-4);
+        }
+        .step-indicator {
+            height: 6px;
+            background-color: var(--color-border);
+            border-radius: var(--radius-full);
+            transition: background-color 0.3s;
+        }
+        .step-indicator--active {
+            background-color: var(--color-accent-teal);
+        }
+        .step-indicator--completed {
+            background-color: var(--color-accent-gold);
+        }
+        .step-title {
+            font-size: var(--font-size-xs);
+            text-transform: uppercase;
+            font-weight: bold;
+            color: var(--color-accent-teal);
+            margin-bottom: var(--space-1);
+            letter-spacing: 0.5px;
+        }
+        .step-instruction {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-4);
+            line-height: 1.4;
+        }
+        .hifdh-display {
+            background-color: var(--color-bg-primary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: var(--space-4);
+            position: relative;
+        }
+        .hifdh-arabic {
+            font-family: 'Amiri', serif;
+            font-size: 2.2rem;
+            line-height: 3.2rem;
+            text-align: center;
+            direction: rtl;
+            color: var(--color-text-primary);
+            width: 100%;
+        }
+        /* Word masking styles */
+        .hifdh-word {
+            display: inline-block;
+            margin: 0 4px;
+            cursor: pointer;
+            border-bottom: 2px dashed transparent;
+            transition: all 0.2s;
+        }
+        .hifdh-word--hidden {
+            color: transparent !important;
+            border-bottom-color: var(--color-accent-gold);
+            background-color: rgba(var(--color-accent-gold-rgb), 0.1);
+            border-radius: var(--radius-sm);
+            padding: 0 6px;
+        }
+        .counter-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--color-accent-teal);
+            color: white;
+            font-weight: bold;
+            font-size: var(--font-size-md);
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-full);
+            margin-bottom: var(--space-3);
+            box-shadow: var(--shadow-sm);
+        }
+        .wizard-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: var(--space-3);
+        }
+        .range-selector {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+        }
+        .audio-player-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-2);
+            margin-top: var(--space-2);
+        }
+        .audio-btn {
+            background-color: var(--color-accent-teal);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+        .audio-btn:active {
+            transform: scale(0.95);
+        }
+        .audio-btn--playing {
+            background-color: var(--color-danger);
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header" style="padding: var(--space-4) var(--space-4) var(--space-2) var(--space-4);">
+        <h1 class="page-title">Hifdh (Memorizimi)</h1>
+        <p class="page-subtitle">Metodologjia Tradicionale me 5 Hapa</p>
+    </header>
+
+    <main class="page-content" style="padding-bottom: 100px;">
+        
+        <div class="range-selector">
+            <div>
+                <label style="font-size: 10px; color: var(--color-text-muted); font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 4px;">Sureja</label>
+                <select id="hifdh-sura-select" class="select-input" style="padding: 10px 8px;"></select>
+            </div>
+            <div>
+                <label style="font-size: 10px; color: var(--color-text-muted); font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 4px;">Nga Ajeti</label>
+                <select id="hifdh-start-select" class="select-input" style="padding: 10px 8px;"></select>
+            </div>
+            <div>
+                <label style="font-size: 10px; color: var(--color-text-muted); font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 4px;">Deri te</label>
+                <select id="hifdh-end-select" class="select-input" style="padding: 10px 8px;"></select>
+            </div>
+        </div>
+
+        <button class="btn btn--primary" id="start-hifdh-btn" style="margin-bottom: var(--space-4);">
+            Fillo Memorizimin
+        </button>
+
+        <div id="hifdh-wizard-container" style="display: none;">
+            
+            <div class="hifdh-wizard">
+                <div class="steps-bar">
+                    <div class="step-indicator step-indicator--active" id="ind-1"></div>
+                    <div class="step-indicator" id="ind-2"></div>
+                    <div class="step-indicator" id="ind-3"></div>
+                    <div class="step-indicator" id="ind-4"></div>
+                    <div class="step-indicator" id="ind-5"></div>
+                </div>
+
+                <div class="step-title" id="wizard-step-title">Hapi 1: Dëgjo</div>
+                <p class="step-instruction" id="wizard-step-instruction">
+                    Dëgjo ajetin me vëmendje të plotë nga recituesi për të siguruar shqiptimin e saktë.
+                </p>
+
+                <div class="hifdh-display" id="hifdh-display-box">
+                    <div class="hifdh-arabic" id="hifdh-text-container">
+                        </div>
+                </div>
+
+                <div id="step-interactive-area" style="text-align: center; margin-bottom: var(--space-4);">
+                    </div>
+
+                <div class="wizard-buttons">
+                    <button class="btn btn--secondary" id="wizard-prev-btn" style="width: auto; padding: 0 var(--space-4);">Mbrapsht</button>
+                    <button class="btn btn--primary" id="wizard-next-btn" style="width: auto; padding: 0 var(--space-4);">Vazhdo</button>
+                </div>
+            </div>
+
+            <div style="text-align: center; font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                Ajeti <span id="current-session-ayah">1</span> nga <span id="total-session-ayahs">1</span> në këtë sesion
+            </div>
+        </div>
+
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="../index.html" class="bottom-nav__item">
+            <i data-lucide="home"></i> <span>Shtëpia</span>
+        </a>
+        <a href="prayer.html" class="bottom-nav__item">
+            <i data-lucide="clock"></i> <span>Namazi</span>
+        </a>
+        <a href="quran.html" class="bottom-nav__item bottom-nav__item--active">
+            <i data-lucide="book-open"></i> <span>Kur'an</span>
+        </a>
+        <a href="mburoja.html" class="bottom-nav__item">
+            <i data-lucide="shield"></i> <span>Mburoja</span>
+        </a>
+        <a href="settings.html" class="bottom-nav__item">
+            <i data-lucide="settings"></i> <span>Settings</span>
+        </a>
+    </nav>
+
+    <script src="../js/modules/hifdh.js"></script>
+</body>
+</html>

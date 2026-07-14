@@ -1,0 +1,79 @@
+/* 
+   🕋 Hayat - Stilet e Dashboard-it (Shtëpia)
+*/
+
+.prayer-split-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.prayer-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    text-align: center;
+}
+
+.routine-section {
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.section-title {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--space-2);
+    font-weight: 600;
+}
+
+.feed-section {
+    margin-top: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    background: #000;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-top: var(--space-2);
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* Slider-i horizontal për përkujtesat */
+.reminder-slider {
+    display: flex;
+    overflow-x: auto;
+    gap: var(--space-3);
+    scroll-snap-type: x mandatory;
+    padding-bottom: var(--space-2);
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Fshehim scrollbar-in që të duket si aplikacion nativ */
+.reminder-slider::-webkit-scrollbar {
+    display: none;
+}
+
+.reminder-slider .card {
+    flex: 0 0 85%; /* Çdo kartë merr 85% të gjerësisë, duke lënë hapësirë që të kuptohet që ka scroll */
+    scroll-snap-align: start;
+}

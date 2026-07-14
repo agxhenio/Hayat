@@ -3,55 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Hayat - Aplikacioni Islamik</title>
+    <title>Hayat - Dashboard</title>
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard.css">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        /* Rregullime shtesë për pamjen Dashboard */
-        .page-content { padding-top: var(--space-4); }
-        .hero-card { margin-bottom: var(--space-4); cursor: pointer; }
-        .modules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
-        .module-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-5); align-items: center; text-align: center; cursor: pointer; }
-    </style>
-    <link rel="stylesheet" href="css/quran.css">
-
 </head>
 <body>
-    <header class="page-header" style="padding: var(--space-4);">
+    <header class="page-header" style="padding: var(--space-4) var(--space-4) var(--space-2) var(--space-4);">
         <h1 class="page-title">Shtëpia</h1>
         <p class="page-subtitle">Mirë se erdhe, Arbr!</p>
     </header>
 
     <main class="page-content" style="padding-bottom: 100px;">
-        <!-- Karta e Namazit (Hero Card) -->
-        <section class="card card--gradient card--padding-md hero-card" onclick="window.location.href='pages/prayer.html'">
-            <h3 style="font-size: var(--font-size-sm); color: var(--color-accent-gold); margin-bottom: 4px;">Namazi i ardhshëm</h3>
-            <p id="next-prayer-name" style="font-size: var(--font-size-xl); font-weight: bold; margin: 4px 0;">Duke u ngarkuar...</p>
-            <div id="prayer-countdown" class="tabular-nums" style="font-size: 2rem; font-weight: bold;">--:--:--</div>
+        
+        <!-- 1. Seksioni i Kohëve të Namazit -->
+        <div class="prayer-split-grid">
+            <div class="card prayer-box" style="border-top: 3px solid var(--color-accent-teal);">
+                <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">Namazi Aktual</span>
+                <span id="current-prayer-name" style="font-size: var(--font-size-lg); font-weight: bold; margin-top: 4px; color: var(--color-accent-teal);">--</span>
+            </div>
+            <div class="card card--gradient prayer-box">
+                <span style="font-size: var(--font-size-xs); color: rgba(255,255,255,0.7);">Koha deri te tjetri</span>
+                <span id="prayer-countdown" class="tabular-nums" style="font-size: var(--font-size-lg); font-weight: bold; margin-top: 4px;">--:--:--</span>
+            </div>
+        </div>
+
+        <!-- 2. Boksi i Ajetit të Ditës (Dinamik) -->
+        <div class="card card--padding-md" style="margin-bottom: var(--space-4); border-left: 3px solid var(--color-accent-gold);">
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: var(--space-2);">
+                <i data-lucide="book-open" style="color: var(--color-accent-gold); width: 16px; height: 16px;"></i>
+                <span style="font-size: var(--font-size-xs); font-weight: bold; color: var(--color-accent-gold);">Ajeti i Ditës</span>
+            </div>
+            <p class="arabic-text" id="daily-ayah-arabic" style="font-size: 1.3rem; text-align: right; margin-bottom: var(--space-2); direction: rtl; min-height: 30px;">
+                Duke ngarkuar...
+            </p>
+            <p id="daily-ayah-translation" style="font-size: var(--font-size-sm); color: var(--color-text-primary); line-height: 1.4; font-style: italic; margin-bottom: var(--space-1);">
+                Duke kërkuar përkthimin zyrtar...
+            </p>
+            <p id="daily-ayah-reference" style="font-size: 11px; color: var(--color-text-muted); font-weight: 500; text-align: right;">
+                --
+            </p>
+        </div>
+
+        <!-- 3. Seksioni i Rutinës Shpirtërore Dinamike -->
+        <section class="routine-section">
+            <h2 class="section-title">Rutina e Sotme</h2>
+            <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+                
+                <!-- Dhikri i Mëngjesit -->
+                <div class="list-item" id="reminder-morning" style="display: none;" onclick="window.location.href='pages/dhikr-session.html?type=morning'">
+                    <div class="list-item__left">
+                        <i data-lucide="sun" style="color: var(--color-accent-gold);"></i>
+                        <span class="list-item__title">Dhikri i Mëngjesit</span>
+                    </div>
+                    <i data-lucide="chevron-right"></i>
+                </div>
+
+                <!-- Dhikri i Mbrëmjes -->
+                <div class="list-item" id="reminder-evening" style="display: none;" onclick="window.location.href='pages/dhikr-session.html?type=evening'">
+                    <div class="list-item__left">
+                        <i data-lucide="moon" style="color: var(--color-accent-teal);"></i>
+                        <span class="list-item__title">Dhikri i Mbrëmjes</span>
+                    </div>
+                    <i data-lucide="chevron-right"></i>
+                </div>
+
+                <!-- Surja Kehf (Vetëm të Premteve) -->
+                <div class="list-item" id="reminder-kahf" style="display: none;" onclick="window.location.href='pages/quran.html?sura=18'">
+                    <div class="list-item__left">
+                        <i data-lucide="sparkles" style="color: var(--color-accent-gold);"></i>
+                        <span class="list-item__title">Lexo Suren El-Kehf</span>
+                    </div>
+                    <i data-lucide="chevron-right"></i>
+                </div>
+
+                <!-- Surja Mulk (Pas Jacisë) -->
+                <div class="list-item" id="reminder-mulk" style="display: none;" onclick="window.location.href='pages/quran.html?sura=67'">
+                    <div class="list-item__left">
+                        <i data-lucide="book" style="color: var(--color-accent-gold);"></i>
+                        <span class="list-item__title">Lexo Suren El-Mulk</span>
+                    </div>
+                    <i data-lucide="chevron-right"></i>
+                </div>
+
+                <!-- Dhikri i Gjumit (Pas Jacisë) -->
+                <div class="list-item" id="reminder-bedtime" style="display: none;" onclick="window.location.href='pages/dhikr-session.html?type=bedtime'">
+                    <div class="list-item__left">
+                        <i data-lucide="bed-double" style="color: var(--color-text-muted);"></i>
+                        <span class="list-item__title">Dhikri para Gjumit</span>
+                    </div>
+                    <i data-lucide="chevron-right"></i>
+                </div>
+            </div>
+        </section>
+<!-- 4. Seksioni i Feed-it (Slider i Përkujtesave & Video Dinamike) -->
+        <section class="feed-section">
+            <h2 class="section-title">Përkujtesat e Ditës</h2>
+            
+            <div class="reminder-slider" id="reminders-container">
+                <div class="card card--padding-md">
+                    <p style="font-size: var(--font-size-sm); color: var(--color-text-muted);">Duke ngarkuar përkujtesat...</p>
+                </div>
+            </div>
+
+            <h2 class="section-title">Eksploro & Mëso (YouTube Feed)</h2>
+            
+            <!-- Containeri ku JS do të injektojë videot e fundit të kanalit -->
+            <div id="videos-container">
+                <div class="card card--padding-md">
+                    <p style="font-size: var(--font-size-sm); color: var(--color-text-muted);">Duke ngarkuar videot e fundit...</p>
+                </div>
+            </div>
         </section>
 
-        <!-- Grida e Modulëve -->
-        <section class="modules-grid">
-            <div class="card module-card" onclick="window.location.href='pages/quran.html'">
-                <i data-lucide="book-open" style="color: var(--color-accent-teal); width: 32px; height: 32px;"></i>
-                <span style="font-weight: 500;">Kur'ani</span>
-            </div>
-            <div class="card module-card" onclick="window.location.href='pages/mburoja.html'">
-                <i data-lucide="shield" style="color: var(--color-accent-teal); width: 32px; height: 32px;"></i>
-                <span style="font-weight: 500;">Mburoja</span>
-            </div>
-            <div class="card module-card" onclick="window.location.href='pages/dhikr.html'">
-                <i data-lucide="sun" style="color: var(--color-accent-teal); width: 32px; height: 32px;"></i>
-                <span style="font-weight: 500;">Dhikri</span>
-            </div>
-            <div class="card module-card" onclick="window.location.href='pages/pasqyra.html'">
-                <i data-lucide="bar-chart-2" style="color: var(--color-accent-teal); width: 32px; height: 32px;"></i>
-                <span style="font-weight: 500;">Pasqyra</span>
-            </div>
-        </section>
     </main>
 
-    <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
         <a href="index.html" class="bottom-nav__item bottom-nav__item--active">
             <i data-lucide="home"></i> <span>Shtëpia</span>
@@ -71,17 +137,6 @@
     </nav>
 
     <script src="js/services/prayer-times.js"></script>
-    <script>
-        async function initDashboard() {
-            const status = await PrayerTimesService.getCurrentAndNextPrayer();
-            if (status) {
-                document.getElementById('next-prayer-name').innerText = status.next.name;
-                document.getElementById('prayer-countdown').innerText = PrayerTimesService.getCountdownTo(status.next.time, status.next.isNextDay);
-            }
-        }
-        initDashboard();
-        setInterval(initDashboard, 1000);
-        lucide.createIcons();
-    </script>
+    <script src="js/modules/dashboard.js"></script>
 </body>
 </html>

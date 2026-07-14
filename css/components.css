@@ -555,3 +555,33 @@
     padding: var(--space-2) var(--space-2) calc(var(--space-2) + var(--safe-area-bottom)) var(--space-2);
     z-index: var(--z-sticky);
 }
+
+
+/* Sigurohu që këto rregulla janë te css/components.css */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px; /* Lartësi fikse */
+    background-color: var(--color-bg-primary);
+    border-top: 1px solid var(--color-border);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5 kolona të barabarta */
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 1000;
+}
+
+.bottom-nav__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: 10px;
+}
+
+.bottom-nav__item--active {
+    color: var(--color-accent-gold); /* Ngjyra kur është aktiv */
+}

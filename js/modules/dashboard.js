@@ -56,9 +56,16 @@ async function loadDailyReminders() {
     }
 }
 
+// RREGULLIMI I RI: Funksion "anti-plumb" për të nxjerrë ID-në e videos nga çdo lloj URL-je e YouTube
+function getYouTubeId(url) {
+    if (!url) return '';
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : '';
+}
+
 // Merr videot e fundit nga kanali yt në YouTube pa API Key
 async function fetchLatestVideos() {
-    // ID-ja e kanalit tënd të YouTube
     const channelId = 'UConxpMbEDBdeHC6LSdC0BfA'; 
     const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
     const proxyUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
@@ -73,12 +80,16 @@ async function fetchLatestVideos() {
         container.innerHTML = ''; // Pastrojmë loading text
 
         if (data.status === 'ok' && data.items && data.items.length > 0) {
-            // Marrim vetëm 3 videot e fundit nga kanali yt
+            // Marrim 3 videot e fundit
             const latestVideos = data.items.slice(0, 3);
+            let addedVideosCount = 0;
 
             latestVideos.forEach(video => {
-                const videoId = video.link.split('v=')[1];
+                const videoId = getYouTubeId(video.link);
                 
+                if (!videoId) return; // Nëse nuk gjejmë ID valide, e kapërcejmë
+                
+                addedVideosCount++;
                 const card = document.createElement('div');
                 card.className = 'card card--padding-md';
                 card.style.marginBottom = 'var(--space-4)';
@@ -90,20 +101,34 @@ async function fetchLatestVideos() {
                     </div>
                     <h3 style="font-size: var(--font-size-md); font-weight: 600; margin-bottom: var(--space-2);">${video.title}</h3>
                     <div class="video-container">
-                        <iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
+                        <iframe 
+                            src="https://www.youtube.com/embed/${videoId}" 
+                            title="${video.title}"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            referrerpolicy="strict-origin-when-cross-origin"
+                            allowfullscreen>
+                        </iframe>
                     </div>
                 `;
                 container.appendChild(card);
             });
 
+            // Fallback nëse për ndonjë arsye asnjë video nuk kishte ID të saktë
+            if (addedVideosCount === 0) {
+                container.innerHTML = '<p style="font-size: var(--font-size-sm); color: var(--color-text-muted); text-align: center; padding: var(--space-4);">Nuk u gjet asnjë video valide.</p>';
+            }
+
             if (window.lucide) lucide.createIcons();
         } else {
-            container.innerHTML = '<p>Nuk u gjet asnjë video në këtë kanal.</p>';
+            container.innerHTML = '<p style="font-size: var(--font-size-sm); color: var(--color-text-muted); text-align: center; padding: var(--space-4);">Nuk u gjet asnjë video në këtë kanal.</p>';
         }
     } catch (error) {
         console.error("Gabim gjatë marrjes së feed-it nga YouTube:", error);
         const container = document.getElementById('videos-container');
-        if (container) container.innerHTML = '<p>Dështoi ngarkimi i videove.</p>';
+        if (container) {
+            container.innerHTML = '<p style="font-size: var(--font-size-sm); color: var(--color-text-muted); text-align: center; padding: var(--space-4);">Dështoi ngarkimi i videove.</p>';
+        }
     }
 }
 

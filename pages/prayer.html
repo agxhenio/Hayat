@@ -6,7 +6,6 @@
     <title>Namazi - Hayat</title>
     <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/pages/prayer.css">
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -22,8 +21,7 @@
         </div>
     </header>
 
-    <main class="page-content">
-        <!-- Hero Card: Namazi Aktual / i Ardhshëm -->
+    <main class="page-content" style="padding-bottom: 100px;">
         <section class="card card--gradient card--padding-lg hero-prayer-card animate-fade-in">
             <div class="hero-header">
                 <span class="badge badge--gold" id="hero-status-badge">☀️ KOHA AKTUALE</span>
@@ -45,14 +43,11 @@
             </div>
         </section>
 
-        <!-- Timeline Horizontale e 5 Namazeve -->
         <section class="prayer-timeline no-scrollbar animate-slide-up">
             <div class="timeline-container" id="prayer-timeline-container">
-                <!-- Këtu injektohen nga JS 5 kartat e namazeve -->
-            </div>
+                </div>
         </section>
 
-        <!-- Progresi ditor -->
         <section class="card card--padding-md animate-slide-up" style="animation-delay: 0.1s;">
             <div class="list-item__left" style="margin-bottom: var(--space-3);">
                 <i data-lucide="bar-chart-2" class="list-item__icon"></i>
@@ -81,7 +76,6 @@
             </div>
         </section>
 
-        <!-- Veprimet e Shpejta -->
         <div class="quick-actions-grid animate-slide-up" style="animation-delay: 0.2s;">
             <button class="card card--padding-sm quick-action-btn" onclick="window.location.href='prayer-qibla.html'">
                 <i data-lucide="compass"></i>
@@ -97,6 +91,24 @@
             </button>
         </div>
     </main>
+
+    <nav class="bottom-nav">
+        <a href="../index.html" class="bottom-nav__item">
+            <i data-lucide="home"></i> <span>Shtëpia</span>
+        </a>
+        <a href="prayer.html" class="bottom-nav__item bottom-nav__item--active">
+            <i data-lucide="clock"></i> <span>Namazi</span>
+        </a>
+        <a href="quran.html" class="bottom-nav__item">
+            <i data-lucide="book-open"></i> <span>Kur'an</span>
+        </a>
+        <a href="mburoja.html" class="bottom-nav__item">
+            <i data-lucide="shield"></i> <span>Mburoja</span>
+        </a>
+        <a href="settings.html" class="bottom-nav__item">
+            <i data-lucide="settings"></i> <span>Settings</span>
+        </a>
+    </nav>
 
     <script src="../js/services/prayer-times.js"></script>
     <script src="../js/modules/prayer.js"></script>

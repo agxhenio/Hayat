@@ -1,33 +1,99 @@
-<!-- Kontejneri i Modulit të Kur'anit -->
-<section id="quran-module" class="module-container hidden">
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Kur'ani - Hayat</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/pages/quran.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
     
-    <!-- Top Navbar -->
-    <header class="quran-header">
-        <button id="quran-back-btn" class="icon-btn">⬅️</button>
-        <h2 id="current-surah-title">Al-Fatihah</h2>
-        <div class="quran-tools">
-            <button id="quran-settings-btn" class="icon-btn">⚙️</button>
-            <button id="quran-bookmark-btn" class="icon-btn">🔖</button>
+    <header class="page-header">
+        <div class="header-content">
+            <div>
+                <h1 class="page-title">Kur'ani Fisnik</h1>
+                <div class="surah-selector-container">
+                    <select id="surah-select" class="select-control">
+                        <option value="1">1. Al-Fatihah</option>
+                    </select>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn--icon-only" id="quran-settings-toggle" aria-label="Cilësimet e Leximit">
+                    <i data-lucide="sliders"></i>
+                </button>
+            </div>
         </div>
     </header>
 
-    <!-- Përmbajtja e Kur'anit (Leximi) -->
-    <main class="quran-reader-area" dir="rtl">
-        <!-- Bismilahi për çdo sure (përveç Teubes) -->
-        <div class="bismillah-header">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+    <main class="page-content" style="padding-bottom: 110px;">
         
-        <!-- Këtu do të injektohen ajetet nga JavaScript -->
-        <div id="quran-text-container" class="quran-text">
-            <!-- Shembull Ajeti -->
-            <span class="ayah">ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ <span class="ayah-number">١</span></span>
+        <section id="quran-settings-panel" class="card card--padding-md settings-panel hidden animate-fade-in">
+            <h3 style="font-size: var(--font-size-sm); color: var(--color-accent-teal); margin-bottom: var(--space-3);">Cilësimet e leximit</h3>
+            
+            <div class="setting-row">
+                <span>Madhësia e shkrimit arab</span>
+                <div class="font-controls">
+                    <button class="btn btn--secondary btn--sm" id="btn-font-decrease">A-</button>
+                    <button class="btn btn--secondary btn--sm" id="btn-font-increase">A+</button>
+                </div>
+            </div>
+
+            <div class="setting-row" style="margin-top: var(--space-3);">
+                <span>Shfaq përkthimin shqip</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggle-translation" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </section>
+
+        <section class="card card--padding-lg quran-container">
+            <div id="bismillah-container" class="bismillah-text">
+                بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+            </div>
+            
+            <div id="quran-verses-container" class="quran-verses-flow">
+                <div class="loading-spinner">Duke ngarkuar suren...</div>
+            </div>
+        </section>
+
+        <div class="quran-navigation-controls">
+            <button id="btn-prev-surah" class="btn btn--secondary">
+                <i data-lucide="chevron-left"></i> Sura e kaluar
+            </button>
+            <button id="btn-next-surah" class="btn btn--secondary">
+                Sura tjetër <i data-lucide="chevron-right"></i>
+            </button>
         </div>
+
+        <button id="btn-ask-gemini" class="btn btn--primary gemini-ai-btn" style="margin-top: var(--space-3);">
+            <i data-lucide="sparkles"></i> Shpjegimi i sures me AI (Tefsiri)
+        </button>
+
     </main>
 
-    <!-- Bottom Navbar & AI Assistant Trigger -->
-    <footer class="quran-footer">
-        <button id="prev-page-btn" class="nav-btn">Prapa</button>
-        <button id="ask-ai-btn" class="ai-btn">✨ Pyet Gemini (Tefsir)</button>
-        <button id="next-page-btn" class="nav-btn">Para</button>
-    </footer>
+    <nav class="bottom-nav">
+        <a href="../index.html" class="bottom-nav__item">
+            <i data-lucide="home"></i> <span>Shtëpia</span>
+        </a>
+        <a href="prayer.html" class="bottom-nav__item">
+            <i data-lucide="clock"></i> <span>Namazi</span>
+        </a>
+        <a href="quran.html" class="bottom-nav__item bottom-nav__item--active">
+            <i data-lucide="book-open"></i> <span>Kur'an</span>
+        </a>
+        <a href="mburoja.html" class="bottom-nav__item">
+            <i data-lucide="shield"></i> <span>Mburoja</span>
+        </a>
+        <a href="settings.html" class="bottom-nav__item">
+            <i data-lucide="settings"></i> <span>Settings</span>
+        </a>
+    </nav>
 
-</section>
+    <script src="../js/services/quran-service.js"></script>
+    <script src="../js/modules/quran.js"></script>
+</body>
+</html>

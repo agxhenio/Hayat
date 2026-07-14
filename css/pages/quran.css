@@ -1,62 +1,188 @@
-/* 🕋 css/quran.css */
+/* 🕋 css/pages/quran.css - Hayat Quran Style Sheet */
 
-.quran-header, .quran-footer {
+/* Përzgjedhësi i Sureve */
+.surah-selector-container {
+    margin-top: var(--space-2);
+    width: 100%;
+}
+
+.select-control {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    background-color: var(--bg-surface, #1e293b);
+    border: 1px solid var(--border-color, #334155);
+    color: var(--text-primary, #f1f5f9);
+    border-radius: var(--border-radius-md, 8px);
+    font-size: var(--font-size-md, 16px);
+    outline: none;
+    cursor: pointer;
+}
+
+/* Paneli i Cilësimeve */
+.settings-panel {
+    background-color: var(--bg-surface, #1e293b);
+    margin-bottom: var(--space-4);
+    border: 1px solid var(--border-color, #334155);
+}
+
+.settings-panel.hidden {
+    display: none;
+}
+
+.setting-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px;
-    background-color: var(--bg-secondary, #f8f9fa);
-    border-bottom: 1px solid var(--border-color, #e0e0e0);
+    color: var(--text-secondary, #94a3b8);
+    font-size: var(--font-size-sm, 14px);
 }
 
-.quran-reader-area {
-    padding: 20px;
-    height: calc(100vh - 140px);
-    overflow-y: auto;
-    background-color: var(--bg-primary, #ffffff);
-    /* Setimi i drejtimit të tekstit arab */
-    direction: rtl; 
-    text-align: justify;
+.font-controls {
+    display: flex;
+    gap: var(--space-2);
 }
 
-.bismillah-header {
+/* Switch (Butoni On/Off) */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #475569;
+    transition: .3s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--color-accent-teal, #4fd1c5);
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+/* Kontejneri i Kur'anit */
+.quran-container {
+    background-color: var(--bg-surface, #1e293b);
+    border: 1px solid var(--border-color, #334155);
+    min-height: 350px;
+}
+
+.bismillah-text {
     text-align: center;
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-family: 'Amiri', 'Me Quran', serif;
-    margin-bottom: 20px;
-    color: var(--text-primary, #333);
+    color: var(--text-primary, #f1f5f9);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px dashed var(--border-color, #334155);
+    direction: rtl;
 }
 
-.quran-text {
-    font-family: 'Amiri', 'Uthmani', serif; /* Fontet më të mira për Kur'anin */
-    font-size: 2.5rem;
+.bismillah-text.hidden {
+    display: none;
+}
+
+/* Rrjedha e ajeteve */
+.quran-verses-flow {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.loading-spinner {
+    text-align: center;
+    color: var(--text-secondary, #94a3b8);
+    padding: var(--space-5) 0;
+}
+
+/* Teksti Arab */
+.verse-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.arabic-text {
+    font-family: 'Amiri', 'Uthmani', serif;
+    /* Përdor variable për ndryshim dinamik të madhësisë */
+    font-size: var(--quran-arabic-size, 2.2rem);
     line-height: 2.2;
-    color: var(--text-primary, #222);
+    color: var(--text-primary, #f1f5f9);
+    direction: rtl;
+    text-align: right;
 }
 
-.ayah {
-    display: inline;
-    margin-left: 8px; /* Hapësirë mes ajeteve */
-}
-
-.ayah-number {
+/* Numri i Ajetit */
+.verse-number {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    width: 35px;
-    height: 35px;
-    background-image: url('../assets/ayah-symbol.svg'); /* Mund ta shtojmë më vonë */
-    background-size: contain;
-    font-size: 1.2rem;
-    color: var(--primary-color, #007bff);
-    margin: 0 5px;
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+    color: var(--color-accent-gold, #fbbf24);
+    border: 1px solid var(--color-accent-gold, #fbbf24);
+    border-radius: 50%;
+    margin-right: 10px;
+    font-family: sans-serif;
+    vertical-align: middle;
 }
 
-.ai-btn {
-    background: linear-gradient(135deg, #6a11cb, #2575fc);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
-    font-weight: bold;
+/* Përkthimi Shqip */
+.translation-text {
+    font-size: var(--quran-trans-size, 1rem);
+    line-height: 1.6;
+    color: var(--text-secondary, #cbd5e1);
+    direction: ltr;
+    text-align: left;
+}
+
+.translation-text.hidden {
+    display: none;
+}
+
+/* Navigimi */
+.quran-navigation-controls {
+    display: flex;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+}
+
+.quran-navigation-controls button {
+    flex: 1;
+}
+
+/* Butoni AI */
+.gemini-ai-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #4f46e5, #0ea5e9) !important;
+    color: white !important;
+    border: none !important;
 }

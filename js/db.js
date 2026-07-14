@@ -4,7 +4,7 @@
  */
 
 const DB_NAME = 'HayatDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Versioni 2: Shtuar tabelat për Modulin e Kur'anit
 
 const HayatDB = {
     db: null,
@@ -35,6 +35,8 @@ const HayatDB = {
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
 
+                // --- FAZA 1 & 2 ---
+                
                 // Tabela për Log-un e Namazit (Key: data, p.sh. "2026-07-15")
                 if (!db.objectStoreNames.contains('prayer_logs')) {
                     db.createObjectStore('prayer_logs', { keyPath: 'date' });
@@ -46,9 +48,33 @@ const HayatDB = {
                     taskStore.createIndex('date', 'due_date', { unique: false });
                 }
 
-                // Tabela për Historinë e Kur'anit dhe Hifdhit
+                // Tabela e vjetër për Historinë e Kur'anit (E mbajmë për siguri të dhënash)
                 if (!db.objectStoreNames.contains('quran_progress')) {
                     db.createObjectStore('quran_progress', { keyPath: 'surah_id' });
+                }
+
+                // --- FAZA 3: Moduli i Kur'anit ---
+
+                // 📖 1. Tabela për Faqeshënuesit (Bookmarks) dhe Leximin e Fundit
+                if (!db.objectStoreNames.contains('quran_bookmarks')) {
+                    const bookmarksStore = db.createObjectStore('quran_bookmarks', { keyPath: 'id', autoIncrement: true });
+                    bookmarksStore.createIndex('type', 'type', { unique: false }); // 'last_read' ose 'favorite'
+                    bookmarksStore.createIndex('surah', 'surah', { unique: false });
+                    bookmarksStore.createIndex('ayah', 'ayah', { unique: false });
+                    bookmarksStore.createIndex('page', 'page', { unique: false });
+                }
+
+                // 🧠 2. Tabela për Progresin e Hifdhit (Memorizimit)
+                if (!db.objectStoreNames.contains('hifdh_progress')) {
+                    const hifdhStore = db.createObjectStore('hifdh_progress', { keyPath: 'ayah_key' }); // Formati "1_1" (Surja_Ajeti)
+                    hifdhStore.createIndex('surah', 'surah', { unique: false });
+                    hifdhStore.createIndex('status', 'status', { unique: false }); // 'learning', 'memorized', 'needs_revision'
+                    hifdhStore.createIndex('last_reviewed', 'last_reviewed', { unique: false }); 
+                }
+
+                // ⚙️ 3. Tabela për Cilësimet e Kur'anit
+                if (!db.objectStoreNames.contains('quran_settings')) {
+                    db.createObjectStore('quran_settings', { keyPath: 'setting_name' });
                 }
             };
         });

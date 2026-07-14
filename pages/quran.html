@@ -1,0 +1,33 @@
+<!-- Kontejneri i Modulit të Kur'anit -->
+<section id="quran-module" class="module-container hidden">
+    
+    <!-- Top Navbar -->
+    <header class="quran-header">
+        <button id="quran-back-btn" class="icon-btn">⬅️</button>
+        <h2 id="current-surah-title">Al-Fatihah</h2>
+        <div class="quran-tools">
+            <button id="quran-settings-btn" class="icon-btn">⚙️</button>
+            <button id="quran-bookmark-btn" class="icon-btn">🔖</button>
+        </div>
+    </header>
+
+    <!-- Përmbajtja e Kur'anit (Leximi) -->
+    <main class="quran-reader-area" dir="rtl">
+        <!-- Bismilahi për çdo sure (përveç Teubes) -->
+        <div class="bismillah-header">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+        
+        <!-- Këtu do të injektohen ajetet nga JavaScript -->
+        <div id="quran-text-container" class="quran-text">
+            <!-- Shembull Ajeti -->
+            <span class="ayah">ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَٰلَمِينَ <span class="ayah-number">١</span></span>
+        </div>
+    </main>
+
+    <!-- Bottom Navbar & AI Assistant Trigger -->
+    <footer class="quran-footer">
+        <button id="prev-page-btn" class="nav-btn">Prapa</button>
+        <button id="ask-ai-btn" class="ai-btn">✨ Pyet Gemini (Tefsir)</button>
+        <button id="next-page-btn" class="nav-btn">Para</button>
+    </footer>
+
+</section>

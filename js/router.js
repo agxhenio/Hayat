@@ -195,7 +195,15 @@ export function navigate(routeIdOrHash, options) {
     ? routeIdOrHash
     : buildHash(routeIdOrHash, settings.params);
 
-  if (!settings.force && window.location.hash === targetHash) return false;
+  var isCurrentHash = window.location.hash === targetHash;
+  if (isCurrentHash && !settings.force) return false;
+
+  // A forced refresh of the current route must not add a duplicate
+  // browser-history entry (used by the app error-state Retry action).
+  if (isCurrentHash && settings.force) {
+    performNavigation(targetHash);
+    return true;
+  }
 
   try {
     if (settings.replace && history.replaceState) {

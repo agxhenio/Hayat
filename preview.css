@@ -388,3 +388,12 @@
 .preview [aria-label="Zgjedhësi i ekranit"] .segmented__item {
   min-inline-size: 108px;
 }
+
+/* Active state for preview-only choice controls. */
+.preview [data-theme-choice][aria-pressed="true"],
+.preview [data-reader-theme-choice][aria-pressed="true"],
+.preview [data-viewport-choice][aria-pressed="true"] {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-selected);
+  border-color: var(--color-border-selected);
+}

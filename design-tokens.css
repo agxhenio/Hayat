@@ -1,0 +1,377 @@
+/* ========================================================================== 
+   HAYAT - DESIGN TOKENS
+   Visual Direction: Quiet Islamic Premium (Midnight Navy + Emerald)
+   ========================================================================== */
+
+/*
+   BREAKPOINTS DOCUMENTATION
+   Intended breakpoints for layout adjustments:
+   - Mobile landscape / small tablet: 480px
+   - Tablet: 768px
+   - Desktop: 1024px
+   - Large desktop: 1280px
+
+   Standard CSS custom properties cannot be used directly as media-query
+   condition values. Use the documented values directly in @media rules.
+*/
+
+:root {
+  /* ========================================================================
+     RAW PALETTE
+     ======================================================================== */
+
+  /* Midnight Navy */
+  --palette-midnight-900: #0a0d14;
+  --palette-midnight-800: #111520;
+  --palette-midnight-700: #1a1f2c;
+  --palette-midnight-600: #242a38;
+  --palette-midnight-500: #333c52;
+
+  /* Cool Gray / Slate */
+  --palette-slate-50: #f8fafc;
+  --palette-slate-100: #f1f5f9;
+  --palette-slate-200: #e2e8f0;
+  --palette-slate-300: #cbd5e1;
+  --palette-slate-400: #94a3b8;
+  --palette-slate-500: #64748b;
+  --palette-slate-600: #475569;
+  --palette-slate-700: #334155;
+  --palette-slate-800: #1e293b;
+  --palette-slate-900: #0f172a;
+
+  /* Warm Gray / Sand */
+  --palette-sand-50: #faf9f6;
+  --palette-sand-100: #f4f1ea;
+  --palette-sand-200: #e8e2d5;
+  --palette-sand-300: #dcd2c0;
+  --palette-sand-400: #b8a992;
+  --palette-sand-500: #938166;
+  --palette-sand-600: #73634c;
+  --palette-sand-700: #574b38;
+  --palette-sand-800: #3f3526;
+  --palette-sand-900: #261f15;
+
+  /* Emerald */
+  --palette-emerald-50: #ecfdf5;
+  --palette-emerald-100: #d1fae5;
+  --palette-emerald-200: #a7f3d0;
+  --palette-emerald-300: #6ee7b7;
+  --palette-emerald-400: #34d399;
+  --palette-emerald-500: #10b981;
+  --palette-emerald-600: #059669;
+  --palette-emerald-700: #047857;
+  --palette-emerald-800: #065f46;
+  --palette-emerald-900: #064e3b;
+
+  /* Restrained Gold */
+  --palette-gold-50: #fff9eb;
+  --palette-gold-100: #fdf0c8;
+  --palette-gold-300: #eed172;
+  --palette-gold-500: #d4af37;
+  --palette-gold-700: #a68421;
+  --palette-gold-900: #7a5f12;
+
+  /* Semantic raw palettes */
+  --palette-red-50: #fef2f2;
+  --palette-red-100: #fee2e2;
+  --palette-red-500: #ef4444;
+  --palette-red-700: #b91c1c;
+
+  --palette-amber-50: #fffbeb;
+  --palette-amber-100: #fef3c7;
+  --palette-amber-500: #f59e0b;
+  --palette-amber-700: #b45309;
+
+  --palette-blue-50: #eff6ff;
+  --palette-blue-100: #dbeafe;
+  --palette-blue-500: #3b82f6;
+  --palette-blue-600: #2563eb;
+  --palette-blue-700: #1d4ed8;
+
+  /* ========================================================================
+     TYPOGRAPHY
+     ======================================================================== */
+
+  --font-family-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-family-reading: Georgia, "Times New Roman", serif;
+  --font-family-arabic-ui: "Amiri", "Noto Naskh Arabic",
+    "Scheherazade New", "Traditional Arabic", serif;
+
+  /* The preferred Quran font must be bundled and licensed separately. */
+  --font-family-quran: "KFGQPC Uthman Taha Naskh", "Amiri Quran",
+    "Noto Naskh Arabic", "Amiri", "Scheherazade New",
+    "Traditional Arabic", serif;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-arabic: 1.8;
+  --leading-quran: 2.2;
+
+  --font-numeric-tabular: tabular-nums;
+
+  /* ========================================================================
+     LAYOUT, SPACING AND TOUCH TARGETS
+     ======================================================================== */
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  --page-padding-inline: clamp(1rem, 4vw, 1.5rem);
+  --content-max-width: 600px;
+  --reader-max-width: 720px;
+
+  --header-height: 56px;
+  --bottom-nav-height: 64px;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
+  --bottom-nav-total-height: calc(
+    var(--bottom-nav-height) + var(--safe-bottom)
+  );
+
+  --touch-target-min: 44px;
+  --touch-target-comfortable: 48px;
+
+  /* ========================================================================
+     BORDERS, RADII AND SHADOWS
+     ======================================================================== */
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4),
+    0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5),
+    0 4px 6px -4px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 12px rgba(16, 185, 129, 0.15);
+
+  /* ========================================================================
+     ICONS
+     ======================================================================== */
+
+  --icon-size-xs: 12px;
+  --icon-size-sm: 16px;
+  --icon-size-md: 20px;
+  --icon-size-lg: 24px;
+  --icon-size-xl: 32px;
+  --icon-size-2xl: 40px;
+  --icon-stroke-width: 2px;
+
+  /* ========================================================================
+     EFFECTS, OPACITY AND MOTION
+     ======================================================================== */
+
+  --opacity-disabled: 0.5;
+  --opacity-subtle-pattern: 0.03;
+
+  --backdrop-blur-sm: blur(4px);
+  --backdrop-blur-md: blur(8px);
+
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-enter: cubic-bezier(0, 0, 0.2, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* ========================================================================
+     Z-INDEX
+     ======================================================================== */
+
+  --z-base: 0;
+  --z-elevated: 10;
+  --z-dropdown: 20;
+  --z-sticky: 30;
+  --z-header: 40;
+  --z-bottom-nav: 50;
+  --z-modal-backdrop: 90;
+  --z-modal: 100;
+  --z-toast: 110;
+}
+
+/* ========================================================================== 
+   SEMANTIC APPLICATION THEMES
+   ========================================================================== */
+
+:root,
+[data-theme="dark"] {
+  --color-bg-app: var(--palette-midnight-900);
+  --color-surface-base: var(--palette-midnight-800);
+  --color-surface-elevated: var(--palette-midnight-700);
+  --color-surface-interactive: var(--palette-midnight-600);
+  --color-surface-hover: var(--palette-midnight-500);
+  --color-surface-selected: rgba(16, 185, 129, 0.1);
+
+  --color-accent-primary: var(--palette-emerald-500);
+  --color-accent-primary-hover: var(--palette-emerald-600);
+  --color-accent-primary-pressed: var(--palette-emerald-700);
+  --color-accent-secondary: var(--palette-gold-500);
+
+  --color-text-primary: var(--palette-slate-50);
+  --color-text-secondary: var(--palette-slate-300);
+  --color-text-muted: var(--palette-slate-400);
+  --color-text-inverse: var(--palette-midnight-900);
+
+  --color-border-subtle: rgba(248, 250, 252, 0.08);
+  --color-border-strong: rgba(248, 250, 252, 0.16);
+  --color-border-selected: rgba(16, 185, 129, 0.3);
+  --color-divider: rgba(248, 250, 252, 0.08);
+
+  --color-focus-ring: rgba(16, 185, 129, 0.5);
+  --color-link: var(--palette-emerald-400);
+  --color-selection: rgba(16, 185, 129, 0.2);
+
+  --color-success: var(--palette-emerald-500);
+  --color-success-subtle: rgba(16, 185, 129, 0.15);
+  --color-warning: var(--palette-amber-500);
+  --color-warning-subtle: rgba(245, 158, 11, 0.15);
+  --color-danger: var(--palette-red-500);
+  --color-danger-subtle: rgba(239, 68, 68, 0.15);
+  --color-info: var(--palette-blue-500);
+  --color-info-subtle: rgba(59, 130, 246, 0.15);
+
+  --color-disabled-bg: var(--palette-midnight-700);
+  --color-disabled-text: var(--palette-slate-500);
+  --color-disabled-border: var(--palette-midnight-600);
+
+  --color-overlay: rgba(10, 13, 20, 0.8);
+  --color-backdrop: rgba(10, 13, 20, 0.6);
+}
+
+[data-theme="light"] {
+  --color-bg-app: var(--palette-sand-50);
+  --color-surface-base: #ffffff;
+  --color-surface-elevated: #fffdf9;
+  --color-surface-interactive: var(--palette-sand-100);
+  --color-surface-hover: var(--palette-sand-200);
+  --color-surface-selected: var(--palette-emerald-50);
+
+  --color-accent-primary: var(--palette-emerald-700);
+  --color-accent-primary-hover: var(--palette-emerald-800);
+  --color-accent-primary-pressed: var(--palette-emerald-900);
+  --color-accent-secondary: var(--palette-gold-700);
+
+  --color-text-primary: var(--palette-sand-900);
+  --color-text-secondary: var(--palette-sand-700);
+  --color-text-muted: var(--palette-sand-600);
+  --color-text-inverse: #ffffff;
+
+  --color-border-subtle: var(--palette-sand-200);
+  --color-border-strong: var(--palette-sand-300);
+  --color-border-selected: var(--palette-emerald-300);
+  --color-divider: var(--palette-sand-200);
+
+  --color-focus-ring: rgba(5, 150, 105, 0.4);
+  --color-link: var(--palette-emerald-700);
+  --color-selection: var(--palette-emerald-100);
+
+  --color-success: var(--palette-emerald-700);
+  --color-success-subtle: var(--palette-emerald-50);
+  --color-warning: var(--palette-amber-700);
+  --color-warning-subtle: var(--palette-amber-50);
+  --color-danger: var(--palette-red-700);
+  --color-danger-subtle: var(--palette-red-50);
+  --color-info: var(--palette-blue-600);
+  --color-info-subtle: var(--palette-blue-50);
+
+  --color-disabled-bg: var(--palette-sand-100);
+  --color-disabled-text: var(--palette-sand-500);
+  --color-disabled-border: var(--palette-sand-200);
+
+  --color-overlay: rgba(38, 31, 21, 0.8);
+  --color-backdrop: rgba(38, 31, 21, 0.4);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08),
+    0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+/* Muted text is supporting text only. Never use it for essential information,
+   critical actions, prayer times, primary status, or body-copy reading. */
+
+/* ========================================================================== 
+   QURAN AND LONG-FORM READER THEMES
+   ========================================================================== */
+
+[data-reader-theme="paper"] {
+  --reader-bg: #f8f5ed;
+  --reader-surface: #fcfaf5;
+  --reader-text-arabic: #261f15;
+  --reader-text-translation: #3f3526;
+  --reader-text-muted: var(--palette-sand-600);
+  --reader-border: var(--palette-sand-200);
+  --reader-accent: var(--palette-emerald-700);
+  --reader-selection: var(--palette-emerald-100);
+}
+
+[data-reader-theme="sepia"] {
+  --reader-bg: #f4ecd8;
+  --reader-surface: #fcf7e8;
+  --reader-text-arabic: #433422;
+  --reader-text-translation: #5a4833;
+  --reader-text-muted: #786551;
+  --reader-border: #e5d5ba;
+  --reader-accent: #9a641b;
+  --reader-selection: #eaddcd;
+}
+
+[data-reader-theme="night"] {
+  --reader-bg: var(--palette-midnight-900);
+  --reader-surface: var(--palette-midnight-800);
+  --reader-text-arabic: var(--palette-slate-50);
+  --reader-text-translation: var(--palette-slate-300);
+  --reader-text-muted: var(--palette-slate-400);
+  --reader-border: rgba(248, 250, 252, 0.08);
+  --reader-accent: var(--palette-emerald-400);
+  --reader-selection: rgba(16, 185, 129, 0.2);
+}
+
+/* ========================================================================== 
+   ACCESSIBILITY AND REDUCED MOTION
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+  }
+}

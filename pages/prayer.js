@@ -179,7 +179,7 @@ function updateHeroCard(card, state, labels, timings) {
     ? state.durationToCurrentEnd
     : state.duration;
   countdown.textContent = activeDuration
-    ? activeDuration.clock + ' · ' + activeDuration.compact
+    ? activeDuration.clock
     : 'Countdown-i nuk është i disponueshëm';
 
   if (state.currentPrayer && state.currentEndsAt) {
@@ -197,7 +197,10 @@ function updateHeroCard(card, state, labels, timings) {
   if (state.nextPrayerIsTomorrow && !state.nextPrayerAt) {
     next.textContent = 'Koha e Sabahut të nesërm nuk është ngarkuar ende.';
   } else if (state.currentPrayer) {
-    next.textContent = 'Namazi i ardhshëm: ' + labels[state.nextPrayer] +
+    var endText = state.currentEndsAt && state.currentEndsAt !== state.nextPrayerAt
+      ? 'Koha përfundon në ' + state.currentEndsAt + ' · '
+      : '';
+    next.textContent = endText + 'Namazi i ardhshëm: ' + labels[state.nextPrayer] +
       (state.nextPrayerAt ? ' në ' + state.nextPrayerAt : '');
   } else {
     next.textContent = '';

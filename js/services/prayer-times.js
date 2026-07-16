@@ -294,6 +294,7 @@ export async function getTodayAndTomorrowPrayerTimes(options) {
         tomorrowKey
       );
     } catch (error) {
+      if (error instanceof PrayerTimesError && error.code === 'ABORTED') throw error;
       tomorrow = null;
     }
   }
@@ -314,11 +315,18 @@ export function getPrayerState(todayResult, now, tomorrowResult) {
   var secondsUntilNext = state.secondsUntilNext === null
     ? null
     : Math.max(0, state.secondsUntilNext - zonedNow.seconds);
+  var secondsUntilCurrentEnd = state.secondsUntilCurrentEnd === null
+    ? null
+    : Math.max(0, state.secondsUntilCurrentEnd - zonedNow.seconds);
 
   return Object.assign({}, state, {
     secondsUntilNext: secondsUntilNext,
+    secondsUntilCurrentEnd: secondsUntilCurrentEnd,
     zonedNow: zonedNow,
-    duration: secondsUntilNext === null ? null : formatDuration(secondsUntilNext)
+    duration: secondsUntilNext === null ? null : formatDuration(secondsUntilNext),
+    durationToCurrentEnd: secondsUntilCurrentEnd === null
+      ? null
+      : formatDuration(secondsUntilCurrentEnd)
   });
 }
 

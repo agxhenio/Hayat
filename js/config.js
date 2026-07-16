@@ -41,7 +41,7 @@ var APP = deepFreeze({
   locale: 'sq-AL',
   defaultTheme: 'dark',
   supportedThemes: ['dark', 'light'],
-  version: '0.2.0'
+  version: '0.3.0'
 });
 
 // ====================================================================
@@ -60,6 +60,12 @@ var ROUTES = deepFreeze([
     hash: '#/prayer',
     label: 'Namazi',
     primary: true
+  },
+  {
+    id: 'prayerDhikr',
+    hash: '#/prayer/dhikr',
+    label: 'Dhikri pas namazit',
+    primary: false
   },
   {
     id: 'quran',

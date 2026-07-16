@@ -25,6 +25,10 @@ import {
   savePrayerLog,
   deletePrayerLog
 } from '../js/storage/prayer-log.js';
+import {
+  getPostPrayerDhikrSessionsForDate,
+  DHIKR_SESSION_STATUSES
+} from '../js/storage/post-prayer-dhikr-progress.js';
 
 // ====================================================================
 // ICON HELPER
@@ -239,9 +243,11 @@ function buildPrayerList(
   state,
   labels,
   logs,
+  dhikrSessions,
   currentTotalMinutes,
   loggingAvailable,
-  onPrayerClick
+  onPrayerClick,
+  onDhikrClick
 ) {
   var list = document.createElement('div');
   list.className = 'prayer-list';
@@ -252,65 +258,73 @@ function buildPrayerList(
     var recorded = logs.has(key);
     var recordable = isPrayerRecordable(key, timings, currentTotalMinutes);
     var interactive = loggingAvailable && (recorded || recordable);
+    var group = document.createElement('div');
+    group.className = 'prayer-row-group';
+    group.setAttribute('role', 'listitem');
+
     var row = document.createElement(interactive ? 'button' : 'div');
     if (interactive) {
       row.type = 'button';
       row.className = 'prayer-item prayer-log-button';
       row.classList.add(recorded ? 'prayer-log-button--recorded' : 'prayer-log-button--available');
-      row.setAttribute(
-        'aria-label',
-        labels[key] + ', ' + timings[key] + ', ' +
-          (recorded ? 'E regjistruar. Hape për ta ndryshuar.' : 'Regjistro namazin.')
-      );
+      row.setAttribute('aria-label', labels[key] + ', ' + timings[key] + ', ' +
+        (recorded ? 'E regjistruar. Hape për ta ndryshuar.' : 'Regjistro namazin.'));
       row.addEventListener('click', function () { onPrayerClick(key, row); });
     } else {
       row.className = 'prayer-item';
     }
     row.dataset.prayerKey = key;
-    row.setAttribute('role', 'listitem');
     if (state.currentPrayer === key) row.classList.add('prayer-item--current');
 
-    var icon = document.createElement('span');
-    icon.className = 'prayer-item__icon';
-    icon.appendChild(createIcon(getPrayerIcon(key)));
-
+    var prayerIcon = document.createElement('span');
+    prayerIcon.className = 'prayer-item__icon';
+    prayerIcon.appendChild(createIcon(getPrayerIcon(key)));
     var name = document.createElement('span');
     name.className = 'prayer-item__name';
     name.textContent = labels[key];
-
     var time = document.createElement('span');
     time.className = 'prayer-item__time';
     time.textContent = timings[key];
-
     var status = document.createElement('span');
     status.className = 'prayer-item__status prayer-log-button__state';
 
     if (state.currentPrayer === key) {
-      var nowBadge = document.createElement('span');
-      nowBadge.className = 'badge badge--primary';
-      nowBadge.textContent = 'Tani';
-      status.appendChild(nowBadge);
+      var now = document.createElement('span');
+      now.className = 'badge badge--primary';
+      now.textContent = 'Tani';
+      status.appendChild(now);
     }
     if (recorded) {
-      var check = createIcon('check', 'icon--sm');
-      check.classList.add('prayer-log-button__icon');
-      status.appendChild(check);
-      var recordedText = document.createElement('span');
-      recordedText.className = 'sr-only';
-      recordedText.textContent = 'E regjistruar';
-      status.appendChild(recordedText);
+      status.appendChild(createIcon('check', 'icon--sm'));
+      var sr = document.createElement('span');
+      sr.className = 'sr-only';
+      sr.textContent = 'E regjistruar';
+      status.appendChild(sr);
     } else if (interactive && state.currentPrayer !== key) {
-      var circle = createIcon('circle', 'icon--sm');
-      circle.classList.add('prayer-log-button__icon');
-      status.appendChild(circle);
-      var availableText = document.createElement('span');
-      availableText.className = 'sr-only';
-      availableText.textContent = 'Regjistro';
-      status.appendChild(availableText);
+      status.appendChild(createIcon('circle', 'icon--sm'));
     }
 
-    row.append(icon, name, time, status);
-    list.appendChild(row);
+    row.append(prayerIcon, name, time, status);
+    group.appendChild(row);
+
+    if (recorded) {
+      var dhikrSession = dhikrSessions.get(key) || null;
+      var dhikrButton = document.createElement('button');
+      dhikrButton.type = 'button';
+      dhikrButton.className = 'prayer-dhikr-indicator';
+      if (!dhikrSession) {
+        dhikrButton.textContent = 'Fillo dhikrin pas namazit';
+      } else if (dhikrSession.status === DHIKR_SESSION_STATUSES.IN_PROGRESS) {
+        dhikrButton.classList.add('prayer-dhikr-indicator--in-progress');
+        dhikrButton.textContent = 'Dhikri në vazhdim';
+      } else {
+        dhikrButton.classList.add('prayer-dhikr-indicator--completed');
+        dhikrButton.append(createIcon('check', 'icon--xs'), document.createTextNode(' Dhikri u krye'));
+      }
+      dhikrButton.addEventListener('click', function () { onDhikrClick(key); });
+      group.appendChild(dhikrButton);
+    }
+    list.appendChild(group);
   });
   return list;
 }
@@ -720,6 +734,9 @@ export function mount(pageElement, context, appContext) {
   var sessionTimeZone = null;
   var locationAccuracy = null;
   var prayerLogsByKey = new Map();
+  var dhikrSessionsByKey = new Map();
+  var dhikrSessionsAvailable = true;
+  var dhikrPromptPrayerKey = null;
   var loggingAvailable = true;
   var currentDialog = null;
   var logOperationInProgress = false;
@@ -932,6 +949,18 @@ export function mount(pageElement, context, appContext) {
       var logs = await getPrayerLogsForDate(dateKey);
       if (!isMounted || !todayResult || todayResult.dateKey !== dateKey) return;
       logs.forEach(function (log) { prayerLogsByKey.set(log.prayerKey, log); });
+      dhikrSessionsByKey.clear();
+      dhikrSessionsAvailable = true;
+      try {
+        var sessions = await getPostPrayerDhikrSessionsForDate(dateKey);
+        if (!isMounted || !todayResult || todayResult.dateKey !== dateKey) return;
+        sessions.forEach(function (session) {
+          dhikrSessionsByKey.set(session.prayerKey, session);
+        });
+      } catch (dhikrError) {
+        dhikrSessionsAvailable = false;
+        console.warn('[Hayat Prayer] Dhikr session indicators unavailable:', dhikrError);
+      }
     } catch (error) {
       if (!isMounted) return;
       loggingAvailable = false;
@@ -963,6 +992,41 @@ export function mount(pageElement, context, appContext) {
       message.textContent = logFeedback.message;
       host.appendChild(message);
     }
+    if (dhikrPromptPrayerKey && todayResult) {
+      var prompt = document.createElement('div');
+      prompt.className = 'prayer-dhikr-prompt card card--elevated';
+      var body = document.createElement('div');
+      body.className = 'card__body';
+      var text = document.createElement('p');
+      text.className = 'prayer-dhikr-prompt__text';
+      text.textContent = 'Dëshiron të vazhdosh me dhikrin pas ' +
+        PRAYER_LABELS_SQ[dhikrPromptPrayerKey] + '?';
+      var actions = document.createElement('div');
+      actions.className = 'prayer-dhikr-prompt__actions';
+      var continueButton = document.createElement('button');
+      continueButton.type = 'button';
+      continueButton.className = 'btn btn--primary btn--sm';
+      continueButton.textContent = dhikrSessionsByKey.has(dhikrPromptPrayerKey)
+        ? 'Vazhdo dhikrin' : 'Vazhdo me dhikrin';
+      continueButton.addEventListener('click', function () {
+        var selectedPrayer = dhikrPromptPrayerKey;
+        appContext.navigate('prayerDhikr', {
+          params: { prayer: selectedPrayer, date: todayResult.dateKey }
+        });
+      });
+      var dismiss = document.createElement('button');
+      dismiss.type = 'button';
+      dismiss.className = 'btn btn--ghost btn--sm';
+      dismiss.textContent = 'Jo tani';
+      dismiss.addEventListener('click', function () {
+        dhikrPromptPrayerKey = null;
+        renderFeedback();
+      });
+      actions.append(continueButton, dismiss);
+      body.append(text, actions);
+      prompt.appendChild(body);
+      host.appendChild(prompt);
+    }
   }
 
   function showLogFeedback(message, type) {
@@ -984,15 +1048,24 @@ export function mount(pageElement, context, appContext) {
         state,
         PRAYER_LABELS_SQ,
         prayerLogsByKey,
+        dhikrSessionsByKey,
         zonedNow.totalMinutes,
         loggingAvailable,
-        openPrayerLogDialog
+        openPrayerLogDialog,
+        openPostPrayerDhikr
       ));
     }
     var oldSummary = regions.result.querySelector('.prayer-summary');
     if (oldSummary && loggingAvailable) oldSummary.replaceWith(buildDailySummary(prayerLogsByKey));
     else if (oldSummary && !loggingAvailable) oldSummary.remove();
     renderFeedback();
+  }
+
+  function openPostPrayerDhikr(prayerKey) {
+    if (!todayResult) return;
+    appContext.navigate('prayerDhikr', {
+      params: { prayer: prayerKey, date: todayResult.dateKey }
+    });
   }
 
   function closePrayerLogDialog(restoreFocus) {
@@ -1023,6 +1096,7 @@ export function mount(pageElement, context, appContext) {
           });
           if (!isMounted) return;
           prayerLogsByKey.set(prayerKey, saved);
+          dhikrPromptPrayerKey = prayerKey;
           closePrayerLogDialog(true);
           var now = getZonedDateParts(new Date(), todayResult.timezone);
           var state = getPrayerState(todayResult, new Date(), tomorrowResult);
@@ -1225,9 +1299,11 @@ export function mount(pageElement, context, appContext) {
       state,
       PRAYER_LABELS_SQ,
       prayerLogsByKey,
+      dhikrSessionsByKey,
       getZonedDateParts(now, todayResult.timezone).totalMinutes,
       loggingAvailable,
-      openPrayerLogDialog
+      openPrayerLogDialog,
+      openPostPrayerDhikr
     );
     regions.result.appendChild(list);
 

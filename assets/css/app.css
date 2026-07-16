@@ -1226,3 +1226,370 @@
     color: LinkText;
   }
 }
+/* ==========================================================================
+   16. POST-PRAYER DHIKR
+   ========================================================================== */
+
+/* Dhikr Prompt (shown after prayer log save) */
+.prayer-dhikr-prompt {
+  margin-block-end: var(--space-4);
+}
+
+.prayer-dhikr-prompt__text {
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin-block-end: var(--space-3);
+}
+
+.prayer-dhikr-prompt__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Dhikr Indicator (on prayer list items) */
+.prayer-dhikr-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-interactive);
+  color: var(--color-text-secondary);
+  border: none;
+  cursor: pointer;
+  margin-inline-start: var(--space-2);
+  transition: background-color var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .prayer-dhikr-indicator:hover {
+    background-color: var(--color-surface-hover);
+    color: var(--color-text-primary);
+  }
+}
+
+.prayer-dhikr-indicator--in-progress {
+  background-color: var(--color-info-subtle);
+  color: var(--color-info);
+}
+
+.prayer-dhikr-indicator--completed {
+  background-color: var(--color-success-subtle);
+  color: var(--color-success);
+}
+
+/* Post-Dhikr Page */
+.post-dhikr-page {
+  max-inline-size: var(--content-max-width);
+  margin-inline: auto;
+  inline-size: 100%;
+}
+
+.post-dhikr-header {
+  margin-block-end: var(--space-6);
+}
+
+.post-dhikr-obligation-note {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin-block-start: var(--space-2);
+}
+
+.post-dhikr-review-warning {
+  margin-block-start: var(--space-3);
+}
+
+.post-dhikr-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Progress */
+.post-dhikr-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-block-end: var(--space-4);
+}
+
+.post-dhikr-progress__text {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Card */
+.post-dhikr-card {
+  margin-block-end: var(--space-4);
+}
+
+.post-dhikr-card__title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-block-end: var(--space-3);
+}
+
+.post-dhikr-card__arabic {
+  font-size: var(--text-2xl);
+  line-height: var(--leading-arabic);
+  margin-block-end: var(--space-3);
+  text-align: center;
+}
+
+.post-dhikr-card__transliteration {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  font-style: italic;
+  margin-block-end: var(--space-2);
+}
+
+.post-dhikr-card__translation {
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  margin-block-end: var(--space-3);
+}
+
+.post-dhikr-card__reference {
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin-block-end: var(--space-2);
+}
+
+.post-dhikr-card__note {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-block-end: var(--space-3);
+}
+
+.post-dhikr-card__source {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-block-start: var(--space-3);
+  padding-block-start: var(--space-2);
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+
+/* Counter */
+.post-dhikr-counter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-block-start: var(--space-4);
+}
+
+.post-dhikr-counter__button {
+  inline-size: 100%;
+  min-block-size: 64px;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: var(--font-numeric-tabular);
+}
+
+.post-dhikr-counter__value {
+  display: block;
+}
+
+/* Actions */
+.post-dhikr-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-block-start: var(--space-3);
+}
+
+/* Navigation */
+.post-dhikr-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: space-between;
+  margin-block-start: var(--space-4);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+
+/* Utility Actions */
+.post-dhikr-utility {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-block-start: var(--space-4);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+
+/* Warning */
+.post-dhikr-warning {
+  margin-block-end: var(--space-4);
+}
+
+/* Completion */
+.post-dhikr-completion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+}
+
+.post-dhikr-completion__icon {
+  color: var(--color-success);
+}
+
+.post-dhikr-completion__title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+/* Error */
+.post-dhikr-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+}
+
+.post-dhikr-error__icon {
+  color: var(--color-danger);
+}
+
+.post-dhikr-error__title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 360px) {
+  .post-dhikr-card__arabic {
+    font-size: var(--text-xl);
+  }
+
+  .post-dhikr-counter__button {
+    min-block-size: 56px;
+    font-size: var(--text-xl);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .prayer-dhikr-indicator {
+    transition: none;
+  }
+}
+
+/* High Contrast */
+@media (prefers-contrast: more) {
+  .prayer-dhikr-indicator {
+    border: 1px solid var(--color-border-strong);
+  }
+
+  .prayer-dhikr-indicator--in-progress {
+    border-color: var(--color-info);
+  }
+
+  .prayer-dhikr-indicator--completed {
+    border-color: var(--color-success);
+  }
+}
+
+/* Forced Colors */
+@media (forced-colors: active) {
+  .prayer-dhikr-indicator--in-progress {
+    background-color: Canvas;
+    color: LinkText;
+    border: 1px solid LinkText;
+  }
+
+  .prayer-dhikr-indicator--completed {
+    background-color: Canvas;
+    color: Highlight;
+    border: 1px solid Highlight;
+  }
+
+  .post-dhikr-completion__icon {
+    color: Highlight;
+  }
+
+  .post-dhikr-error__icon {
+    color: LinkText;
+  }
+}
+
+/* Prayer row plus optional second-line dhikr action. */
+.prayer-row-group {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.prayer-row-group > .prayer-dhikr-indicator {
+  justify-self: end;
+  margin-inline-end: var(--space-3);
+  margin-block-start: calc(var(--space-1) * -1);
+}
+
+.post-dhikr-progress__bar {
+  inline-size: 100%;
+  block-size: 8px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-interactive);
+  accent-color: var(--color-accent-primary);
+}
+
+.post-dhikr-progress__bar::-webkit-progress-bar {
+  background-color: var(--color-surface-interactive);
+  border-radius: var(--radius-full);
+}
+
+.post-dhikr-progress__bar::-webkit-progress-value {
+  background-color: var(--color-accent-primary);
+  border-radius: var(--radius-full);
+}
+
+.post-dhikr-progress__bar::-moz-progress-bar {
+  background-color: var(--color-accent-primary);
+  border-radius: var(--radius-full);
+}
+
+.post-dhikr-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  color: var(--color-text-primary);
+  background-color: var(--color-warning-subtle);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-md);
+}
+
+.post-dhikr-confirm p {
+  flex: 1 0 100%;
+  margin: 0;
+}
+
+@media (max-width: 360px) {
+  .prayer-row-group > .prayer-dhikr-indicator {
+    justify-self: stretch;
+    justify-content: center;
+    margin-inline: var(--space-3);
+  }
+}

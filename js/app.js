@@ -27,6 +27,7 @@ import { initRouter, navigate } from './router.js';
 var PAGE_LOADERS = Object.freeze({
   home: function () { return import('../pages/home.js'); },
   prayer: function () { return import('../pages/prayer.js'); },
+  prayerDhikr: function () { return import('../pages/prayer-dhikr.js'); },
   quran: function () { return import('../pages/quran.js'); },
   dhikr: function () { return import('../pages/dhikr.js'); },
   more: function () { return import('../pages/more.js'); },
@@ -247,7 +248,9 @@ function getIconForRoute(routeId) {
 function updateBottomNav(routeId) {
   if (!dom.bottomNavList) return;
 
-  var activePrimaryRoute = routeId === 'settings' ? 'more' : routeId;
+  var activePrimaryRoute = routeId === 'settings'
+    ? 'more'
+    : (routeId === 'prayerDhikr' ? 'prayer' : routeId);
 
   var links = dom.bottomNavList.querySelectorAll('.bottom-nav__link');
   links.forEach(function (link) {

@@ -3,8 +3,13 @@
  */
 
 var DB_NAME = 'hayat-db';
-var DB_VERSION = 2;
-var STORES = Object.freeze(['prayerLogs', 'postPrayerDhikrSessions', 'meta']);
+var DB_VERSION = 3;
+var STORES = Object.freeze([
+  'prayerLogs',
+  'postPrayerDhikrSessions',
+  'quranContent',
+  'meta'
+]);
 var INDEXES = Object.freeze({
   prayerLogs: Object.freeze(['datePrayer', 'dateKey', 'prayerKey', 'loggedAt']),
   postPrayerDhikrSessions: Object.freeze([
@@ -12,6 +17,13 @@ var INDEXES = Object.freeze({
     'dateKey',
     'prayerKey',
     'status',
+    'updatedAt'
+  ]),
+  quranContent: Object.freeze([
+    'verseTranslation',
+    'verseKey',
+    'surah',
+    'translationKey',
     'updatedAt'
   ]),
   meta: Object.freeze([])
@@ -125,6 +137,30 @@ export function openDatabase() {
       }
       if (!dhikrStore.indexNames.contains('updatedAt')) {
         dhikrStore.createIndex('updatedAt', 'updatedAt', { unique: false });
+      }
+
+      var quranStore;
+      if (!database.objectStoreNames.contains('quranContent')) {
+        quranStore = database.createObjectStore('quranContent', {
+          keyPath: 'key'
+        });
+      } else {
+        quranStore = event.target.transaction.objectStore('quranContent');
+      }
+      if (!quranStore.indexNames.contains('verseTranslation')) {
+        quranStore.createIndex('verseTranslation', 'verseTranslation', { unique: true });
+      }
+      if (!quranStore.indexNames.contains('verseKey')) {
+        quranStore.createIndex('verseKey', 'verseKey', { unique: false });
+      }
+      if (!quranStore.indexNames.contains('surah')) {
+        quranStore.createIndex('surah', 'surah', { unique: false });
+      }
+      if (!quranStore.indexNames.contains('translationKey')) {
+        quranStore.createIndex('translationKey', 'translationKey', { unique: false });
+      }
+      if (!quranStore.indexNames.contains('updatedAt')) {
+        quranStore.createIndex('updatedAt', 'updatedAt', { unique: false });
       }
 
       if (!database.objectStoreNames.contains('meta')) {

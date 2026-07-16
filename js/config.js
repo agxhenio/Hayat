@@ -41,7 +41,7 @@ var APP = deepFreeze({
   locale: 'sq-AL',
   defaultTheme: 'dark',
   supportedThemes: ['dark', 'light'],
-  version: '0.3.0'
+  version: '0.4.0'
 });
 
 // ====================================================================
@@ -141,6 +141,18 @@ var PRAYER_API = deepFreeze({
   timeoutMs: 10000,
   cacheMaxEntries: 16,
   cacheMaxAgeMs: 45 * 24 * 60 * 60 * 1000
+});
+
+
+/** QuranEnc Arabic/Albanian content configuration. */
+var QURAN_CONTENT_API = deepFreeze({
+  baseUrl: 'https://quranenc.com/api/v1/translation',
+  translationKey: 'albanian_nahi',
+  translationNameSq: 'Përkthimi shqip — Hasan Nahi',
+  providerName: 'QuranEnc',
+  providerUrl: 'https://quranenc.com',
+  timeoutMs: 10000,
+  cacheMaxAgeMs: 365 * 24 * 60 * 60 * 1000
 });
 
 /**
@@ -251,6 +263,21 @@ export function isTimingKey(value) {
   return typeof value === 'string' && TIMING_KEYS.indexOf(value) !== -1;
 }
 
+
+export function isValidSurahNumber(value) {
+  return Number.isInteger(value) && value >= 1 && value <= 114;
+}
+
+export function isValidAyahNumber(value) {
+  return Number.isInteger(value) && value >= 1 && value <= 286;
+}
+
+export function buildVerseKey(surah, ayah) {
+  return isValidSurahNumber(surah) && isValidAyahNumber(ayah)
+    ? surah + ':' + ayah
+    : null;
+}
+
 // ====================================================================
 // EXPORTS
 // ====================================================================
@@ -269,6 +296,7 @@ export {
   TIMING_KEYS,
   PRAYER_LABELS_SQ,
   PRAYER_API,
+  QURAN_CONTENT_API,
   ALLOWED_CALCULATION_METHODS,
   ALLOWED_ASR_SCHOOLS
 };

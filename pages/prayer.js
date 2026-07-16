@@ -18,7 +18,13 @@ import {
   TIRANA_PRESET,
   LocationError
 } from '../js/services/location.js';
-import { getZonedDateParts } from '../js/utils/date-time.js';
+import { getZonedDateParts, parseTimeString } from '../js/utils/date-time.js';
+import {
+  PRAYER_METHODS,
+  getPrayerLogsForDate,
+  savePrayerLog,
+  deletePrayerLog
+} from '../js/storage/prayer-log.js';
 
 // ====================================================================
 // ICON HELPER
@@ -223,20 +229,46 @@ function buildHeroCard(state, labels, timings) {
   return card;
 }
 
-function buildPrayerList(timings, state, labels) {
+function isPrayerRecordable(prayerKey, timings, currentTotalMinutes) {
+  var parsed = parseTimeString(timings[prayerKey]);
+  return Boolean(parsed && currentTotalMinutes >= parsed.totalMinutes);
+}
+
+function buildPrayerList(
+  timings,
+  state,
+  labels,
+  logs,
+  currentTotalMinutes,
+  loggingAvailable,
+  onPrayerClick
+) {
   var list = document.createElement('div');
   list.className = 'prayer-list';
   list.setAttribute('role', 'list');
   list.setAttribute('aria-label', 'Oraret e namazit');
 
   PRAYER_KEYS.forEach(function (key) {
-    var item = document.createElement('div');
-    item.className = 'prayer-item';
-    item.setAttribute('role', 'listitem');
-
-    if (state.currentPrayer === key) {
-      item.classList.add('prayer-item--current');
+    var recorded = logs.has(key);
+    var recordable = isPrayerRecordable(key, timings, currentTotalMinutes);
+    var interactive = loggingAvailable && (recorded || recordable);
+    var row = document.createElement(interactive ? 'button' : 'div');
+    if (interactive) {
+      row.type = 'button';
+      row.className = 'prayer-item prayer-log-button';
+      row.classList.add(recorded ? 'prayer-log-button--recorded' : 'prayer-log-button--available');
+      row.setAttribute(
+        'aria-label',
+        labels[key] + ', ' + timings[key] + ', ' +
+          (recorded ? 'E regjistruar. Hape për ta ndryshuar.' : 'Regjistro namazin.')
+      );
+      row.addEventListener('click', function () { onPrayerClick(key, row); });
+    } else {
+      row.className = 'prayer-item';
     }
+    row.dataset.prayerKey = key;
+    row.setAttribute('role', 'listitem');
+    if (state.currentPrayer === key) row.classList.add('prayer-item--current');
 
     var icon = document.createElement('span');
     icon.className = 'prayer-item__icon';
@@ -251,23 +283,260 @@ function buildPrayerList(timings, state, labels) {
     time.textContent = timings[key];
 
     var status = document.createElement('span');
-    status.className = 'prayer-item__status';
+    status.className = 'prayer-item__status prayer-log-button__state';
+
     if (state.currentPrayer === key) {
-      var pill = document.createElement('span');
-      pill.className = 'badge badge--primary';
-      pill.textContent = 'Tani';
-      status.appendChild(pill);
+      var nowBadge = document.createElement('span');
+      nowBadge.className = 'badge badge--primary';
+      nowBadge.textContent = 'Tani';
+      status.appendChild(nowBadge);
+    }
+    if (recorded) {
+      var check = createIcon('check', 'icon--sm');
+      check.classList.add('prayer-log-button__icon');
+      status.appendChild(check);
+      var recordedText = document.createElement('span');
+      recordedText.className = 'sr-only';
+      recordedText.textContent = 'E regjistruar';
+      status.appendChild(recordedText);
+    } else if (interactive && state.currentPrayer !== key) {
+      var circle = createIcon('circle', 'icon--sm');
+      circle.classList.add('prayer-log-button__icon');
+      status.appendChild(circle);
+      var availableText = document.createElement('span');
+      availableText.className = 'sr-only';
+      availableText.textContent = 'Regjistro';
+      status.appendChild(availableText);
     }
 
-    item.appendChild(icon);
-    item.appendChild(name);
-    item.appendChild(time);
-    item.appendChild(status);
-
-    list.appendChild(item);
+    row.append(icon, name, time, status);
+    list.appendChild(row);
   });
-
   return list;
+}
+
+function buildDailySummary(logs) {
+  var card = document.createElement('div');
+  card.className = 'prayer-summary card';
+  var body = document.createElement('div');
+  body.className = 'card__body';
+  var header = document.createElement('div');
+  header.className = 'prayer-summary__header';
+  var title = document.createElement('h3');
+  title.className = 'card__title';
+  title.textContent = 'Të regjistruara sot';
+  var count = document.createElement('span');
+  count.className = 'prayer-summary__count';
+  count.textContent = logs.size + ' nga 5';
+  header.append(title, count);
+
+  var progress = document.createElement('div');
+  progress.className = 'progress';
+  var track = document.createElement('div');
+  track.className = 'progress__track';
+  track.setAttribute('role', 'progressbar');
+  track.setAttribute('aria-valuemin', '0');
+  track.setAttribute('aria-valuemax', '5');
+  track.setAttribute('aria-valuenow', String(logs.size));
+  track.setAttribute('aria-label', logs.size + ' nga 5 namaze të regjistruara');
+  var bar = document.createElement('div');
+  bar.className = 'progress__bar';
+  bar.dataset.count = String(logs.size);
+  track.appendChild(bar);
+  progress.appendChild(track);
+
+  var note = document.createElement('p');
+  note.className = 'prayer-summary__note';
+  note.textContent = 'Kjo tregon vetëm regjistrimet në Hayat, jo nëse namazi është falur apo jo.';
+  body.append(header, progress, note);
+  card.appendChild(body);
+  return card;
+}
+
+function buildLogDialog(options) {
+  var prayerKey = options.prayerKey;
+  var existingLog = options.existingLog;
+  var backdrop = document.createElement('div');
+  backdrop.className = 'modal-backdrop';
+  backdrop.dataset.state = 'open';
+  backdrop.setAttribute('aria-hidden', 'false');
+
+  var dialog = document.createElement('div');
+  dialog.className = 'modal prayer-log-dialog';
+  dialog.dataset.state = 'open';
+  dialog.setAttribute('role', 'dialog');
+  dialog.setAttribute('aria-modal', 'true');
+  var titleId = 'prayer-log-title-' + prayerKey;
+  dialog.setAttribute('aria-labelledby', titleId);
+
+  var header = document.createElement('div');
+  header.className = 'modal__header';
+  var title = document.createElement('h2');
+  title.id = titleId;
+  title.className = 'card__title';
+  title.textContent = PRAYER_LABELS_SQ[prayerKey];
+  var closeButton = document.createElement('button');
+  closeButton.type = 'button';
+  closeButton.className = 'btn btn--icon btn--ghost';
+  closeButton.setAttribute('aria-label', 'Mbyll');
+  closeButton.appendChild(createIcon('close'));
+  header.append(title, closeButton);
+
+  var body = document.createElement('div');
+  body.className = 'modal__body';
+  var subtitle = document.createElement('p');
+  subtitle.className = 'prayer-log-dialog__subtitle';
+  subtitle.textContent = options.dateKey + ' · ' + options.time;
+  var question = document.createElement('p');
+  question.className = 'prayer-log-dialog__question';
+  question.textContent = 'Si u fale?';
+  var methods = document.createElement('div');
+  methods.className = 'prayer-methods';
+
+  var radios = [];
+  Object.keys(PRAYER_METHODS).forEach(function (method) {
+    var wrapper = document.createElement('div');
+    wrapper.className = 'prayer-method';
+    var input = document.createElement('input');
+    input.type = 'radio';
+    input.name = 'prayer-method-' + prayerKey;
+    input.id = 'prayer-method-' + prayerKey + '-' + method;
+    input.value = method;
+    input.className = 'prayer-method__input';
+    input.checked = Boolean(existingLog && existingLog.method === method);
+    radios.push(input);
+    var label = document.createElement('label');
+    label.className = 'prayer-method__label';
+    label.htmlFor = input.id;
+    var methodIcon = document.createElement('span');
+    methodIcon.className = 'prayer-method__icon';
+    methodIcon.appendChild(createIcon(
+      method === 'mosque_congregation' || method === 'home_congregation'
+        ? 'users' : method === 'alone' ? 'user' : 'clock'
+    ));
+    var methodText = document.createElement('span');
+    methodText.textContent = PRAYER_METHODS[method];
+    label.append(methodIcon, methodText);
+    wrapper.append(input, label);
+    methods.appendChild(wrapper);
+  });
+  body.append(subtitle, question, methods);
+
+  var footer = document.createElement('div');
+  footer.className = 'modal__footer prayer-log-dialog__footer';
+  var deleteButton = null;
+  var deleteConfirm = null;
+  if (existingLog) {
+    deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.className = 'btn btn--danger';
+    deleteButton.append(createIcon('trash', 'icon--sm'), document.createTextNode(' Hiq regjistrimin'));
+    footer.appendChild(deleteButton);
+  }
+  var cancelButton = document.createElement('button');
+  cancelButton.type = 'button';
+  cancelButton.className = 'btn btn--ghost';
+  cancelButton.textContent = 'Anulo';
+  var saveButton = document.createElement('button');
+  saveButton.type = 'button';
+  saveButton.className = 'btn btn--primary';
+  saveButton.textContent = 'Ruaj';
+  saveButton.disabled = !radios.some(function (radio) { return radio.checked; });
+  footer.append(cancelButton, saveButton);
+  dialog.append(header, body, footer);
+  backdrop.appendChild(dialog);
+
+  var busy = false;
+  var previousOverflow = document.body.style.overflow;
+  document.body.style.overflow = 'hidden';
+  var trigger = options.trigger;
+
+  function focusables() {
+    return Array.from(dialog.querySelectorAll(
+      'button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )).filter(function (element) { return !element.hidden; });
+  }
+
+  function requestClose() {
+    if (!busy) options.onClose();
+  }
+
+  function keydown(event) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      requestClose();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    var items = focusables();
+    if (!items.length) return;
+    var first = items[0];
+    var last = items[items.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault(); last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault(); first.focus();
+    }
+  }
+
+  closeButton.addEventListener('click', requestClose);
+  cancelButton.addEventListener('click', requestClose);
+  backdrop.addEventListener('click', function (event) {
+    if (event.target === backdrop) requestClose();
+  });
+  dialog.addEventListener('keydown', keydown);
+  radios.forEach(function (radio) {
+    radio.addEventListener('change', function () { saveButton.disabled = false; });
+  });
+  saveButton.addEventListener('click', function () {
+    var selected = radios.find(function (radio) { return radio.checked; });
+    if (selected && !busy) options.onSave(selected.value);
+  });
+  if (deleteButton) {
+    deleteButton.addEventListener('click', function () {
+      if (busy || deleteConfirm) return;
+      deleteConfirm = document.createElement('div');
+      deleteConfirm.className = 'prayer-log-dialog__delete-confirm';
+      var text = document.createElement('p');
+      text.textContent = 'A je i sigurt që dëshiron ta heqësh regjistrimin?';
+      var yes = document.createElement('button');
+      yes.type = 'button';
+      yes.className = 'btn btn--danger btn--sm';
+      yes.textContent = 'Po, hiqe';
+      var no = document.createElement('button');
+      no.type = 'button';
+      no.className = 'btn btn--ghost btn--sm';
+      no.textContent = 'Anulo';
+      yes.addEventListener('click', function () { if (!busy) options.onDelete(); });
+      no.addEventListener('click', function () {
+        deleteConfirm.remove(); deleteConfirm = null; deleteButton.focus();
+      });
+      deleteConfirm.append(text, yes, no);
+      body.appendChild(deleteConfirm);
+      yes.focus();
+    });
+  }
+
+  return {
+    element: backdrop,
+    setBusy: function (value) {
+      busy = Boolean(value);
+      dialog.setAttribute('aria-busy', String(busy));
+      radios.forEach(function (radio) { radio.disabled = busy; });
+      [closeButton, cancelButton, saveButton, deleteButton].filter(Boolean)
+        .forEach(function (button) { button.disabled = busy; });
+    },
+    focus: function () {
+      var selected = radios.find(function (radio) { return radio.checked; });
+      (selected || radios[0] || closeButton).focus();
+    },
+    destroy: function (restoreFocus) {
+      dialog.removeEventListener('keydown', keydown);
+      document.body.style.overflow = previousOverflow;
+      backdrop.remove();
+      if (restoreFocus && trigger && trigger.isConnected) trigger.focus();
+    }
+  };
 }
 
 function buildInfoCard(timings, result, settings) {
@@ -450,6 +719,13 @@ export function mount(pageElement, context, appContext) {
   var isMounted = true;
   var sessionTimeZone = null;
   var locationAccuracy = null;
+  var prayerLogsByKey = new Map();
+  var loggingAvailable = true;
+  var currentDialog = null;
+  var logOperationInProgress = false;
+  var logFeedback = null;
+  var logFeedbackTimer = null;
+  var lastTemporalSignature = null;
 
   // ---------------------------------------------------------------
   // HELPERS
@@ -646,6 +922,149 @@ export function mount(pageElement, context, appContext) {
   }
 
   // ---------------------------------------------------------------
+  // OPTIONAL LOCAL PRAYER LOGGING
+  // ---------------------------------------------------------------
+
+  async function loadPrayerLogs(dateKey) {
+    prayerLogsByKey.clear();
+    loggingAvailable = true;
+    try {
+      var logs = await getPrayerLogsForDate(dateKey);
+      if (!isMounted || !todayResult || todayResult.dateKey !== dateKey) return;
+      logs.forEach(function (log) { prayerLogsByKey.set(log.prayerKey, log); });
+    } catch (error) {
+      if (!isMounted) return;
+      loggingAvailable = false;
+      console.warn('[Hayat Prayer] Local prayer logging unavailable:', error);
+    }
+  }
+
+  function feedbackClass(type) {
+    return type === 'success'
+      ? 'prayer-log-feedback prayer-log-feedback--success'
+      : 'prayer-log-feedback prayer-log-feedback--warning';
+  }
+
+  function renderFeedback() {
+    var host = regions.result.querySelector('.prayer-log-feedback-host');
+    if (!host) return;
+    host.replaceChildren();
+    if (!loggingAvailable) {
+      var unavailable = document.createElement('div');
+      unavailable.className = feedbackClass('warning');
+      unavailable.setAttribute('role', 'status');
+      unavailable.textContent = 'Regjistrimi lokal nuk është i disponueshëm.';
+      host.appendChild(unavailable);
+    }
+    if (logFeedback) {
+      var message = document.createElement('div');
+      message.className = feedbackClass(logFeedback.type);
+      message.setAttribute('role', 'status');
+      message.textContent = logFeedback.message;
+      host.appendChild(message);
+    }
+  }
+
+  function showLogFeedback(message, type) {
+    logFeedback = { message: message, type: type || 'success' };
+    renderFeedback();
+    if (logFeedbackTimer) clearTimeout(logFeedbackTimer);
+    logFeedbackTimer = setTimeout(function () {
+      logFeedback = null;
+      logFeedbackTimer = null;
+      if (isMounted) renderFeedback();
+    }, 3000);
+  }
+
+  function refreshLoggingUI(state, zonedNow) {
+    var oldList = regions.result.querySelector('.prayer-list');
+    if (oldList) {
+      oldList.replaceWith(buildPrayerList(
+        todayResult.timings,
+        state,
+        PRAYER_LABELS_SQ,
+        prayerLogsByKey,
+        zonedNow.totalMinutes,
+        loggingAvailable,
+        openPrayerLogDialog
+      ));
+    }
+    var oldSummary = regions.result.querySelector('.prayer-summary');
+    if (oldSummary && loggingAvailable) oldSummary.replaceWith(buildDailySummary(prayerLogsByKey));
+    else if (oldSummary && !loggingAvailable) oldSummary.remove();
+    renderFeedback();
+  }
+
+  function closePrayerLogDialog(restoreFocus) {
+    if (!currentDialog) return;
+    var dialog = currentDialog;
+    currentDialog = null;
+    dialog.destroy(restoreFocus !== false);
+  }
+
+  function openPrayerLogDialog(prayerKey, trigger) {
+    if (!loggingAvailable || logOperationInProgress || !todayResult || currentDialog) return;
+    currentDialog = buildLogDialog({
+      prayerKey: prayerKey,
+      existingLog: prayerLogsByKey.get(prayerKey) || null,
+      dateKey: todayResult.dateKey,
+      time: todayResult.timings[prayerKey],
+      trigger: trigger,
+      onClose: function () { closePrayerLogDialog(true); },
+      onSave: async function (method) {
+        if (!currentDialog || logOperationInProgress) return;
+        logOperationInProgress = true;
+        currentDialog.setBusy(true);
+        try {
+          var saved = await savePrayerLog({
+            dateKey: todayResult.dateKey,
+            prayerKey: prayerKey,
+            method: method
+          });
+          if (!isMounted) return;
+          prayerLogsByKey.set(prayerKey, saved);
+          closePrayerLogDialog(true);
+          var now = getZonedDateParts(new Date(), todayResult.timezone);
+          var state = getPrayerState(todayResult, new Date(), tomorrowResult);
+          if (now && state) refreshLoggingUI(state, now);
+          showLogFeedback('U regjistrua', 'success');
+        } catch (error) {
+          if (isMounted && currentDialog) {
+            currentDialog.setBusy(false);
+            showLogFeedback('Regjistrimi nuk u ruajt. Provo përsëri.', 'warning');
+          }
+        } finally {
+          logOperationInProgress = false;
+        }
+      },
+      onDelete: async function () {
+        if (!currentDialog || logOperationInProgress) return;
+        logOperationInProgress = true;
+        currentDialog.setBusy(true);
+        try {
+          await deletePrayerLog(todayResult.dateKey, prayerKey);
+          if (!isMounted) return;
+          prayerLogsByKey.delete(prayerKey);
+          closePrayerLogDialog(true);
+          var now = getZonedDateParts(new Date(), todayResult.timezone);
+          var state = getPrayerState(todayResult, new Date(), tomorrowResult);
+          if (now && state) refreshLoggingUI(state, now);
+          showLogFeedback('Regjistrimi u hoq', 'success');
+        } catch (error) {
+          if (isMounted && currentDialog) {
+            currentDialog.setBusy(false);
+            showLogFeedback('Regjistrimi nuk u hoq. Provo përsëri.', 'warning');
+          }
+        } finally {
+          logOperationInProgress = false;
+        }
+      }
+    });
+    document.body.appendChild(currentDialog.element);
+    currentDialog.focus();
+  }
+
+  // ---------------------------------------------------------------
   // PRAYER TIMES LOADING
   // ---------------------------------------------------------------
 
@@ -680,8 +1099,12 @@ export function mount(pageElement, context, appContext) {
         if (!isMounted) return;
         todayResult = results.today;
         tomorrowResult = results.tomorrow;
-        renderPrayerResult();
-        startTimer();
+        lastTemporalSignature = null;
+        return loadPrayerLogs(todayResult.dateKey).then(function () {
+          if (!isMounted) return;
+          renderPrayerResult();
+          startTimer();
+        });
       })
       .catch(function (err) {
         if (!isMounted) return;
@@ -726,8 +1149,12 @@ export function mount(pageElement, context, appContext) {
         if (!isMounted) return;
         todayResult = results.today;
         tomorrowResult = results.tomorrow;
-        renderPrayerResult();
-        isRefreshing = false;
+        lastTemporalSignature = null;
+        return loadPrayerLogs(todayResult.dateKey).then(function () {
+          if (!isMounted) return;
+          renderPrayerResult();
+          isRefreshing = false;
+        });
       })
       .catch(function (err) {
         if (!isMounted) return;
@@ -786,12 +1213,27 @@ export function mount(pageElement, context, appContext) {
     var statusBar = buildStatusBar(settings, handleChangeLocation, locationAccuracy);
     regions.result.appendChild(statusBar);
 
+    var feedbackHost = document.createElement('div');
+    feedbackHost.className = 'prayer-log-feedback-host';
+    regions.result.appendChild(feedbackHost);
+
     var hero = buildHeroCard(state, PRAYER_LABELS_SQ, todayResult.timings);
     regions.result.appendChild(hero);
 
-    // Prayer list
-    var list = buildPrayerList(todayResult.timings, state, PRAYER_LABELS_SQ);
+    var list = buildPrayerList(
+      todayResult.timings,
+      state,
+      PRAYER_LABELS_SQ,
+      prayerLogsByKey,
+      getZonedDateParts(now, todayResult.timezone).totalMinutes,
+      loggingAvailable,
+      openPrayerLogDialog
+    );
     regions.result.appendChild(list);
+
+    if (loggingAvailable) regions.result.appendChild(buildDailySummary(prayerLogsByKey));
+    renderFeedback();
+    lastTemporalSignature = state.currentPrayer + '|' + state.nextPrayer;
 
     // Info card
     var info = buildInfoCard(todayResult.timings, todayResult, settings);
@@ -825,27 +1267,11 @@ export function mount(pageElement, context, appContext) {
     var hero = regions.result.querySelector('.prayer-hero');
     if (hero) updateHeroCard(hero, state, PRAYER_LABELS_SQ, todayResult.timings);
 
-    // Update current prayer highlight
-    var items = regions.result.querySelectorAll('.prayer-item');
-    items.forEach(function (item, index) {
-      var key = PRAYER_KEYS[index];
-      if (state.currentPrayer === key) {
-        item.classList.add('prayer-item--current');
-        var status = item.querySelector('.prayer-item__status');
-        if (status && status.children.length === 0) {
-          var pill = document.createElement('span');
-          pill.className = 'badge badge--primary';
-          pill.textContent = 'Tani';
-          status.appendChild(pill);
-        }
-      } else {
-        item.classList.remove('prayer-item--current');
-        var status = item.querySelector('.prayer-item__status');
-        if (status) {
-          status.replaceChildren();
-        }
-      }
-    });
+    var signature = state.currentPrayer + '|' + state.nextPrayer;
+    if (signature !== lastTemporalSignature) {
+      lastTemporalSignature = signature;
+      refreshLoggingUI(state, zonedNow);
+    }
     return true;
   }
 
@@ -897,6 +1323,9 @@ export function mount(pageElement, context, appContext) {
   return function () {
     isMounted = false;
     stopTimer();
+    if (logFeedbackTimer) clearTimeout(logFeedbackTimer);
+    logFeedbackTimer = null;
+    closePrayerLogDialog(false);
     if (abortController) {
       abortController.abort();
       abortController = null;

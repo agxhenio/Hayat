@@ -3,10 +3,17 @@
  */
 
 var DB_NAME = 'hayat-db';
-var DB_VERSION = 1;
-var STORES = Object.freeze(['prayerLogs', 'meta']);
+var DB_VERSION = 2;
+var STORES = Object.freeze(['prayerLogs', 'postPrayerDhikrSessions', 'meta']);
 var INDEXES = Object.freeze({
   prayerLogs: Object.freeze(['datePrayer', 'dateKey', 'prayerKey', 'loggedAt']),
+  postPrayerDhikrSessions: Object.freeze([
+    'datePrayer',
+    'dateKey',
+    'prayerKey',
+    'status',
+    'updatedAt'
+  ]),
   meta: Object.freeze([])
 });
 
@@ -96,6 +103,30 @@ export function openDatabase() {
       if (!prayerStore.indexNames.contains('loggedAt')) {
         prayerStore.createIndex('loggedAt', 'loggedAt', { unique: false });
       }
+      var dhikrStore;
+      if (!database.objectStoreNames.contains('postPrayerDhikrSessions')) {
+        dhikrStore = database.createObjectStore('postPrayerDhikrSessions', {
+          keyPath: 'id'
+        });
+      } else {
+        dhikrStore = event.target.transaction.objectStore('postPrayerDhikrSessions');
+      }
+      if (!dhikrStore.indexNames.contains('datePrayer')) {
+        dhikrStore.createIndex('datePrayer', 'datePrayer', { unique: true });
+      }
+      if (!dhikrStore.indexNames.contains('dateKey')) {
+        dhikrStore.createIndex('dateKey', 'dateKey', { unique: false });
+      }
+      if (!dhikrStore.indexNames.contains('prayerKey')) {
+        dhikrStore.createIndex('prayerKey', 'prayerKey', { unique: false });
+      }
+      if (!dhikrStore.indexNames.contains('status')) {
+        dhikrStore.createIndex('status', 'status', { unique: false });
+      }
+      if (!dhikrStore.indexNames.contains('updatedAt')) {
+        dhikrStore.createIndex('updatedAt', 'updatedAt', { unique: false });
+      }
+
       if (!database.objectStoreNames.contains('meta')) {
         database.createObjectStore('meta', { keyPath: 'key' });
       }

@@ -1593,3 +1593,205 @@
     margin-inline: var(--space-3);
   }
 }
+/* ==========================================================================
+   17. POST-PRAYER DHIKR QURAN CONTENT
+   ========================================================================== */
+
+/* Quran Content Container */
+.post-dhikr-quran {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-block-end: var(--space-4);
+}
+
+/* Loading State */
+.post-dhikr-quran__loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background-color: var(--color-surface-interactive);
+  border-radius: var(--radius-md);
+  min-block-size: 120px;
+  justify-content: center;
+}
+
+.post-dhikr-quran__loading p {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Verses Container */
+.post-dhikr-quran__verses {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Individual Verse */
+.post-dhikr-quran__verse {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background-color: var(--color-surface-base);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+
+/* Arabic Text */
+.post-dhikr-quran__arabic {
+  font-size: var(--text-2xl);
+  line-height: var(--leading-arabic);
+  text-align: center;
+  margin: 0;
+  padding-block: var(--space-2);
+}
+
+/* Translation */
+.post-dhikr-quran__translation {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+/* Reference */
+.post-dhikr-quran__reference {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+  padding-block-start: var(--space-2);
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+
+/* Footnotes */
+.post-dhikr-quran__footnotes {
+  margin-block-start: var(--space-2);
+  padding: var(--space-3);
+  background-color: var(--color-surface-interactive);
+  border-radius: var(--radius-sm);
+}
+
+.post-dhikr-quran__footnotes-summary {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.post-dhikr-quran__footnotes-summary::-webkit-details-marker {
+  display: none;
+}
+
+.post-dhikr-quran__footnotes-summary::before {
+  content: '▸';
+  font-size: var(--text-xs);
+  transition: transform var(--duration-fast) var(--ease-standard);
+}
+
+.post-dhikr-quran__footnotes[open] .post-dhikr-quran__footnotes-summary::before {
+  transform: rotate(90deg);
+}
+
+.post-dhikr-quran__footnotes p {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-normal);
+  margin: var(--space-2) 0 0 0;
+}
+
+/* Attribution */
+.post-dhikr-quran__attribution {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin: 0;
+  padding-block-start: var(--space-2);
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+
+.post-dhikr-quran__attribution a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .post-dhikr-quran__attribution a:hover {
+    text-decoration: underline;
+  }
+}
+
+/* Error State */
+.post-dhikr-quran__error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background-color: var(--color-danger-subtle);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-md);
+}
+
+.post-dhikr-quran__error p {
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.post-dhikr-quran__error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-block-start: var(--space-2);
+}
+
+/* Responsive */
+@media (max-width: 360px) {
+  .post-dhikr-quran__arabic {
+    font-size: var(--text-xl);
+  }
+
+  .post-dhikr-quran__verse {
+    padding: var(--space-3);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .post-dhikr-quran__footnotes-summary::before {
+    transition: none;
+  }
+}
+
+/* High Contrast */
+@media (prefers-contrast: more) {
+  .post-dhikr-quran__verse {
+    border-width: 2px;
+    border-color: var(--color-border-strong);
+  }
+
+  .post-dhikr-quran__error {
+    border-width: 2px;
+  }
+}
+
+/* Forced Colors */
+@media (forced-colors: active) {
+  .post-dhikr-quran__verse {
+    border: 1px solid CanvasText;
+  }
+
+  .post-dhikr-quran__error {
+    border: 1px solid LinkText;
+  }
+
+  .post-dhikr-quran__attribution a {
+    color: LinkText;
+  }
+}

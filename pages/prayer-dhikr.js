@@ -25,6 +25,11 @@ import {
   getDhikrProgressSummary
 } from '../js/utils/post-prayer-dhikr.js';
 import { compareDateKeys } from '../js/utils/date-time.js';
+import {
+  getAyah,
+  getAyahRange,
+  QuranContentError
+} from '../js/services/quran-content.js';
 
 function icon(name, sizeClass) {
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -126,6 +131,9 @@ export function mount(page, context, appContext) {
   var saveTimer = null;
   var saveQueue = Promise.resolve();
   var confirmation = null;
+  var quranContent = new Map();
+  var quranController = null;
+  var activeQuranItemId = null;
 
   function loading() {
     content.replaceChildren();
@@ -234,6 +242,171 @@ export function mount(page, context, appContext) {
     return wrapper;
   }
 
+  function quranReferenceText(item) {
+    var q = item.quranReference;
+    return q.ayahStart === q.ayahEnd
+      ? 'Sureja ' + q.surah + ', ajeti ' + q.ayahStart
+      : 'Sureja ' + q.surah + ', ajetet ' + q.ayahStart + '–' + q.ayahEnd;
+  }
+
+  function quranLoading(container, item) {
+    container.replaceChildren();
+    var box = document.createElement('div');
+    box.className = 'post-dhikr-quran__loading';
+    box.setAttribute('role', 'status');
+    var text = document.createElement('p');
+    text.textContent = 'Duke ngarkuar tekstin e Kur\'anit...';
+    var reference = document.createElement('p');
+    reference.className = 'post-dhikr-quran__reference';
+    reference.textContent = quranReferenceText(item);
+    box.append(text, reference);
+    container.appendChild(box);
+  }
+
+  function quranActions(container, item, loaded) {
+    var actions = document.createElement('div');
+    actions.className = 'post-dhikr-actions';
+    var open = document.createElement('button');
+    open.type = 'button';
+    open.className = 'btn btn--outline';
+    open.append(icon('external-link', 'icon--sm'), document.createTextNode(' Hape në Kur\'an'));
+    open.addEventListener('click', function () {
+      flushSave();
+      appContext.navigate('quran', {
+        params: { surah: item.quranReference.surah, ayah: item.quranReference.ayahStart }
+      });
+    });
+    var mark = document.createElement('button');
+    mark.type = 'button';
+    mark.className = 'btn btn--primary';
+    var prefix = loaded ? 'E lexova' : 'E lexova jashtë aplikacionit';
+    mark.textContent = item.targetRepetitions > 1
+      ? prefix + ' (' + progress.currentCount + '/' + item.targetRepetitions + ')'
+      : prefix;
+    mark.disabled = progress.currentCount >= item.targetRepetitions;
+    mark.addEventListener('click', function () {
+      progress = incrementDhikrCount(sequence, progress);
+      if (progress.currentCount >= item.targetRepetitions) persist(snapshot());
+      else scheduleSave();
+      showProgress();
+    });
+    actions.append(open, mark);
+    container.appendChild(actions);
+  }
+
+  function quranSuccess(container, item, verses) {
+    container.replaceChildren();
+    var list = document.createElement('div');
+    list.className = 'post-dhikr-quran__verses';
+    verses.forEach(function (verse) {
+      var block = document.createElement('section');
+      block.className = 'post-dhikr-quran__verse';
+      var arabic = document.createElement('p');
+      arabic.className = 'post-dhikr-quran__arabic text-quran';
+      arabic.lang = 'ar';
+      arabic.dir = 'rtl';
+      arabic.textContent = verse.arabicText;
+      var translation = document.createElement('p');
+      translation.className = 'post-dhikr-quran__translation';
+      translation.textContent = verse.translationSq;
+      var reference = document.createElement('p');
+      reference.className = 'post-dhikr-quran__reference';
+      reference.textContent = verse.verseKey;
+      block.append(arabic, translation, reference);
+      if (verse.footnotesSq) {
+        var details = document.createElement('details');
+        details.className = 'post-dhikr-quran__footnotes';
+        var summary = document.createElement('summary');
+        summary.className = 'post-dhikr-quran__footnotes-summary';
+        summary.textContent = 'Shënime të përkthimit';
+        var footnotes = document.createElement('p');
+        footnotes.textContent = verse.footnotesSq;
+        details.append(summary, footnotes);
+        block.appendChild(details);
+      }
+      list.appendChild(block);
+    });
+    container.appendChild(list);
+    var attribution = document.createElement('p');
+    attribution.className = 'post-dhikr-quran__attribution';
+    var link = document.createElement('a');
+    link.href = verses[0].providerUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = verses[0].provider;
+    attribution.append(link, document.createTextNode(' · ' + verses[0].translationNameSq));
+    container.appendChild(attribution);
+    quranActions(container, item, true);
+  }
+
+  function quranError(container, item) {
+    container.replaceChildren();
+    var box = document.createElement('div');
+    box.className = 'post-dhikr-quran__error';
+    box.setAttribute('role', 'status');
+    var reference = document.createElement('p');
+    reference.className = 'post-dhikr-quran__reference';
+    reference.textContent = quranReferenceText(item);
+    var message = document.createElement('p');
+    message.textContent = 'Teksti nuk u ngarkua. Mund ta hapësh në modulin e Kur\'anit ose të provosh përsëri.';
+    var retry = document.createElement('button');
+    retry.type = 'button';
+    retry.className = 'btn btn--outline btn--sm';
+    retry.append(icon('refresh', 'icon--sm'), document.createTextNode(' Provo përsëri'));
+    retry.addEventListener('click', function () {
+      quranContent.delete(item.id);
+      loadCurrentQuranItem(item, container);
+    });
+    box.append(reference, message, retry);
+    container.appendChild(box);
+    quranActions(container, item, false);
+  }
+
+  function loadCurrentQuranItem(item, container) {
+    var cached = quranContent.get(item.id);
+    if (cached && cached.status === 'success') {
+      quranSuccess(container, item, cached.verses);
+      return;
+    }
+    if (cached && cached.status === 'error') {
+      quranError(container, item);
+      return;
+    }
+    if (cached && cached.status === 'loading') {
+      quranLoading(container, item);
+      return;
+    }
+
+    if (quranController) quranController.abort();
+    quranController = new AbortController();
+    var controller = quranController;
+    var itemId = item.id;
+    quranContent.set(itemId, { status: 'loading', verses: null });
+    quranLoading(container, item);
+    var q = item.quranReference;
+    var request = q.ayahStart === q.ayahEnd
+      ? getAyah(q.surah, q.ayahStart, { signal: controller.signal }).then(function (verse) { return [verse]; })
+      : getAyahRange(q.surah, q.ayahStart, q.ayahEnd, { signal: controller.signal });
+
+    request.then(function (verses) {
+      quranContent.set(itemId, { status: 'success', verses: verses.slice() });
+      if (!mounted || activeQuranItemId !== itemId) return;
+      var currentContainer = content.querySelector('.post-dhikr-quran');
+      if (currentContainer) quranSuccess(currentContainer, item, verses);
+    }).catch(function (error) {
+      if (error instanceof QuranContentError && error.code === 'ABORTED') {
+        quranContent.delete(itemId);
+        return;
+      }
+      quranContent.set(itemId, { status: 'error', error: error });
+      if (!mounted || activeQuranItemId !== itemId) return;
+      var currentContainer = content.querySelector('.post-dhikr-quran');
+      if (currentContainer) quranError(currentContainer, item);
+    }).finally(function () {
+      if (quranController === controller) quranController = null;
+    });
+  }
+
   function currentCard(item) {
     var card = document.createElement('article');
     card.className = 'post-dhikr-card card';
@@ -259,42 +432,11 @@ export function mount(page, context, appContext) {
       translation.textContent = item.translationSq;
       body.append(arabic, transliteration, translation, counter(item));
     } else {
-      var reference = document.createElement('p');
-      reference.className = 'post-dhikr-card__reference';
-      reference.textContent = 'Sureja ' + item.quranReference.surah +
-        ', ajeti ' + item.quranReference.ayahStart;
-      var quranNote = document.createElement('p');
-      quranNote.className = 'post-dhikr-card__note';
-      quranNote.textContent = 'Teksti hapet nga moduli i Kur\'anit.';
-      var actions = document.createElement('div');
-      actions.className = 'post-dhikr-actions';
-      var open = document.createElement('button');
-      open.type = 'button';
-      open.className = 'btn btn--outline';
-      open.append(icon('external-link', 'icon--sm'), document.createTextNode(' Hape në Kur\'an'));
-      open.addEventListener('click', function () {
-        flushSave();
-        appContext.navigate('quran', {
-          params: { surah: item.quranReference.surah, ayah: item.quranReference.ayahStart }
-        });
-      });
-      var mark = document.createElement('button');
-      mark.type = 'button';
-      mark.className = 'btn btn--primary';
-      mark.textContent = item.targetRepetitions > 1
-        ? 'E lexova (' + progress.currentCount + '/' + item.targetRepetitions + ')'
-        : 'E lexova jashtë aplikacionit';
-      mark.disabled = progress.currentCount >= item.targetRepetitions;
-      mark.addEventListener('click', function () {
-        progress = incrementDhikrCount(sequence, progress);
-        if (progress.currentCount >= item.targetRepetitions) persist(snapshot());
-        else scheduleSave();
-        showProgress();
-      });
-      actions.append(open, mark);
-      body.append(reference, quranNote, actions);
+      var quranContainer = document.createElement('div');
+      quranContainer.className = 'post-dhikr-quran';
+      body.appendChild(quranContainer);
+      loadCurrentQuranItem(item, quranContainer);
     }
-
     var source = document.createElement('p');
     source.className = 'post-dhikr-card__source';
     source.textContent = sourceText(item);
@@ -342,6 +484,11 @@ export function mount(page, context, appContext) {
     content.appendChild(progressBox);
 
     var item = sequence[progress.currentIndex];
+    if (activeQuranItemId && activeQuranItemId !== item.id && quranController) {
+      quranController.abort();
+      quranController = null;
+    }
+    activeQuranItemId = item.type === 'quran-reference' ? item.id : null;
     var built = currentCard(item);
     content.appendChild(built.card);
 
@@ -518,6 +665,8 @@ export function mount(page, context, appContext) {
 
   return function () {
     mounted = false;
+    if (quranController) quranController.abort();
+    quranController = null;
     if (saveTimer) clearTimeout(saveTimer);
     flushSave();
     document.removeEventListener('visibilitychange', visibilityHandler);

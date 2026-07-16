@@ -2146,7 +2146,39 @@
   border: 1px solid var(--reader-border);
 }
 
-/* ==========================================================================
+/* Reader controls must follow the local reader theme rather than the global
+   application theme. This keeps Paper and Sepia controls legible even when
+   the application shell itself is using the dark theme. */
+.quran-reader .quran-reader__topbar .btn--ghost,
+.quran-reader .quran-reader__controls .btn--outline {
+  color: var(--reader-text-translation);
+}
+
+.quran-reader .quran-reader__controls .btn--outline {
+  background-color: transparent;
+  border-color: var(--reader-border);
+}
+
+.quran-reader .quran-reader__topbar .btn--ghost:focus-visible,
+.quran-reader .quran-reader__controls .btn--outline:focus-visible {
+  outline-color: var(--reader-accent);
+}
+
+.quran-reader .quran-reader__footnotes summary,
+.quran-reader .quran-reader__footnotes p {
+  color: var(--reader-text-translation);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .quran-reader .quran-reader__topbar .btn--ghost:hover,
+  .quran-reader .quran-reader__controls .btn--outline:hover {
+    color: var(--reader-accent);
+    background-color: var(--reader-selection);
+    border-color: var(--reader-accent);
+  }
+}
+
+/* ========================================================================== 
    18.4 RESPONSIVE & ACCESSIBILITY
    ========================================================================== */
 

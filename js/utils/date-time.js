@@ -194,11 +194,17 @@ export function resolvePrayerState(timings, currentTotalMinutes, tomorrowFajr) {
         t.asr < t.maghrib && t.maghrib < t.isha)) return null;
 
   function state(currentPrayer, nextPrayer, currentEndsAt, nextAt, seconds, tomorrow) {
+    var end = parseTimeString(currentEndsAt);
+    var secondsUntilCurrentEnd = currentPrayer && end
+      ? Math.max(0, (end.totalMinutes - currentTotalMinutes) * 60)
+      : null;
+
     return {
       currentPrayer: currentPrayer,
       nextPrayer: nextPrayer,
       currentEndsAt: currentEndsAt,
       nextPrayerAt: nextAt,
+      secondsUntilCurrentEnd: secondsUntilCurrentEnd,
       secondsUntilNext: seconds === null ? null : Math.max(0, seconds),
       nextPrayerIsTomorrow: tomorrow
     };

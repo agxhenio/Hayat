@@ -2,12 +2,13 @@
  * Hayat — Quran Home and continuous Surah Reader v1.
  */
 
-import {
-  QURAN_CONTENT_API,
-  isValidSurahNumber,
-  isValidAyahNumber
-} from '../js/config.js';
 import { getSurah, QuranContentError } from '../js/services/quran-content.js';
+import {
+  QURAN_SURAHS,
+  getSurahMetadata,
+  isValidSurahAyah,
+  searchSurahs
+} from '../js/data/quran-surahs.js';
 import {
   getLastReadPosition,
   saveLastReadPosition,
@@ -64,6 +65,67 @@ function homeCard(title, iconName) {
   return { card: card, body: body };
 }
 
+function revelationLabel(type) {
+  return type === 'medinan' ? 'Medinase' : 'Mekase';
+}
+
+function resultCountLabel(count) {
+  return count === 1 ? '1 sure' : count + ' sure';
+}
+
+function createSurahRow(metadata) {
+  var item = document.createElement('li');
+  item.className = 'quran-surah-list__item';
+
+  var button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'quran-surah-row';
+  button.dataset.surahNumber = String(metadata.number);
+  button.setAttribute('aria-label', 'Hap ' + metadata.nameTransliteration +
+    ', surja ' + metadata.number + ', ' + metadata.ayahCount + ' ajete, ' +
+    revelationLabel(metadata.revelationType));
+
+  var number = document.createElement('span');
+  number.className = 'quran-surah-row__number';
+  number.textContent = String(metadata.number);
+
+  var information = document.createElement('span');
+  information.className = 'quran-surah-row__information';
+  var names = document.createElement('span');
+  names.className = 'quran-surah-row__names';
+  var transliteration = document.createElement('span');
+  transliteration.className = 'quran-surah-row__name';
+  transliteration.textContent = metadata.nameTransliteration;
+  var arabic = document.createElement('span');
+  arabic.className = 'quran-surah-row__arabic';
+  arabic.lang = 'ar';
+  arabic.dir = 'rtl';
+  arabic.textContent = metadata.nameArabic;
+  names.append(transliteration, arabic);
+  var details = document.createElement('span');
+  details.className = 'quran-surah-row__details';
+  details.textContent = metadata.ayahCount + ' ajete · ' + revelationLabel(metadata.revelationType);
+  information.append(names, details);
+
+  var chevron = document.createElement('span');
+  chevron.className = 'quran-surah-row__chevron';
+  chevron.appendChild(icon('chevron-right', 'icon--sm'));
+
+  button.append(number, information, chevron);
+  item.appendChild(button);
+  return item;
+}
+
+function renderSurahList(list, emptyState, status, surahs) {
+  var fragment = document.createDocumentFragment();
+  surahs.forEach(function (metadata) {
+    fragment.appendChild(createSurahRow(metadata));
+  });
+  list.replaceChildren(fragment);
+  emptyState.hidden = surahs.length !== 0;
+  status.textContent = resultCountLabel(surahs.length);
+}
+
 function renderHome(page) {
   var home = document.createElement('div');
   home.className = 'quran-home';
@@ -102,51 +164,57 @@ function renderHome(page) {
   hatmahActions.dataset.hatmahActions = '';
   hatmah.body.append(hatmahPosition, explanation, hatmahActions);
 
-  var open = homeCard('Hap një sure', 'search');
-  var form = document.createElement('form');
-  form.className = 'quran-open-form';
-  form.dataset.quranOpenForm = '';
-  var grid = document.createElement('div');
-  grid.className = 'quran-open-form__grid';
-  function numberField(labelText, name, min, max, required) {
-    var field = document.createElement('div');
-    field.className = 'field';
-    var label = document.createElement('label');
-    label.className = 'field__label';
-    label.htmlFor = 'quran-' + name;
-    label.textContent = labelText;
-    var input = document.createElement('input');
-    input.className = 'input';
-    input.type = 'number';
-    input.id = 'quran-' + name;
-    input.name = name;
-    input.min = String(min);
-    input.max = String(max);
-    input.required = Boolean(required);
-    field.append(label, input);
-    return field;
-  }
-  grid.append(
-    numberField('Sureja (1–114)', 'surah', 1, 114, true),
-    numberField('Ajeti (opsional)', 'ayah', 1, 286, false)
-  );
-  var validation = document.createElement('p');
-  validation.className = 'field__error';
-  validation.dataset.quranFormError = '';
-  validation.hidden = true;
-  var submit = document.createElement('button');
-  submit.type = 'submit';
-  submit.className = 'btn btn--primary';
-  submit.textContent = 'Hap suren';
-  form.append(grid, validation, submit);
-  open.body.appendChild(form);
+  var allSurahs = homeCard('Të gjitha suret', 'search');
+  allSurahs.card.classList.add('quran-surah-browser');
 
-  cards.append(last.card, hatmah.card, open.card);
+  var searchField = document.createElement('div');
+  searchField.className = 'quran-surah-search';
+  var searchLabel = document.createElement('label');
+  searchLabel.className = 'sr-only';
+  searchLabel.htmlFor = 'quran-surah-search';
+  searchLabel.textContent = 'Kërko sure me emër ose numër';
+  var searchIcon = document.createElement('span');
+  searchIcon.className = 'quran-surah-search__icon';
+  searchIcon.appendChild(icon('search', 'icon--sm'));
+  var searchInput = document.createElement('input');
+  searchInput.className = 'input quran-surah-search__input';
+  searchInput.type = 'search';
+  searchInput.id = 'quran-surah-search';
+  searchInput.placeholder = 'Kërko me emër ose numër';
+  searchInput.autocomplete = 'off';
+  searchInput.spellcheck = false;
+  searchInput.dataset.quranSurahSearch = '';
+  searchInput.setAttribute('aria-controls', 'quran-surah-list');
+  searchInput.setAttribute('aria-describedby', 'quran-surah-results');
+  searchField.append(searchLabel, searchIcon, searchInput);
+
+  var status = document.createElement('p');
+  status.className = 'quran-surah-results';
+  status.id = 'quran-surah-results';
+  status.dataset.quranSurahResults = '';
+  status.setAttribute('role', 'status');
+  status.setAttribute('aria-live', 'polite');
+
+  var list = document.createElement('ul');
+  list.className = 'quran-surah-list';
+  list.id = 'quran-surah-list';
+  list.dataset.quranSurahList = '';
+
+  var emptyState = document.createElement('p');
+  emptyState.className = 'quran-surah-empty';
+  emptyState.dataset.quranSurahEmpty = '';
+  emptyState.textContent = 'Nuk u gjet asnjë sure për këtë kërkim.';
+  emptyState.hidden = true;
+
+  allSurahs.body.append(searchField, status, list, emptyState);
+  renderSurahList(list, emptyState, status, QURAN_SURAHS);
+
+  cards.append(last.card, hatmah.card, allSurahs.card);
   home.appendChild(cards);
   page.appendChild(home);
 }
 
-function renderReader(page, surah, ayah) {
+function renderReader(page, surah, ayah, metadata) {
   var reader = document.createElement('div');
   reader.className = 'reader quran-reader';
   reader.dataset.readerTheme = 'night';
@@ -166,17 +234,25 @@ function renderReader(page, surah, ayah) {
   var h1 = document.createElement('h1');
   h1.className = 'quran-reader__title';
   h1.dataset.routeHeading = '';
-  h1.textContent = 'Sureja ' + surah;
+  h1.textContent = metadata.nameTransliteration;
+  var surahDetails = document.createElement('span');
+  surahDetails.className = 'quran-reader__surah-meta';
+  surahDetails.textContent = 'Sureja ' + surah + ' · ' +
+    revelationLabel(metadata.revelationType) + ' · ' + metadata.ayahCount + ' ajete';
   var reference = document.createElement('span');
   reference.className = 'quran-reader__reference';
   reference.dataset.currentVerseReference = '';
   reference.textContent = surah + ':' + ayah;
-  titles.append(h1, reference);
+  titles.append(h1, surahDetails, reference);
   var hatmah = document.createElement('button');
   hatmah.type = 'button';
-  hatmah.className = 'btn btn--ghost btn--sm';
+  hatmah.className = 'btn btn--ghost btn--sm quran-reader__hatmah-button';
   hatmah.dataset.saveHatmah = '';
-  hatmah.append(icon('bookmark', 'icon--sm'), document.createTextNode(' Ruaj si hatme'));
+  hatmah.setAttribute('aria-label', 'Ruaj ajetin aktual si pozicion të hatmes');
+  var hatmahLabel = document.createElement('span');
+  hatmahLabel.className = 'quran-reader__hatmah-label';
+  hatmahLabel.textContent = 'Ruaj si hatme';
+  hatmah.append(icon('bookmark', 'icon--sm'), hatmahLabel);
   topbar.append(back, titles, hatmah);
 
   var controls = document.createElement('div');
@@ -206,13 +282,42 @@ function renderReader(page, surah, ayah) {
   page.appendChild(reader);
 }
 
-function renderInvalid(page) {
+function renderInvalid(page, message) {
   page.appendChild(pageHeader("Kur'ani", 'Referenca e kërkuar nuk është e vlefshme.'));
   var error = document.createElement('div');
   error.className = 'quran-reader__error';
   error.setAttribute('role', 'alert');
-  error.textContent = 'Numri i sures ose i ajetit është i pavlefshëm.';
+  error.textContent = message || 'Numri i sures ose i ajetit është i pavlefshëm.';
   page.appendChild(error);
+}
+
+function createSurahNavigation(surah) {
+  var navigation = document.createElement('nav');
+  navigation.className = 'quran-reader__surah-nav';
+  navigation.setAttribute('aria-label', 'Navigimi ndërmjet sureve');
+
+  function navigationButton(metadata, direction) {
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'btn btn--outline quran-reader__surah-nav-button ' +
+      'quran-reader__surah-nav-button--' + direction;
+    button.dataset.quranSurahNavigation = String(metadata.number);
+    var directionLabel = direction === 'previous' ? 'paraardhëse' : 'pasuese';
+    button.setAttribute('aria-label', 'Hap suren ' + directionLabel + ', ' +
+      metadata.nameTransliteration);
+    var label = document.createElement('span');
+    label.className = 'quran-reader__surah-nav-label';
+    label.textContent = metadata.nameTransliteration;
+    if (direction === 'previous') button.append(icon('chevron-left', 'icon--sm'), label);
+    else button.append(label, icon('chevron-right', 'icon--sm'));
+    return button;
+  }
+
+  var previous = getSurahMetadata(surah - 1);
+  var next = getSurahMetadata(surah + 1);
+  if (previous) navigation.appendChild(navigationButton(previous, 'previous'));
+  if (next) navigation.appendChild(navigationButton(next, 'next'));
+  return navigation;
 }
 
 export function render(context) {
@@ -223,15 +328,24 @@ export function render(context) {
   else {
     var surah = numeric(params.surah);
     var ayah = params.ayah === undefined ? 1 : numeric(params.ayah);
-    if (isValidSurahNumber(surah) && isValidAyahNumber(ayah)) renderReader(page, surah, ayah);
-    else renderInvalid(page);
+    var metadata = getSurahMetadata(surah);
+    if (metadata && isValidSurahAyah(surah, ayah)) {
+      renderReader(page, surah, ayah, metadata);
+    } else if (metadata && Number.isInteger(ayah) &&
+        (ayah < 1 || ayah > metadata.ayahCount)) {
+      renderInvalid(page, 'Ky ajet nuk ekziston në suren e zgjedhur.');
+    } else {
+      renderInvalid(page);
+    }
   }
   return page;
 }
 
 export function mount(page, context, appContext) {
   var reader = page.querySelector('.quran-reader');
-  return reader ? mountReader(page, reader, context, appContext) : mountHome(page, appContext);
+  if (reader) return mountReader(page, reader, context, appContext);
+  if (page.querySelector('.quran-home')) return mountHome(page, appContext);
+  return function () {};
 }
 
 function mountHome(page, appContext) {
@@ -239,8 +353,10 @@ function mountHome(page, appContext) {
   var warning = page.querySelector('[data-quran-storage-warning]');
   function showStorageWarning() { if (warning) warning.hidden = false; }
   function positionButton(position, label, target, actions) {
+    var metadata = position ? getSurahMetadata(position.surah) : null;
     target.textContent = position
-      ? 'Sureja ' + position.surah + ' · Ajeti ' + position.ayah
+      ? (metadata ? metadata.nameTransliteration : 'Sureja ' + position.surah) +
+        ' · Ajeti ' + position.ayah
       : (label === 'Vazhdo leximin' ? 'Nuk ka ende pozicion leximi.' : 'Pozicioni i hatmes nuk është vendosur.');
     actions.replaceChildren();
     if (position) {
@@ -273,24 +389,32 @@ function mountHome(page, appContext) {
     }
   });
 
-  var form = page.querySelector('[data-quran-open-form]');
-  var submitHandler = function (event) {
-    event.preventDefault();
-    var surah = numeric(form.elements.surah.value);
-    var ayah = form.elements.ayah.value === '' ? 1 : numeric(form.elements.ayah.value);
-    var error = page.querySelector('[data-quran-form-error]');
-    if (!isValidSurahNumber(surah) || !isValidAyahNumber(ayah)) {
-      error.hidden = false;
-      error.textContent = 'Vendos një sure 1–114 dhe një ajet të vlefshëm.';
-      return;
-    }
-    error.hidden = true;
-    appContext.navigate('quran', { params: { surah: surah, ayah: ayah } });
+  var searchInput = page.querySelector('[data-quran-surah-search]');
+  var list = page.querySelector('[data-quran-surah-list]');
+  var emptyState = page.querySelector('[data-quran-surah-empty]');
+  var status = page.querySelector('[data-quran-surah-results]');
+
+  var inputHandler = function () {
+    renderSurahList(list, emptyState, status, searchSurahs(searchInput.value));
   };
-  if (form) form.addEventListener('submit', submitHandler);
+  var listClickHandler = function (event) {
+    var target = event.target;
+    var button = target && typeof target.closest === 'function'
+      ? target.closest('[data-surah-number]')
+      : null;
+    if (!button || !list.contains(button)) return;
+    var metadata = getSurahMetadata(button.dataset.surahNumber);
+    if (metadata) {
+      appContext.navigate('quran', { params: { surah: metadata.number, ayah: 1 } });
+    }
+  };
+
+  searchInput.addEventListener('input', inputHandler);
+  list.addEventListener('click', listClickHandler);
   return function () {
     mounted = false;
-    if (form) form.removeEventListener('submit', submitHandler);
+    searchInput.removeEventListener('input', inputHandler);
+    list.removeEventListener('click', listClickHandler);
   };
 }
 
@@ -340,6 +464,19 @@ function mountReader(page, reader, context, appContext) {
       if (mounted) showFeedback('Nuk u arrit të ruhet pozicioni i hatmes.', 'warning');
     });
   });
+
+  function surahNavigationHandler(event) {
+    var target = event.target;
+    var button = target && typeof target.closest === 'function'
+      ? target.closest('[data-quran-surah-navigation]')
+      : null;
+    if (!button || !content.contains(button)) return;
+    var targetSurah = getSurahMetadata(button.dataset.quranSurahNavigation);
+    if (!targetSurah) return;
+    flushPosition();
+    appContext.navigate('quran', { params: { surah: targetSurah.number, ayah: 1 } });
+  }
+  content.addEventListener('click', surahNavigationHandler);
 
   function showFeedback(message, type) {
     feedbackHost.replaceChildren();
@@ -421,7 +558,7 @@ function mountReader(page, reader, context, appContext) {
     link.href = verses[0].providerUrl;
     link.target = '_blank'; link.rel = 'noopener noreferrer'; link.textContent = verses[0].provider;
     attribution.append(link, document.createTextNode(' · ' + verses[0].translationNameSq));
-    content.append(list, attribution);
+    content.append(list, attribution, createSurahNavigation(surah));
 
     currentPosition = { surah: surah, ayah: requestedAyah, page: null };
     reference.textContent = surah + ':' + requestedAyah;
@@ -510,6 +647,7 @@ function mountReader(page, reader, context, appContext) {
     mounted = false;
     controller.abort();
     if (feedbackTimer) clearTimeout(feedbackTimer);
+    content.removeEventListener('click', surahNavigationHandler);
     document.removeEventListener('visibilitychange', hiddenHandler);
     window.removeEventListener('pagehide', pageHideHandler);
   };

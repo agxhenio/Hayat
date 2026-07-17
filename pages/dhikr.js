@@ -23,6 +23,7 @@ import {
   getAyahRange,
   QuranContentError
 } from '../js/services/quran-content.js';
+import { getQuranTransliterationSq } from '../js/data/quran-transliteration-sq.js';
 
 var OBLIGATION_NOTE = 'Kjo rutinë është një ndihmë praktike për përkujtimin. Dhikri dhe duatë këtu nuk paraqiten si obligim.';
 var REVIEW_NOTE = 'Përmbajtja është përgatitur me referenca dhe kërkon rishikim përfundimtar nga person i kualifikuar para publikimit të gjerë.';
@@ -549,11 +550,14 @@ function mountReader(page, context, appContext) {
   }
 
   function sourceBlock(item) {
-    var source = document.createElement('footer');
+    var source = document.createElement('details');
     source.className = 'daily-dhikr-item__source';
+    var summary = document.createElement('summary');
+    summary.textContent = 'Burimi: ' + item.source.collection;
+    var details = document.createElement('div');
+    details.className = 'daily-dhikr-item__source-details';
     var reference = document.createElement('p');
-    reference.textContent = 'Burimi parësor: ' + item.source.collection + ' · ' +
-      item.source.reference;
+    reference.textContent = 'Referenca: ' + item.source.reference;
     var edition = document.createElement('p');
     var sourceLink = document.createElement('a');
     sourceLink.href = item.source.sourceUrl;
@@ -570,19 +574,20 @@ function mountReader(page, context, appContext) {
     credits.textContent = 'Përktheu: ' + item.source.translator +
       ' · Redaktor fetar: ' + item.source.religiousEditor +
       ' · Redaktor gjuhësor: ' + item.source.languageEditor;
-    source.append(reference, edition, credits);
+    details.append(reference, edition, credits);
     if (item.type === 'quran') {
       var quranTranslation = document.createElement('p');
       quranTranslation.className = 'daily-dhikr-item__source-note';
-      quranTranslation.textContent = 'Teksti dhe përkthimi i ajeteve në aplikacion ngarkohen nga QuranEnc · Përkthimi shqip: Hasan Nahi.';
-      source.appendChild(quranTranslation);
+      quranTranslation.textContent = 'Arabishtja dhe përkthimi: QuranEnc · Hasan Nahi. Transliterimi: Mburoja e Muslimanit · Azem Bardhoshi.';
+      details.appendChild(quranTranslation);
     }
     if (item.source.noteSq) {
       var note = document.createElement('p');
       note.className = 'daily-dhikr-item__source-note';
       note.textContent = item.source.noteSq;
-      source.appendChild(note);
+      details.appendChild(note);
     }
+    source.append(summary, details);
     return source;
   }
 
@@ -639,13 +644,22 @@ function mountReader(page, context, appContext) {
       arabic.lang = 'ar';
       arabic.dir = 'rtl';
       arabic.textContent = verse.arabicText;
+      var transliterationEntry = getQuranTransliterationSq(verse.verseKey);
+      var transliteration = document.createElement('p');
+      transliteration.className = 'daily-dhikr-quran__transliteration';
+      transliteration.textContent = transliterationEntry
+        ? transliterationEntry.transliterationSq
+        : 'Transliterimi nuk është ende i disponueshëm për këtë ajet.';
+      if (!transliterationEntry) {
+        transliteration.classList.add('daily-dhikr-quran__transliteration--missing');
+      }
       var translation = document.createElement('p');
       translation.className = 'daily-dhikr-quran__translation';
       translation.textContent = verse.translationSq;
       var reference = document.createElement('p');
       reference.className = 'daily-dhikr-quran__reference';
       reference.textContent = verse.verseKey;
-      block.append(arabic, translation, reference);
+      block.append(arabic, transliteration, translation, reference);
       if (verse.footnotesSq) {
         var details = document.createElement('details');
         details.className = 'daily-dhikr-quran__footnotes';

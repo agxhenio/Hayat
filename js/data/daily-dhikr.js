@@ -7,7 +7,7 @@
 
 import { isValidSurahAyah } from './quran-surahs.js';
 
-export const DAILY_DHIKR_CONTENT_VERSION = 1;
+export const DAILY_DHIKR_CONTENT_VERSION = 2;
 export const DAILY_DHIKR_REVIEW_STATUS = 'qualified-review-required';
 
 var ROUTINE_FIELDS = ['id', 'titleSq', 'descriptionSq', 'reviewStatus', 'items'];
@@ -19,7 +19,11 @@ var TEXT_ITEM_FIELDS = [
   'repetitions', 'source', 'reviewStatus'
 ];
 var QURAN_REFERENCE_FIELDS = ['surah', 'ayahStart', 'ayahEnd'];
-var SOURCE_FIELDS = ['collection', 'reference', 'noteSq'];
+var SOURCE_FIELDS = [
+  'collection', 'reference', 'noteSq', 'sourceWork', 'sourceChapter',
+  'sourcePages', 'sourceUrl', 'author', 'translator', 'religiousEditor',
+  'languageEditor'
+];
 var ROUTINE_IDS = ['morning', 'evening', 'bedtime'];
 
 function deepFreeze(value) {
@@ -28,39 +32,72 @@ function deepFreeze(value) {
   return Object.freeze(value);
 }
 
-function source(collection, reference, noteSq) {
-  return { collection: collection, reference: reference, noteSq: noteSq };
+var MBUROJA_SOURCE = Object.freeze({
+  work: 'Mburoja e Muslimanit — Dhikri i Kuranit dhe Sunetit',
+  url: 'https://d1.islamhouse.com/data/sq/ih_books/single/sq_mburoja_muslimanit.pdf',
+  author: 'Seid el Kahtani',
+  translator: 'Azem Bardhoshi',
+  religiousEditor: 'Ismail Bardhoshi',
+  languageEditor: 'Ilir E. Haxhiaj'
+});
+
+function source(collection, reference, noteSq, sourceChapter, sourcePages) {
+  return {
+    collection: collection,
+    reference: reference,
+    noteSq: noteSq,
+    sourceWork: MBUROJA_SOURCE.work,
+    sourceChapter: sourceChapter,
+    sourcePages: sourcePages.slice(),
+    sourceUrl: MBUROJA_SOURCE.url,
+    author: MBUROJA_SOURCE.author,
+    translator: MBUROJA_SOURCE.translator,
+    religiousEditor: MBUROJA_SOURCE.religiousEditor,
+    languageEditor: MBUROJA_SOURCE.languageEditor
+  };
 }
 
 var ABU_DAWUD_5082 = source(
   'Sunan Abu Dawud',
   '5082 · Libri 43, Hadithi 310',
-  'Numërtimi mund të ndryshojë sipas botimit.'
+  'Numërtimi mund të ndryshojë sipas botimit.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [54, 55, 56]
 );
 var MUSLIM_2692 = source(
   'Sahih Muslim',
   '2692 · Libri 48, Hadithi 39',
-  'Numërtimi mund të ndryshojë sipas botimit.'
+  'Numërtimi mund të ndryshojë sipas botimit.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [64, 65]
 );
 var BUKHARI_2311 = source(
   'Sahih al-Bukhari',
   '2311 · Libri 40, Hadithi 11',
-  'Numërtimi mund të ndryshojë sipas botimit.'
+  'Numërtimi mund të ndryshojë sipas botimit.',
+  '28 — Dhikri kur biem në gjumë',
+  [69, 70]
 );
 var BUKHARI_5009 = source(
   'Sahih al-Bukhari',
   '5009 · Libri 66, Hadithi 31',
-  'Hadithi përmend leximin gjatë natës. Numërtimi mund të ndryshojë sipas botimit.'
+  'Hadithi përmend leximin gjatë natës. Numërtimi mund të ndryshojë sipas botimit.',
+  '28 — Dhikri kur biem në gjumë',
+  [70, 71]
 );
 var BUKHARI_6324 = source(
   'Sahih al-Bukhari',
   '6324 · Libri 80, Hadithi 21',
-  'Numërtimi mund të ndryshojë sipas botimit.'
+  'Numërtimi mund të ndryshojë sipas botimit.',
+  '28 — Dhikri kur biem në gjumë',
+  [72]
 );
 var BUKHARI_5362 = source(
   'Sahih al-Bukhari',
   '5362 · Libri 69, Hadithi 12',
-  'Numërtimi mund të ndryshojë sipas botimit.'
+  'Numërtimi mund të ndryshojë sipas botimit.',
+  '28 — Dhikri kur biem në gjumë',
+  [72, 73]
 );
 
 function quranItem(id, titleSq, surah, ayahStart, ayahEnd, repetitions, itemSource) {
@@ -105,10 +142,10 @@ var routines = [
       quranItem('morning_an_nas', 'Sureja En-Nas', 114, 1, 6, 3, ABU_DAWUD_5082),
       textItem(
         'morning_subhanallahi_wa_bihamdihi',
-        'SubhanAllahi wa bihamdihi',
+        'Subḥãnall-llãhi we biḥamdihi',
         'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',
-        'SubhanAllahi wa bihamdihi',
-        'I Lartësuar qoftë Allahu dhe Atij i takon lavdia.',
+        'Subḥãnall-llãhi we biḥamdihi',
+        '(Them shprehjen e lartësimit se) Allahu është pa të meta dhe ngre lart lavdinë e Tij.',
         100,
         MUSLIM_2692
       )
@@ -125,10 +162,10 @@ var routines = [
       quranItem('evening_an_nas', 'Sureja En-Nas', 114, 1, 6, 3, ABU_DAWUD_5082),
       textItem(
         'evening_subhanallahi_wa_bihamdihi',
-        'SubhanAllahi wa bihamdihi',
+        'Subḥãnall-llãhi we biḥamdihi',
         'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ',
-        'SubhanAllahi wa bihamdihi',
-        'I Lartësuar qoftë Allahu dhe Atij i takon lavdia.',
+        'Subḥãnall-llãhi we biḥamdihi',
+        '(Them shprehjen e lartësimit se) Allahu është pa të meta dhe ngre lart lavdinë e Tij.',
         100,
         MUSLIM_2692
       )
@@ -154,34 +191,34 @@ var routines = [
         'bedtime_bismika_allahumma',
         'Dua para gjumit',
         'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا',
-        'Bismika Allahumma amutu wa ahya',
-        'Me emrin Tënd, o Allah, vdes dhe jetoj.',
+        'Bismikall-llãhumme emũtu we aḥjã',
+        'Duke përmendur emrin Tënd, o Allah, vdes dhe jetoj!',
         1,
         BUKHARI_6324
       ),
       textItem(
         'bedtime_subhanallah_33',
-        'SubhanAllah',
+        'Subḥãnall-llãh',
         'سُبْحَانَ اللَّهِ',
-        'SubhanAllah',
+        'Subḥãnall-llãh',
         'I Lartësuar qoftë Allahu.',
         33,
         BUKHARI_5362
       ),
       textItem(
         'bedtime_alhamdulillah_33',
-        'Elhamdulilah',
+        'Elḥamdu lil-lãh',
         'الْحَمْدُ لِلَّهِ',
-        'Elhamdulilah',
+        'Elḥamdu lil-lãh',
         'Lavdia i takon Allahut.',
         33,
         BUKHARI_5362
       ),
       textItem(
         'bedtime_allahu_akbar_34',
-        'Allahu Ekber',
+        'All-llãhu Ekber',
         'اللَّهُ أَكْبَرُ',
-        'Allahu Ekber',
+        'All-llãhu Ekber',
         'Allahu është më i Madhi.',
         34,
         BUKHARI_5362
@@ -208,7 +245,13 @@ function hasOnlyFields(value, allowedFields) {
 function validSource(value) {
   return hasOnlyFields(value, SOURCE_FIELDS) &&
     nonEmptyString(value.collection) && nonEmptyString(value.reference) &&
-    typeof value.noteSq === 'string';
+    typeof value.noteSq === 'string' && nonEmptyString(value.sourceWork) &&
+    nonEmptyString(value.sourceChapter) && Array.isArray(value.sourcePages) &&
+    value.sourcePages.length > 0 && value.sourcePages.every(function (page) {
+      return Number.isInteger(page) && page >= 1 && page <= 148;
+    }) && nonEmptyString(value.sourceUrl) &&
+    nonEmptyString(value.author) && nonEmptyString(value.translator) &&
+    nonEmptyString(value.religiousEditor) && nonEmptyString(value.languageEditor);
 }
 
 function validQuranReference(value) {

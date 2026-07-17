@@ -1,6 +1,5 @@
 /**
  * Hayat — Daily Dhikr dashboard and resumable routine reader v1.
- * v1
  */
 
 import {
@@ -553,8 +552,31 @@ function mountReader(page, context, appContext) {
     var source = document.createElement('footer');
     source.className = 'daily-dhikr-item__source';
     var reference = document.createElement('p');
-    reference.textContent = 'Burimi: ' + item.source.collection + ' · ' + item.source.reference;
-    source.appendChild(reference);
+    reference.textContent = 'Burimi parësor: ' + item.source.collection + ' · ' +
+      item.source.reference;
+    var edition = document.createElement('p');
+    var sourceLink = document.createElement('a');
+    sourceLink.href = item.source.sourceUrl;
+    sourceLink.target = '_blank';
+    sourceLink.rel = 'noopener noreferrer';
+    sourceLink.textContent = item.source.sourceWork;
+    edition.append(
+      document.createTextNode('Botimi shqip: '),
+      sourceLink,
+      document.createTextNode(' · ' + item.source.sourceChapter + ' · f. ' +
+        item.source.sourcePages.join('–'))
+    );
+    var credits = document.createElement('p');
+    credits.textContent = 'Përktheu: ' + item.source.translator +
+      ' · Redaktor fetar: ' + item.source.religiousEditor +
+      ' · Redaktor gjuhësor: ' + item.source.languageEditor;
+    source.append(reference, edition, credits);
+    if (item.type === 'quran') {
+      var quranTranslation = document.createElement('p');
+      quranTranslation.className = 'daily-dhikr-item__source-note';
+      quranTranslation.textContent = 'Teksti dhe përkthimi i ajeteve në aplikacion ngarkohen nga QuranEnc · Përkthimi shqip: Hasan Nahi.';
+      source.appendChild(quranTranslation);
+    }
     if (item.source.noteSq) {
       var note = document.createElement('p');
       note.className = 'daily-dhikr-item__source-note';

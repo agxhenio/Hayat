@@ -2746,6 +2746,17 @@
   margin: 0;
 }
 
+.daily-dhikr-item__source a {
+  color: var(--color-link);
+  text-underline-offset: 0.18em;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .daily-dhikr-item__source a:hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
 .daily-dhikr-item__source-note {
   font-style: italic;
 }

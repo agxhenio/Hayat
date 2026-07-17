@@ -12,6 +12,8 @@
  * @module pages/settings
  */
 
+import { APP_SOURCES, APP_PRIVACY_DISCLOSURES } from '../js/data/app-sources.js';
+
 // ====================================================================
 // ICON HELPER
 // ====================================================================
@@ -132,6 +134,86 @@ function buildThemeControl(appContext) {
 }
 
 // ====================================================================
+// SOURCES AND PRIVACY
+// ====================================================================
+
+function buildSourcesSection() {
+  var section = document.createElement('section');
+  section.className = 'settings-sources';
+  section.setAttribute('aria-labelledby', 'settings-sources-title');
+
+  var title = document.createElement('h2');
+  title.id = 'settings-sources-title';
+  title.className = 'settings-section-title';
+  title.textContent = 'Burimet dhe mirënjohjet';
+
+  var introduction = document.createElement('p');
+  introduction.className = 'settings-section-description';
+  introduction.textContent = 'Këtu mund të shikoni burimet kryesore të përmbajtjes dhe shërbimeve që përdor Hayat.';
+
+  var list = document.createElement('div');
+  list.className = 'settings-sources__list';
+
+  APP_SOURCES.forEach(function (source) {
+    var details = document.createElement('details');
+    details.className = 'settings-source';
+    var summary = document.createElement('summary');
+    summary.className = 'settings-source__summary';
+    var summaryText = document.createElement('span');
+    summaryText.className = 'settings-source__summary-text';
+    var sourceTitle = document.createElement('span');
+    sourceTitle.className = 'settings-source__title';
+    sourceTitle.textContent = source.titleSq;
+    var sourceDescription = document.createElement('span');
+    sourceDescription.className = 'settings-source__description';
+    sourceDescription.textContent = source.descriptionSq;
+    summaryText.append(sourceTitle, sourceDescription);
+    summary.append(summaryText, createIcon('chevron-right', 'icon--sm'));
+
+    var body = document.createElement('div');
+    body.className = 'settings-source__body';
+    var detailList = document.createElement('ul');
+    detailList.className = 'settings-source__details';
+    source.details.forEach(function (text) {
+      var item = document.createElement('li');
+      item.textContent = text;
+      detailList.appendChild(item);
+    });
+    var link = document.createElement('a');
+    link.className = 'btn btn--outline btn--sm settings-source__link';
+    link.href = source.link.url;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.append(document.createTextNode(source.link.label + ' '), createIcon('external-link', 'icon--sm'));
+    body.append(detailList, link);
+    details.append(summary, body);
+    list.appendChild(details);
+  });
+
+  section.append(title, introduction, list);
+  return section;
+}
+
+function buildPrivacySection() {
+  var section = document.createElement('section');
+  section.className = 'settings-privacy';
+  section.setAttribute('aria-labelledby', 'settings-privacy-title');
+  var title = document.createElement('h2');
+  title.id = 'settings-privacy-title';
+  title.className = 'settings-section-title';
+  title.textContent = 'Privatësia';
+  var list = document.createElement('ul');
+  list.className = 'settings-privacy__list';
+  APP_PRIVACY_DISCLOSURES.forEach(function (text) {
+    var item = document.createElement('li');
+    item.textContent = text;
+    list.appendChild(item);
+  });
+  section.append(title, list);
+  return section;
+}
+
+// ====================================================================
 // RENDER
 // ====================================================================
 
@@ -208,14 +290,13 @@ export function render(context, appContext) {
   // Theme switch (separate card)
   var themeControl = buildThemeControl(appContext);
 
-  // Placeholder message for other settings
-  var placeholderMsg = document.createElement('p');
-  placeholderMsg.className = 'route-placeholder__description';
-  placeholderMsg.textContent = 'Cilësimet e tjera do të shtohen sipas moduleve.';
+  var sourcesSection = buildSourcesSection();
+  var privacySection = buildPrivacySection();
 
   content.appendChild(appearanceGroup);
   content.appendChild(themeControl);
-  content.appendChild(placeholderMsg);
+  content.appendChild(sourcesSection);
+  content.appendChild(privacySection);
 
   page.appendChild(header);
   page.appendChild(content);

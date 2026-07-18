@@ -20,7 +20,8 @@ var PRAYER_SETTING_KEYS = ['calculationMethod', 'asrSchool', 'adjustments'];
 var HOME_SETTING_KEYS = [
   'showSuggestedReadings',
   'showFridayAlKahf',
-  'showBedtimeQuranReadings'
+  'showBedtimeQuranReadings',
+  'showArticles'
 ];
 
 function isPlainObject(value) {
@@ -51,7 +52,8 @@ function cloneSettings(settings) {
     home: {
       showSuggestedReadings: settings.home.showSuggestedReadings,
       showFridayAlKahf: settings.home.showFridayAlKahf,
-      showBedtimeQuranReadings: settings.home.showBedtimeQuranReadings
+      showBedtimeQuranReadings: settings.home.showBedtimeQuranReadings,
+      showArticles: settings.home.showArticles
     },
     prayer: {
       calculationMethod: settings.prayer.calculationMethod,
@@ -148,7 +150,10 @@ function validateHome(value) {
       : DEFAULT_SETTINGS.home.showFridayAlKahf,
     showBedtimeQuranReadings: typeof value.showBedtimeQuranReadings === 'boolean'
       ? value.showBedtimeQuranReadings
-      : DEFAULT_SETTINGS.home.showBedtimeQuranReadings
+      : DEFAULT_SETTINGS.home.showBedtimeQuranReadings,
+    showArticles: typeof value.showArticles === 'boolean'
+      ? value.showArticles
+      : DEFAULT_SETTINGS.home.showArticles
   };
 }
 
@@ -175,7 +180,8 @@ function migrateSettings(candidate) {
     migrated.home = {
       showSuggestedReadings: DEFAULT_SETTINGS.home.showSuggestedReadings,
       showFridayAlKahf: DEFAULT_SETTINGS.home.showFridayAlKahf,
-      showBedtimeQuranReadings: previousBedtimeSetting
+      showBedtimeQuranReadings: previousBedtimeSetting,
+      showArticles: DEFAULT_SETTINGS.home.showArticles
     };
     delete migrated.dhikr;
     version = 4;

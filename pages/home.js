@@ -19,6 +19,15 @@ import {
 import { getPrayerLogsForDate } from '../js/storage/prayer-log.js';
 import { getZonedDateParts } from '../js/utils/date-time.js';
 import { BEDTIME_QURAN_READINGS } from '../js/data/daily-dhikr.js';
+import {
+  getArticlesManifest,
+  getArticle,
+  saveArticleOffline,
+  removeArticleOffline,
+  isArticleOffline,
+  getCachedArticleImageUrl,
+  ArticleError
+} from '../js/services/articles.js';
 
 // ====================================================================
 // TIRANA PRESET (for timezone detection)
@@ -421,6 +430,226 @@ function buildSuggestedReadings(settings, navigate) {
   return section;
 }
 
+function formatArticleDate(value) {
+  try {
+    return new Intl.DateTimeFormat('sq-AL', {
+      day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC'
+    }).format(new Date(value + 'T00:00:00Z'));
+  } catch (error) {
+    return value;
+  }
+}
+
+function articleCard(meta, navigate) {
+  var button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'home-article-card';
+  button.setAttribute('aria-label', 'Lexo artikullin: ' + meta.titleSq);
+  button.addEventListener('click', function () {
+    navigate('home', { params: { article: meta.id } });
+  });
+  var image = document.createElement('img');
+  image.className = 'home-article-card__image';
+  image.src = meta.imageUrl;
+  image.alt = '';
+  image.loading = 'lazy';
+  image.decoding = 'async';
+  getCachedArticleImageUrl(meta).then(function (objectUrl) {
+    if (!objectUrl) return;
+    image.src = objectUrl;
+    image.dataset.articleObjectUrl = objectUrl;
+  });
+  var overlay = document.createElement('span');
+  overlay.className = 'home-article-card__overlay';
+  var category = document.createElement('span');
+  category.className = 'home-article-card__category';
+  category.textContent = meta.categorySq;
+  var title = document.createElement('span');
+  title.className = 'home-article-card__title';
+  title.textContent = meta.titleSq;
+  var byline = document.createElement('span');
+  byline.className = 'home-article-card__byline';
+  byline.textContent = meta.authorSq + ' · ' + meta.readingMinutes + ' min';
+  overlay.append(category, title, byline);
+  button.append(image, overlay);
+  return button;
+}
+
+function revokeArticleImageUrls(host) {
+  if (!host || typeof URL === 'undefined' || typeof URL.revokeObjectURL !== 'function') return;
+  host.querySelectorAll('[data-article-object-url]').forEach(function (image) {
+    URL.revokeObjectURL(image.dataset.articleObjectUrl);
+  });
+}
+
+function renderArticlesSection(host, manifest, navigate) {
+  revokeArticleImageUrls(host);
+  if (!host || !manifest || !manifest.articles.length) {
+    if (host) {
+      host.replaceChildren();
+      host.hidden = true;
+    }
+    return;
+  }
+  var header = document.createElement('div');
+  header.className = 'home-articles__header';
+  var title = document.createElement('h2');
+  title.className = 'home-articles__title';
+  title.textContent = 'Artikuj të ndryshëm';
+  var note = document.createElement('p');
+  note.className = 'home-articles__note';
+  note.textContent = 'Përzgjedhje për lexim';
+  header.append(title, note);
+  var list = document.createElement('div');
+  list.className = 'home-articles__list';
+  manifest.articles.forEach(function (meta) { list.appendChild(articleCard(meta, navigate)); });
+  host.replaceChildren(header, list);
+  host.hidden = false;
+}
+
+function renderArticleShell(page, articleId) {
+  page.classList.add('article-reader-page');
+  page.dataset.articleReader = articleId;
+  var top = document.createElement('header');
+  top.className = 'article-reader__top';
+  var back = document.createElement('button');
+  back.type = 'button';
+  back.className = 'btn btn--icon btn--ghost';
+  back.dataset.articleBack = '';
+  back.setAttribute('aria-label', 'Kthehu te Kryefaqja');
+  back.appendChild(createIcon('chevron-left'));
+  var label = document.createElement('span');
+  label.className = 'route-page__eyebrow';
+  label.textContent = 'Artikull';
+  top.append(back, label);
+  var content = document.createElement('main');
+  content.className = 'article-reader__content';
+  content.dataset.articleContent = '';
+  var loading = document.createElement('div');
+  loading.className = 'app__loading';
+  loading.setAttribute('role', 'status');
+  loading.textContent = 'Duke ngarkuar artikullin...';
+  content.appendChild(loading);
+  page.append(top, content);
+}
+
+function articleBlockElement(block) {
+  if (block.type === 'list') {
+    var list = document.createElement('ul');
+    list.className = 'article-reader__list';
+    block.items.forEach(function (text) {
+      var item = document.createElement('li');
+      item.textContent = text;
+      list.appendChild(item);
+    });
+    return list;
+  }
+  var tag = block.type === 'heading2' ? 'h2'
+    : (block.type === 'heading3' ? 'h3' : (block.type === 'quote' ? 'blockquote' : 'p'));
+  var element = document.createElement(tag);
+  element.className = 'article-reader__' + block.type;
+  element.textContent = block.text;
+  return element;
+}
+
+function mountArticleReader(page, context, appContext) {
+  var mounted = true;
+  var controller = new AbortController();
+  var content = page.querySelector('[data-article-content]');
+  var back = page.querySelector('[data-article-back]');
+  var articleId = context.params.article;
+  var currentMeta = null;
+  var offline = false;
+
+  function backHandler() { appContext.navigate('home'); }
+  back.addEventListener('click', backHandler);
+
+  function showError() {
+    if (!mounted) return;
+    content.replaceChildren();
+    var box = document.createElement('div');
+    box.className = 'article-reader__error';
+    box.setAttribute('role', 'alert');
+    var message = document.createElement('p');
+    message.textContent = 'Artikulli nuk u ngarkua.';
+    var retry = document.createElement('button');
+    retry.type = 'button';
+    retry.className = 'btn btn--primary';
+    retry.textContent = 'Provo përsëri';
+    retry.addEventListener('click', load);
+    box.append(message, retry);
+    content.appendChild(box);
+  }
+
+  function renderArticle(article) {
+    content.replaceChildren();
+    var header = document.createElement('header');
+    header.className = 'article-reader__header';
+    var category = document.createElement('span');
+    category.className = 'route-page__eyebrow';
+    category.textContent = currentMeta.categorySq;
+    var title = document.createElement('h1');
+    title.className = 'article-reader__title';
+    title.dataset.routeHeading = '';
+    title.textContent = article.titleSq;
+    var meta = document.createElement('p');
+    meta.className = 'article-reader__meta';
+    meta.textContent = article.authorSq + ' · ' + formatArticleDate(article.publishedAt) +
+      ' · ' + currentMeta.readingMinutes + ' min';
+    var offlineButton = document.createElement('button');
+    offlineButton.type = 'button';
+    offlineButton.className = 'btn btn--outline btn--sm';
+    function updateOfflineButton() {
+      offlineButton.replaceChildren(
+        createIcon(offline ? 'trash' : 'bookmark', 'icon--sm'),
+        document.createTextNode(offline ? ' Hiq nga pajisja' : ' Ruaj offline')
+      );
+    }
+    updateOfflineButton();
+    offlineButton.addEventListener('click', function () {
+      offlineButton.disabled = true;
+      var operation = offline ? removeArticleOffline(currentMeta) : saveArticleOffline(currentMeta);
+      operation.then(function () {
+        if (!mounted) return;
+        offline = !offline;
+        updateOfflineButton();
+      }).catch(function () {}).finally(function () {
+        if (mounted) offlineButton.disabled = false;
+      });
+    });
+    header.append(category, title, meta, offlineButton);
+    var body = document.createElement('article');
+    body.className = 'article-reader__body';
+    article.blocks.forEach(function (block) { body.appendChild(articleBlockElement(block)); });
+    content.append(header, body);
+  }
+
+  function load() {
+    getArticlesManifest({ signal: controller.signal }).then(function (manifest) {
+      currentMeta = manifest.articles.find(function (meta) { return meta.id === articleId; });
+      if (!currentMeta) throw new ArticleError('Article not found', 'NOT_FOUND');
+      return Promise.all([
+        getArticle(currentMeta, { signal: controller.signal, preferCache: !navigator.onLine }),
+        isArticleOffline(currentMeta)
+      ]);
+    }).then(function (result) {
+      if (!mounted) return;
+      offline = result[1];
+      renderArticle(result[0]);
+    }).catch(function (error) {
+      if (error && error.code === 'ABORTED') return;
+      showError();
+    });
+  }
+
+  load();
+  return function () {
+    mounted = false;
+    controller.abort();
+    back.removeEventListener('click', backHandler);
+  };
+}
+
 // ====================================================================
 // RENDER
 // ====================================================================
@@ -432,6 +661,10 @@ export function render(context, appContext) {
 
   var page = document.createElement('div');
   page.className = 'route-page home-page';
+  if (context.params && context.params.article !== undefined) {
+    renderArticleShell(page, context.params.article);
+    return page;
+  }
 
   page.appendChild(buildGreeting(settings));
 
@@ -459,10 +692,14 @@ export function render(context, appContext) {
 // ====================================================================
 
 export function mount(pageElement, context, appContext) {
+  if (pageElement.matches('[data-article-reader]')) {
+    return mountArticleReader(pageElement, context, appContext);
+  }
   var navigate = appContext.navigate;
   var store = appContext.store;
   
   var abortController = null;
+  var articleController = new AbortController();
   var timerInterval = null;
   var settingsUnsubscribe = null;
   var lastFingerprint = '';
@@ -475,6 +712,7 @@ export function mount(pageElement, context, appContext) {
   var heroElement = pageElement.querySelector('[data-prayer-hero]');
   var greetingElement = pageElement.querySelector('.home-greeting');
   var suggestionsElement = pageElement.querySelector('[data-home-suggestions]');
+  var articlesElement = pageElement.querySelector('[data-home-articles]');
 
   function updateSuggestions(prayerState) {
     var currentSettings = store.get('settings');
@@ -487,6 +725,19 @@ export function mount(pageElement, context, appContext) {
       new Date(),
       timeZone
     );
+  }
+
+  function loadArticles() {
+    var currentSettings = store.get('settings') || {};
+    if (currentSettings.home && currentSettings.home.showArticles === false) {
+      renderArticlesSection(articlesElement, null, navigate);
+      return;
+    }
+    getArticlesManifest({ signal: articleController.signal }).then(function (manifest) {
+      if (isMounted) renderArticlesSection(articlesElement, manifest, navigate);
+    }).catch(function (error) {
+      if (!error || error.code !== 'ABORTED') renderArticlesSection(articlesElement, null, navigate);
+    });
   }
 
   // ---------------------------------------------------------------
@@ -922,10 +1173,12 @@ export function mount(pageElement, context, appContext) {
 
     if (newFingerprint === lastFingerprint) {
       updateSuggestions(todayResult ? getPrayerState(todayResult, new Date(), tomorrowResult) : null);
+      loadArticles();
       return;
     }
     lastFingerprint = newFingerprint;
     loadPrayerData();
+    loadArticles();
   }
 
   // ---------------------------------------------------------------
@@ -936,6 +1189,7 @@ export function mount(pageElement, context, appContext) {
   lastFingerprint = getPrayerSettingsFingerprint(settings);
 
   loadPrayerData();
+  loadArticles();
 
   document.addEventListener('visibilitychange', handleVisibility);
 
@@ -953,6 +1207,8 @@ export function mount(pageElement, context, appContext) {
       abortController.abort();
       abortController = null;
     }
+    articleController.abort();
+    revokeArticleImageUrls(articlesElement);
     
     if (settingsUnsubscribe) {
       settingsUnsubscribe();

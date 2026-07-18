@@ -3,11 +3,12 @@
  */
 
 var DB_NAME = 'hayat-db';
-var DB_VERSION = 5;
+var DB_VERSION = 6;
 var STORES = Object.freeze([
   'prayerLogs',
   'postPrayerDhikrSessions',
   'dailyDhikrSessions',
+  'articles',
   'quranContent',
   'quranReadingState',
   'meta'
@@ -28,6 +29,7 @@ var INDEXES = Object.freeze({
     'status',
     'updatedAt'
   ]),
+  articles: Object.freeze(['type', 'updatedAt']),
   quranContent: Object.freeze([
     'verseTranslation',
     'verseKey',
@@ -171,6 +173,19 @@ export function openDatabase() {
       }
       if (!dailyDhikrStore.indexNames.contains('updatedAt')) {
         dailyDhikrStore.createIndex('updatedAt', 'updatedAt', { unique: false });
+      }
+
+      var articleStore;
+      if (!database.objectStoreNames.contains('articles')) {
+        articleStore = database.createObjectStore('articles', { keyPath: 'id' });
+      } else {
+        articleStore = event.target.transaction.objectStore('articles');
+      }
+      if (!articleStore.indexNames.contains('type')) {
+        articleStore.createIndex('type', 'type', { unique: false });
+      }
+      if (!articleStore.indexNames.contains('updatedAt')) {
+        articleStore.createIndex('updatedAt', 'updatedAt', { unique: false });
       }
 
       var quranStore;

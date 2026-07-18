@@ -372,6 +372,12 @@ export function render(context, appContext) {
       'showBedtimeQuranReadings',
       'Leximet para gjumit',
       'Shfaq Es-Sexhde dhe El-Mulk pas Jacisë'
+    ),
+    buildHomeSwitch(
+      appContext,
+      'showArticles',
+      'Artikujt',
+      'Shfaq artikujt e përzgjedhur në Kryefaqe'
     )
   );
   homeGroup.append(homeTitle, homeControls);

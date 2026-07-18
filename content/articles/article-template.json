@@ -1,0 +1,27 @@
+{
+  "id": "your-article-id",
+  "titleSq": "Titulli i artikullit",
+  "authorSq": "Emri i autorit",
+  "publishedAt": "2026-07-18",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "Paragrafi i parë i artikullit."
+    },
+    {
+      "type": "heading2",
+      "text": "Nëntitulli"
+    },
+    {
+      "type": "quote",
+      "text": "Një citim i kontrolluar me burimin e tij në tekst."
+    },
+    {
+      "type": "list",
+      "items": [
+        "Pika e parë",
+        "Pika e dytë"
+      ]
+    }
+  ]
+}

@@ -186,7 +186,8 @@ var DEFAULT_SETTINGS = deepFreeze({
   home: {
     showSuggestedReadings: true,
     showFridayAlKahf: true,
-    showBedtimeQuranReadings: true
+    showBedtimeQuranReadings: true,
+    showArticles: true
   },
   prayer: {
     calculationMethod: 3,

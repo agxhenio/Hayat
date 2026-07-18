@@ -7,7 +7,7 @@
 
 import { isValidSurahAyah } from './quran-surahs.js';
 
-export const DAILY_DHIKR_CONTENT_VERSION = 3;
+export const DAILY_DHIKR_CONTENT_VERSION = 4;
 export const DAILY_DHIKR_REVIEW_STATUS = 'qualified-review-required';
 
 var ROUTINE_FIELDS = ['id', 'titleSq', 'descriptionSq', 'reviewStatus', 'items'];
@@ -176,6 +176,62 @@ var BEDTIME_SURRENDER_SOURCE = source(
   '28 — Dhikri kur biem në gjumë',
   [75]
 );
+var KINGDOM_DAY_NIGHT_SOURCE = source(
+  'Sahih Muslim',
+  'Mburoja e Muslimanit · shënimi 111',
+  'Botimi jep variante të plota për ditën dhe natën.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [56, 57]
+);
+var BIKA_ASBAHNA_SOURCE = source(
+  'Jami at-Tirmidhi',
+  'Mburoja e Muslimanit · shënimi 114',
+  'Botimi jep variante të veçanta për mëngjesin dhe mbrëmjen.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [57]
+);
+var BLESSINGS_SOURCE = source(
+  'Sunan Abu Dawud',
+  'Mburoja e Muslimanit · shënimi 119',
+  'Varianti ndryshon mes “aṣbaḥa” dhe “emsã”.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [59]
+);
+var ALIM_AL_GHAYB_SOURCE = source(
+  'Jami at-Tirmidhi; Sunan Abu Dawud',
+  'Mburoja e Muslimanit · shënimi 123',
+  '',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [61, 62]
+);
+var RADITU_SOURCE = source(
+  'Musnad Ahmad; Sunan Abu Dawud; Jami at-Tirmidhi',
+  'Mburoja e Muslimanit · shënimet 124–125',
+  'Thuhet tri herë në mëngjes dhe në mbrëmje.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [62, 63]
+);
+var YA_HAYYU_SOURCE = source(
+  'El-Hakim; Sahih et-Tergib ue et-Terhib',
+  'Mburoja e Muslimanit · shënimi 126',
+  '',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [63]
+);
+var FITRAH_SOURCE = source(
+  'Musnad Ahmad; Sahih el-Xhami',
+  'Mburoja e Muslimanit · shënimi 130',
+  'Botimi jep “Aṣbaḥnã” për mëngjes dhe “Emsejnã” për mbrëmje.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [64]
+);
+var MORNING_EVENING_SALAWAT_SOURCE = source(
+  'Et-Taberani; Sahih et-Tergib ue et-Terhib',
+  'Mburoja e Muslimanit · shënimi 139',
+  'Thuhet dhjetë herë në mëngjes dhe dhjetë herë në mbrëmje.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [66, 67]
+);
 
 function quranItem(id, titleSq, surah, ayahStart, ayahEnd, repetitions, itemSource) {
   return {
@@ -208,12 +264,43 @@ function textItem(id, titleSq, arabic, transliterationSq, translationSq, repetit
 }
 
 function morningEveningItems(prefix) {
+  var morning = prefix === 'morning';
   return [
     quranItem(prefix + '_ayat_al_kursi', 'Ajetul Kursij', 2, 255, 255, 1,
       MORNING_AYAT_KURSI_SOURCE),
     quranItem(prefix + '_al_ikhlas', 'Sureja El-Ihlas', 112, 1, 4, 3, ABU_DAWUD_5082),
     quranItem(prefix + '_al_falaq', 'Sureja El-Felek', 113, 1, 5, 3, ABU_DAWUD_5082),
     quranItem(prefix + '_an_nas', 'Sureja En-Nas', 114, 1, 6, 3, ABU_DAWUD_5082),
+    textItem(
+      prefix + '_kingdom',
+      morning ? 'U gdhimë dhe sundimi i përket Allahut' : 'U ngrysëm dhe sundimi i përket Allahut',
+      morning
+        ? 'أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذَا الْيَوْمِ وَخَيْرَ مَا بَعْدَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذَا الْيَوْمِ وَشَرِّ مَا بَعْدَهُ. رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ. رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ'
+        : 'أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا بَعْدَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذِهِ اللَّيْلَةِ وَشَرِّ مَا بَعْدَهَا. رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ وَسُوءِ الْكِبَرِ. رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ',
+      morning
+        ? 'Aṣbaḥnã we aṣbaḥal mulku lil-lãh, welḥamdu lil-lãhi, lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh, lehul mulku we lehul ḥamdu, we huwe ‘alã kul-li shej’in ḳadĩr. Rabbi es’eluke ḣajra mã fĩ hãdhel jewmi, we ḣajra mã ba’ëdehu, we e’ũdhu bike min sherri mã fĩ hãdhel jewmi, we sherri mã ba’ëdehu. Rabbi e’ũdhu bike minel keseli, we sũil kiber. Rabbi e’ũdhu bike min ‘adhãbin fin-nãri, we ‘adhãbin fil ḳabri.'
+        : 'Emsejnã we emsel mulku lil-lãh, welḥamdu lil-lãhi, lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh, lehul mulku we lehul ḥamdu, we huwe ‘alã kul-li shej’in ḳadĩr. Rabbi es’eluke ḣajra mã fĩ hãdhihil-lejleti, we ḣajra mã ba’ëdehã, we e’ũdhu bike min sherri mã fĩ hãdhihil-lejleti, we sherri mã ba’ëdehã. Rabbi e’ũdhu bike minel keseli, we sũil kiber. Rabbi e’ũdhu bike min ‘adhãbin fin-nãri, we ‘adhãbin fil ḳabri.',
+      morning
+        ? 'U gdhimë dhe ndërkohë ne jemi në dorë të Allahut! I gjithë sundimi i përket Allahut dhe e gjithë lavdia i takon Atij! Nuk ka të adhuruar me të drejtë përveç Allahut, i Cili është Një dhe i Pashoq! Atij i takon sundimi dhe lavdia! Ai është i fuqishëm për çdo gjë! O Zoti im! Unë të kërkoj të mirën që do të krijohet dhe do të ndodhë në këtë ditë, dhe të mirën që do të krijohet në ditët e tjera pas saj! Ty të lutem të më mbrosh nga sherri i gjithçkaje që ndodh në këtë ditë dhe sherri i gjithçkaje në ditët pas saj! O Zoti im! Kërkoj të më ruash nga përtacia dhe pleqëria e keqe! O Zoti im! Kërkoj të më mbrosh nga dënimi në Zjarr dhe dënimi në varr!'
+        : 'U ngrysëm dhe ndërkohë ne jemi në dorë të Allahut! I gjithë sundimi i përket Allahut dhe e gjithë lavdia i takon Atij! Nuk ka të adhuruar me të drejtë përveç Allahut, i Cili është Një dhe i Pashoq! Atij i takon sundimi dhe lavdia! Ai është i fuqishëm për çdo gjë! O Zoti im! Unë të kërkoj të mirën që do të krijohet dhe do të ndodhë në këtë natë, dhe të mirën që do të krijohet në netët e tjera pas saj! Ty të lutem të më mbrosh nga sherri i gjithçkaje në këtë natë dhe në netët pas saj! O Zoti im! Kërkoj të më ruash nga përtacia dhe pleqëria e keqe! O Zoti im! Kërkoj të më mbrosh nga dënimi në Zjarr dhe dënimi në varr!',
+      1,
+      KINGDOM_DAY_NIGHT_SOURCE
+    ),
+    textItem(
+      prefix + '_bika_asbahna',
+      morning ? 'Nën kujdesin Tënd u gdhimë' : 'Nën kujdesin Tënd u ngrysëm',
+      morning
+        ? 'اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ'
+        : 'اللَّهُمَّ بِكَ أَمْسَيْنَا، وَبِكَ أَصْبَحْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ الْمَصِيرُ',
+      morning
+        ? 'All-llãhumme bike aṣbaḥnã, we bike emsejnã, we bike naḥjã, we bike nemũtu, we ilejken-nushũr.'
+        : 'All-llãhumme bike emsejnã, we bike aṣbaḥnã, we bike naḥjã, we bike nemũtu, we ilejkel meṣĩr.',
+      morning
+        ? 'O Allah! U gdhimë duke qenë nën kujdesin Tënd dhe u ngrysëm nën kujdesin Tënd! Ti na ngjall dhe Ti na vdes, dhe pas ringjalljes, tek Ti do të kthehemi!'
+        : 'O Allah! U ngrysëm nën kujdesin Tënd dhe u gdhimë nën kujdesin Tënd! Ti na ngjall dhe Ti na vdes, dhe tek Ti është kthimi!',
+      1,
+      BIKA_ASBAHNA_SOURCE
+    ),
     textItem(
       prefix + '_sayyid_al_istighfar',
       'Forma më e mirë e istigfarit',
@@ -258,6 +345,57 @@ function morningEveningItems(prefix) {
       'Kërkoj mbrojtje me emrin e Allahut nga çdo keqbërës, emër ky me përmendjen e të cilit nuk mund të bëjë dëm asgjë në tokë dhe asnjë sprovë që zbret nga qielli! Allahu është Ai i Cili i dëgjon të gjitha thëniet dhe i di të gjitha gjendjet!',
       3,
       BISMILLAH_PROTECTION_SOURCE
+    ),
+    textItem(
+      prefix + '_alim_al_ghayb',
+      'Mbrojtja nga e keqja e vetes dhe e shejtanit',
+      'اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ، فَاطِرَ السَّمَاوَاتِ وَالْأَرْضِ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي، وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِي سُوءًا، أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ',
+      'All-llãhumme ‘ãlimel ġajbi wesh-shehãdeti, Fãṭiras-semãwãti wel erḍi, Rabbe kul-li shej’in we melĩkehu, eshhedu en lã ilãhe il-lã Ente, e’ũdhu bike min sherri nefsĩ, we min sherrish-shejṭãni we shirkihi, we en eḳterife ‘alã nefsĩ sũen ew exhurr-rrahu ilã muslim.',
+      'O Allah! Njohës i së fshehtës dhe së dukshmes, Krijues i qiejve dhe i tokës, Zot dhe Sundues i çdo gjëje! Dëshmoj se askush nuk meriton të adhurohet përveç Teje! Më mbroj nga e keqja e vetvetes, nga e keqja e shejtanit dhe thirrja e përpjekja e tij për të bërë shirk, si dhe që të mos i bëj vetes keq e as ndonjë muslimani!',
+      1,
+      ALIM_AL_GHAYB_SOURCE
+    ),
+    textItem(
+      prefix + '_raditu',
+      'Jam i kënaqur me Allahun si Zot',
+      'رَضِيتُ بِاللَّهِ رَبًّا، وَبِالْإِسْلَامِ دِينًا، وَبِمُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ نَبِيًّا',
+      'Raḍĩtu bil-lãhi Rabben, we bil islãmi dĩnen, we bi Muḥammedin ṣal-lallãhu ‘alejhi we sel-leme nebijjen.',
+      'Jam i kënaqur me Allahun si Zot, me Islamin si fe dhe me Muhamedin (lavdërimi dhe paqja qofshin për të) si Pejgamber.',
+      3,
+      RADITU_SOURCE
+    ),
+    textItem(
+      prefix + '_ya_hayyu',
+      'O i Gjallë, o i Përjetshëm',
+      'يَا حَيُّ يَا قَيُّومُ، بِرَحْمَتِكَ أَسْتَغِيثُ، أَصْلِحْ لِي شَأْنِي كُلَّهُ، وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ',
+      'Jã Ḥajju, jã Ḳajjũmu, bi raḥmetike esteġĩthu, aṣliḥ lĩ she’nĩ kul-lehu, we lã tekilnĩ ilã nefsĩ ṭarfete ‘ajnin.',
+      'O i Gjallë e i Përjetshëm! O Mbajtësi i gjithçkaje! Me mëshirën Tënde të kërkoj ndihmë! Rregulloji të gjitha punët e mia dhe mos më lër të mbështetem në veten time as sa një hapje e mbyllje e syrit!',
+      1,
+      YA_HAYYU_SOURCE
+    ),
+    textItem(
+      prefix + '_fitrah',
+      morning ? 'U gdhimë në natyrshmërinë islame' : 'U ngrysëm në natyrshmërinë islame',
+      morning
+        ? 'أَصْبَحْنَا عَلَى فِطْرَةِ الْإِسْلَامِ، وَعَلَى كَلِمَةِ الْإِخْلَاصِ، وَعَلَى دِينِ نَبِيِّنَا مُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ، وَعَلَى مِلَّةِ أَبِينَا إِبْرَاهِيمَ حَنِيفًا مُسْلِمًا، وَمَا كَانَ مِنَ الْمُشْرِكِينَ'
+        : 'أَمْسَيْنَا عَلَى فِطْرَةِ الْإِسْلَامِ، وَعَلَى كَلِمَةِ الْإِخْلَاصِ، وَعَلَى دِينِ نَبِيِّنَا مُحَمَّدٍ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ، وَعَلَى مِلَّةِ أَبِينَا إِبْرَاهِيمَ حَنِيفًا مُسْلِمًا، وَمَا كَانَ مِنَ الْمُشْرِكِينَ',
+      morning
+        ? 'Aṣbaḥnã ‘alã fiṭratil Islãm, we ‘alã kelimetil iḣlãṣ, we ‘alã dĩni nebijjinã Muḥammedin ṣal-lallãhu ‘alejhi we sel-leme, we ‘alã mil-leti ebĩnã Ibrãhĩme ḥanĩfen muslimen, we mã kãne minel mushrikĩn.'
+        : 'Emsejnã ‘alã fiṭratil Islãm, we ‘alã kelimetil iḣlãṣ, we ‘alã dĩni nebijjinã Muḥammedin ṣal-lallãhu ‘alejhi we sel-leme, we ‘alã mil-leti ebĩnã Ibrãhĩme ḥanĩfen muslimen, we mã kãne minel mushrikĩn.',
+      morning
+        ? 'U gdhimë në natyrshmërinë islame, në thënien e sinqeritetit, në fenë e Pejgamberit tonë Muhamedit (lavdërimi dhe paqja qofshin për të), si dhe në besimin monoteist të pastër të babait tonë Ibrahim, i cili ka qenë larg besimeve të kota, i nënshtruar ndaj Allahut dhe nuk ka qenë prej idhujtarëve.'
+        : 'U ngrysëm në natyrshmërinë islame, në thënien e sinqeritetit, në fenë e Pejgamberit tonë Muhamedit (lavdërimi dhe paqja qofshin për të), si dhe në besimin monoteist të pastër të babait tonë Ibrahim, i cili ka qenë larg besimeve të kota, i nënshtruar ndaj Allahut dhe nuk ka qenë prej idhujtarëve.',
+      1,
+      FITRAH_SOURCE
+    ),
+    textItem(
+      prefix + '_salawat',
+      'Salavat dhe selam për Profetin ﷺ',
+      'اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ',
+      'All-llãhumme ṣal-li we sel-lim ‘alã nebijjinã Muḥammed.',
+      'O Allah, bëj salavat dhe selam Profetit tonë Muhamedit.',
+      10,
+      MORNING_EVENING_SALAWAT_SOURCE
     ),
     textItem(
       prefix + '_subhanallahi_wa_bihamdihi',

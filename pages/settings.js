@@ -134,6 +134,62 @@ function buildThemeControl(appContext) {
 }
 
 // ====================================================================
+// DHIKR CONTROL
+// ====================================================================
+
+function buildBedtimeReadingControl(appContext) {
+  var currentSettings = appContext.store.get('settings') || {};
+  var currentDhikr = currentSettings.dhikr || { showBedtimeQuranReadings: true };
+  var container = document.createElement('div');
+  container.className = 'settings-theme-control settings-dhikr-control';
+
+  var info = document.createElement('div');
+  info.className = 'settings-theme-control__info';
+  var title = document.createElement('span');
+  title.className = 'settings-theme-control__title';
+  title.textContent = 'Leximet para gjumit';
+  var description = document.createElement('span');
+  description.className = 'settings-theme-control__description';
+  description.textContent = 'Shfaq Es-Sexhde dhe El-Mulk në faqen e Dhikrit';
+  info.append(title, description);
+
+  var switchLabel = document.createElement('label');
+  switchLabel.className = 'switch';
+  var input = document.createElement('input');
+  input.type = 'checkbox';
+  input.className = 'switch__input';
+  input.checked = currentDhikr.showBedtimeQuranReadings !== false;
+  input.setAttribute('aria-label', 'Shfaq leximet e Kuranit para gjumit');
+  var track = document.createElement('span');
+  track.className = 'switch__track';
+  var thumb = document.createElement('span');
+  thumb.className = 'switch__thumb';
+  track.appendChild(thumb);
+  switchLabel.append(input, track);
+
+  input.addEventListener('change', function () {
+    var previous = !input.checked;
+    try {
+      var saved = appContext.settingsStorage.patchSettings({
+        dhikr: { showBedtimeQuranReadings: input.checked }
+      });
+      appContext.store.set('settings', saved, { source: 'settings-page' });
+      appContext.events.emit(appContext.events.EVENTS.SETTINGS_CHANGED, {
+        key: 'dhikr.showBedtimeQuranReadings',
+        value: input.checked,
+        settings: saved
+      });
+    } catch (error) {
+      input.checked = previous;
+      console.error('[Hayat Settings] Failed to save Dhikr display setting:', error);
+    }
+  });
+
+  container.append(info, switchLabel);
+  return container;
+}
+
+// ====================================================================
 // SOURCES AND PRIVACY
 // ====================================================================
 
@@ -290,11 +346,19 @@ export function render(context, appContext) {
   // Theme switch (separate card)
   var themeControl = buildThemeControl(appContext);
 
+  var dhikrGroup = document.createElement('section');
+  dhikrGroup.className = 'settings-sources settings-dhikr-settings';
+  var dhikrTitle = document.createElement('h2');
+  dhikrTitle.className = 'settings-section-title';
+  dhikrTitle.textContent = 'Dhikri';
+  dhikrGroup.append(dhikrTitle, buildBedtimeReadingControl(appContext));
+
   var sourcesSection = buildSourcesSection();
   var privacySection = buildPrivacySection();
 
   content.appendChild(appearanceGroup);
   content.appendChild(themeControl);
+  content.appendChild(dhikrGroup);
   content.appendChild(sourcesSection);
   content.appendChild(privacySection);
 

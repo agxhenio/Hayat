@@ -774,6 +774,27 @@ var routines = [
   }
 ];
 
+export const BEDTIME_QURAN_READINGS = deepFreeze([
+  {
+    id: 'bedtime_surah_as_sajdah',
+    titleSq: 'Lexo suren Es-Sexhde',
+    descriptionSq: 'Sureja 32 · 30 ajete',
+    surah: 32,
+    ayah: 1,
+    sourcePages: [75],
+    reviewStatus: DAILY_DHIKR_REVIEW_STATUS
+  },
+  {
+    id: 'bedtime_surah_al_mulk',
+    titleSq: 'Lexo suren El-Mulk',
+    descriptionSq: 'Sureja 67 · 30 ajete',
+    surah: 67,
+    ayah: 1,
+    sourcePages: [75],
+    reviewStatus: DAILY_DHIKR_REVIEW_STATUS
+  }
+]);
+
 export const DAILY_DHIKR_ROUTINES = deepFreeze(routines);
 
 function nonEmptyString(value) {
@@ -811,7 +832,14 @@ function validQuranReference(value) {
 }
 
 export function validateDailyDhikrContent() {
-  if (!Array.isArray(DAILY_DHIKR_ROUTINES) || DAILY_DHIKR_ROUTINES.length !== 3) return false;
+  if (!Array.isArray(DAILY_DHIKR_ROUTINES) || DAILY_DHIKR_ROUTINES.length !== 3 ||
+      !Array.isArray(BEDTIME_QURAN_READINGS) || BEDTIME_QURAN_READINGS.length !== 2 ||
+      !BEDTIME_QURAN_READINGS.every(function (reading) {
+        return nonEmptyString(reading.id) && nonEmptyString(reading.titleSq) &&
+          nonEmptyString(reading.descriptionSq) && isValidSurahAyah(reading.surah, reading.ayah) &&
+          Array.isArray(reading.sourcePages) && reading.sourcePages.length > 0 &&
+          reading.reviewStatus === DAILY_DHIKR_REVIEW_STATUS && Object.isFrozen(reading);
+      })) return false;
   var routineIds = new Set();
   var itemIds = new Set();
 

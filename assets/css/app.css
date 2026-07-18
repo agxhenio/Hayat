@@ -2752,6 +2752,89 @@
   margin-block-start: var(--space-4);
 }
 
+.daily-dhikr-bedtime-readings {
+  margin-block-start: var(--space-3);
+}
+
+.daily-dhikr-bedtime-readings__title {
+  margin: 0 0 var(--space-1);
+  color: var(--color-text-primary);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.daily-dhikr-bedtime-readings__note {
+  margin: 0 0 var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+}
+
+.daily-dhikr-bedtime-readings__list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.daily-dhikr-reading-card {
+  inline-size: 100%;
+  min-block-size: 76px;
+  display: grid;
+  grid-template-columns: var(--touch-target-min) minmax(0, 1fr) var(--icon-size-sm);
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.daily-dhikr-reading-card__icon {
+  inline-size: var(--touch-target-min);
+  block-size: var(--touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: var(--color-accent-primary);
+  background-color: var(--color-surface-interactive);
+}
+
+.daily-dhikr-reading-card__content {
+  min-inline-size: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.daily-dhikr-reading-card__title {
+  color: var(--color-text-primary);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+.daily-dhikr-reading-card__description {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.daily-dhikr-reading-card__trailing {
+  display: inline-flex;
+  color: var(--color-text-muted);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .daily-dhikr-reading-card:hover {
+    border-color: var(--color-accent-primary);
+    background-color: var(--color-surface-hover);
+  }
+}
+
+.daily-dhikr-reading-card:focus-visible {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: 2px;
+}
+
 .daily-dhikr-storage-warning {
   margin: 0;
   padding: var(--space-3);
@@ -3122,6 +3205,10 @@
 @media (min-width: 768px) {
   .daily-dhikr-cards {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .daily-dhikr-bedtime-readings__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .daily-dhikr-page {

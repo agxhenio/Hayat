@@ -1,5 +1,5 @@
 /**
- * Hayat — Validated settings storage, schema v2.
+ * Hayat — Validated settings storage, schema v3.
  */
 
 import {
@@ -14,9 +14,10 @@ import {
   isValidAsrSchool
 } from '../config.js';
 
-var CURRENT_SCHEMA_VERSION = 2;
+var CURRENT_SCHEMA_VERSION = 3;
 var KNOWN_KEYS = Object.keys(DEFAULT_SETTINGS);
 var PRAYER_SETTING_KEYS = ['calculationMethod', 'asrSchool', 'adjustments'];
+var DHIKR_SETTING_KEYS = ['showBedtimeQuranReadings'];
 
 function isPlainObject(value) {
   if (value === null || typeof value !== 'object') return false;
@@ -43,6 +44,9 @@ function cloneSettings(settings) {
     homeCards: settings.homeCards.slice(),
     hayatAIEnabled: settings.hayatAIEnabled,
     reducedMotionOverride: settings.reducedMotionOverride,
+    dhikr: {
+      showBedtimeQuranReadings: settings.dhikr.showBedtimeQuranReadings
+    },
     prayer: {
       calculationMethod: settings.prayer.calculationMethod,
       asrSchool: settings.prayer.asrSchool,
@@ -55,6 +59,7 @@ function freezeSettings(settings) {
   if (settings.coordinates) Object.freeze(settings.coordinates);
   Object.freeze(settings.enabledModules);
   Object.freeze(settings.homeCards);
+  Object.freeze(settings.dhikr);
   Object.freeze(settings.prayer.adjustments);
   Object.freeze(settings.prayer);
   return Object.freeze(settings);
@@ -124,16 +129,32 @@ function validatePrayer(value) {
   };
 }
 
+function validateDhikr(value) {
+  if (!isPlainObject(value) || Object.keys(value).some(function (key) {
+    return DHIKR_SETTING_KEYS.indexOf(key) === -1;
+  })) return null;
+  return {
+    showBedtimeQuranReadings: typeof value.showBedtimeQuranReadings === 'boolean'
+      ? value.showBedtimeQuranReadings
+      : DEFAULT_SETTINGS.dhikr.showBedtimeQuranReadings
+  };
+}
+
 function migrateSettings(candidate) {
   if (!isPlainObject(candidate)) return null;
   var version = candidate.schemaVersion === undefined ? 1 : candidate.schemaVersion;
+  var migrated = Object.assign({}, candidate);
   if (version === 1) {
-    return Object.assign({}, candidate, {
-      schemaVersion: 2,
-      prayer: cloneSettings(DEFAULT_SETTINGS).prayer
-    });
+    migrated.schemaVersion = 2;
+    migrated.prayer = cloneSettings(DEFAULT_SETTINGS).prayer;
+    version = 2;
   }
-  return version === CURRENT_SCHEMA_VERSION ? candidate : null;
+  if (version === 2) {
+    migrated.schemaVersion = 3;
+    migrated.dhikr = cloneSettings(DEFAULT_SETTINGS).dhikr;
+    version = 3;
+  }
+  return version === CURRENT_SCHEMA_VERSION ? migrated : null;
 }
 
 export function validateSettings(candidate) {
@@ -147,7 +168,10 @@ export function validateSettings(candidate) {
   var prayer = candidate.prayer === undefined
     ? fallback.prayer
     : validatePrayer(candidate.prayer);
-  if (!prayer) return null;
+  var dhikr = candidate.dhikr === undefined
+    ? fallback.dhikr
+    : validateDhikr(candidate.dhikr);
+  if (!prayer || !dhikr) return null;
 
   var settings = {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -165,6 +189,7 @@ export function validateSettings(candidate) {
       ? candidate.hayatAIEnabled : fallback.hayatAIEnabled,
     reducedMotionOverride: ALLOWED_REDUCED_MOTION.indexOf(candidate.reducedMotionOverride) !== -1
       ? candidate.reducedMotionOverride : fallback.reducedMotionOverride,
+    dhikr: dhikr,
     prayer: prayer
   };
   return freezeSettings(settings);

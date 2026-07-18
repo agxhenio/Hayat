@@ -5,7 +5,6 @@
 import {
   DAILY_DHIKR_CONTENT_VERSION,
   DAILY_DHIKR_ROUTINES,
-  BEDTIME_QURAN_READINGS,
   getDailyDhikrRoutine,
   getDailyDhikrItem
 } from '../js/data/daily-dhikr.js';
@@ -138,45 +137,7 @@ function renderDashboard(page) {
     cards.appendChild(card);
   });
 
-  var readings = document.createElement('section');
-  readings.className = 'daily-dhikr-bedtime-readings';
-  readings.dataset.bedtimeQuranReadings = '';
-  readings.hidden = true;
-  var readingsTitle = document.createElement('h2');
-  readingsTitle.className = 'daily-dhikr-bedtime-readings__title';
-  readingsTitle.textContent = 'Lexime para gjumit';
-  var readingsNote = document.createElement('p');
-  readingsNote.className = 'daily-dhikr-bedtime-readings__note';
-  readingsNote.textContent = 'Lexime të veçanta nga rutina e Dhikrit; nuk hyjnë në progresin e saj.';
-  var readingsList = document.createElement('div');
-  readingsList.className = 'daily-dhikr-bedtime-readings__list';
-  BEDTIME_QURAN_READINGS.forEach(function (reading) {
-    var button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'daily-dhikr-reading-card card';
-    button.dataset.openBedtimeReading = String(reading.surah);
-    button.setAttribute('aria-label', reading.titleSq + ', hap në Kuran');
-    var iconWrap = document.createElement('span');
-    iconWrap.className = 'daily-dhikr-reading-card__icon';
-    iconWrap.appendChild(icon('book-open'));
-    var text = document.createElement('span');
-    text.className = 'daily-dhikr-reading-card__content';
-    var title = document.createElement('span');
-    title.className = 'daily-dhikr-reading-card__title';
-    title.textContent = reading.titleSq;
-    var description = document.createElement('span');
-    description.className = 'daily-dhikr-reading-card__description';
-    description.textContent = reading.descriptionSq + ' · Pa transliterim';
-    text.append(title, description);
-    var trailing = document.createElement('span');
-    trailing.className = 'daily-dhikr-reading-card__trailing';
-    trailing.appendChild(icon('chevron-right', 'icon--sm'));
-    button.append(iconWrap, text, trailing);
-    readingsList.appendChild(button);
-  });
-  readings.append(readingsTitle, readingsNote, readingsList);
-
-  dashboard.append(storageWarning, cards, readings);
+  dashboard.append(storageWarning, cards);
   page.append(header, dashboard);
 }
 
@@ -283,10 +244,6 @@ function mountDashboard(page, appContext) {
   var mounted = true;
   var dashboard = page.querySelector('[data-daily-dhikr-dashboard]');
   var warning = page.querySelector('[data-daily-dhikr-storage-warning]');
-  var readings = page.querySelector('[data-bedtime-quran-readings]');
-  var settings = appContext.store.get('settings') || {};
-  var showReadings = !settings.dhikr || settings.dhikr.showBedtimeQuranReadings !== false;
-  if (readings) readings.hidden = !showReadings;
   var dateKey = localDateKey();
 
   function updateCard(routine, session) {
@@ -325,13 +282,6 @@ function mountDashboard(page, appContext) {
   var openHandler = function (event) {
     var target = event.target;
     if (!target || typeof target.closest !== 'function') return;
-    var readingButton = target.closest('[data-open-bedtime-reading]');
-    if (readingButton && dashboard.contains(readingButton)) {
-      appContext.navigate('quran', {
-        params: { surah: Number(readingButton.dataset.openBedtimeReading), ayah: 1 }
-      });
-      return;
-    }
     var button = target.closest('[data-open-daily-routine]');
     if (!button || !dashboard.contains(button)) return;
     var routine = getDailyDhikrRoutine(button.dataset.openDailyRoutine);

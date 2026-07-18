@@ -18,6 +18,7 @@ import {
 } from '../js/services/prayer-times.js';
 import { getPrayerLogsForDate } from '../js/storage/prayer-log.js';
 import { getZonedDateParts } from '../js/utils/date-time.js';
+import { BEDTIME_QURAN_READINGS } from '../js/data/daily-dhikr.js';
 
 // ====================================================================
 // TIRANA PRESET (for timezone detection)
@@ -278,47 +279,146 @@ function buildQuranCard(navigate) {
   return card;
 }
 
-function buildDhikrCard(navigate) {
-  var card = document.createElement('div');
-  card.className = 'card';
+function isFridayDateKey(dateKey) {
+  if (typeof dateKey !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return false;
+  return new Date(dateKey + 'T00:00:00Z').getUTCDay() === 5;
+}
 
-  var body = document.createElement('div');
-  body.className = 'card__body';
+function resolveDhikrSuggestion(prayerState, hours) {
+  if (prayerState) {
+    if (prayerState.currentPrayer === 'isha' || prayerState.nextPrayerIsTomorrow) return 'bedtime';
+    if (prayerState.currentPrayer === 'asr' || prayerState.currentPrayer === 'maghrib' ||
+        prayerState.nextPrayer === 'maghrib' || prayerState.nextPrayer === 'isha') return 'evening';
+    if (prayerState.currentPrayer === 'fajr' || prayerState.nextPrayer === 'dhuhr') return 'morning';
+    return null;
+  }
+  if (hours >= 21 || hours < 4) return 'bedtime';
+  if (hours >= 16) return 'evening';
+  if (hours >= 4 && hours < 12) return 'morning';
+  return null;
+}
 
-  var titleRow = document.createElement('div');
-  titleRow.className = 'cluster';
-  titleRow.appendChild(createIcon('sparkles'));
-  var title = document.createElement('span');
-  title.className = 'card__title';
-  title.textContent = 'Dhikri i mbrëmjes';
-  titleRow.appendChild(title);
-
-  var statusRow = document.createElement('div');
-  statusRow.className = 'cluster home-dhikr-status';
-
-  var chip = document.createElement('span');
-  chip.className = 'status-chip status-chip--not-started';
-  chip.textContent = 'I pa filluar';
-  statusRow.appendChild(chip);
-
-  var actionRow = document.createElement('div');
-  actionRow.className = 'card__actions';
-
-  var btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'btn btn--outline btn--sm';
-  btn.textContent = 'Hap Dhikrin';
-  btn.addEventListener('click', function () {
-    navigate('dhikr');
+function suggestionCard(options, navigate) {
+  var button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'home-suggestion-card card';
+  button.setAttribute('aria-label', options.title + ', ' + options.actionLabel);
+  button.addEventListener('click', function () {
+    navigate(options.route, { params: options.params });
   });
-  actionRow.appendChild(btn);
+  var iconWrap = document.createElement('span');
+  iconWrap.className = 'home-suggestion-card__icon';
+  iconWrap.appendChild(createIcon(options.icon));
+  var content = document.createElement('span');
+  content.className = 'home-suggestion-card__content';
+  var eyebrow = document.createElement('span');
+  eyebrow.className = 'home-suggestion-card__eyebrow';
+  eyebrow.textContent = options.eyebrow;
+  var title = document.createElement('span');
+  title.className = 'home-suggestion-card__title';
+  title.textContent = options.title;
+  var description = document.createElement('span');
+  description.className = 'home-suggestion-card__description';
+  description.textContent = options.description;
+  content.append(eyebrow, title, description);
+  var trailing = document.createElement('span');
+  trailing.className = 'home-suggestion-card__trailing';
+  trailing.appendChild(createIcon('chevron-right', 'icon--sm'));
+  button.append(iconWrap, content, trailing);
+  return button;
+}
 
-  body.appendChild(titleRow);
-  body.appendChild(statusRow);
-  body.appendChild(actionRow);
-  card.appendChild(body);
+function renderSuggestedReadings(section, settings, navigate, prayerState, now, timeZone) {
+  if (!section) return;
+  var homeSettings = settings && settings.home ? settings.home : {
+    showSuggestedReadings: true,
+    showFridayAlKahf: true,
+    showBedtimeQuranReadings: true
+  };
+  if (homeSettings.showSuggestedReadings === false) {
+    section.replaceChildren();
+    section.hidden = true;
+    return;
+  }
 
-  return card;
+  var zoned = getZonedDateParts(now, timeZone);
+  var hours = zoned ? zoned.hours : now.getHours();
+  var dateKey = zoned ? zoned.dateKey : [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0')
+  ].join('-');
+  var routineId = resolveDhikrSuggestion(prayerState, hours);
+  var cards = [];
+  var routineLabels = {
+    morning: 'Dhikri i mëngjesit',
+    evening: 'Dhikri i mbrëmjes',
+    bedtime: 'Dhikri para gjumit'
+  };
+  if (routineId) {
+    cards.push(suggestionCard({
+      eyebrow: 'Dhikri aktual',
+      title: routineLabels[routineId],
+      description: 'Hap rutinën dhe vazhdo aty ku e le',
+      actionLabel: 'hap rutinën',
+      icon: 'sparkles',
+      route: 'dhikr',
+      params: { routine: routineId }
+    }, navigate));
+  }
+  if (homeSettings.showFridayAlKahf !== false && isFridayDateKey(dateKey)) {
+    cards.push(suggestionCard({
+      eyebrow: 'Leximi i së premtes',
+      title: 'Lexo suren El-Kehf',
+      description: 'Sureja 18 · 110 ajete · Pa transliterim',
+      actionLabel: 'hap në Kuran',
+      icon: 'book-open',
+      route: 'quran',
+      params: { surah: 18, ayah: 1 }
+    }, navigate));
+  }
+  if (routineId === 'bedtime' && homeSettings.showBedtimeQuranReadings !== false) {
+    BEDTIME_QURAN_READINGS.forEach(function (reading) {
+      cards.push(suggestionCard({
+        eyebrow: 'Lexim para gjumit',
+        title: reading.titleSq,
+        description: reading.descriptionSq + ' · Pa transliterim',
+        actionLabel: 'hap në Kuran',
+        icon: 'book-open',
+        route: 'quran',
+        params: { surah: reading.surah, ayah: reading.ayah }
+      }, navigate));
+    });
+  }
+
+  if (!cards.length) {
+    section.replaceChildren();
+    section.hidden = true;
+    return;
+  }
+  var header = document.createElement('div');
+  header.className = 'home-suggestions__header';
+  var title = document.createElement('h2');
+  title.className = 'home-suggestions__title';
+  title.textContent = 'Lexime të sugjeruara';
+  var note = document.createElement('p');
+  note.className = 'home-suggestions__note';
+  note.textContent = 'Sipas ditës dhe kohës';
+  header.append(title, note);
+  var list = document.createElement('div');
+  list.className = 'home-suggestions__list';
+  cards.forEach(function (card) { list.appendChild(card); });
+  section.replaceChildren(header, list);
+  section.hidden = false;
+}
+
+function buildSuggestedReadings(settings, navigate) {
+  var section = document.createElement('section');
+  section.className = 'home-suggestions';
+  section.dataset.homeSuggestions = '';
+  section.hidden = true;
+  renderSuggestedReadings(section, settings, navigate, null, new Date(), null);
+  return section;
 }
 
 // ====================================================================
@@ -340,8 +440,14 @@ export function render(context, appContext) {
 
   grid.appendChild(buildPrayerHeroSkeleton());
   grid.appendChild(buildNowCard());
+  grid.appendChild(buildSuggestedReadings(settings, navigate));
   grid.appendChild(buildQuranCard(navigate));
-  grid.appendChild(buildDhikrCard(navigate));
+
+  var articlesHost = document.createElement('section');
+  articlesHost.className = 'home-articles-host';
+  articlesHost.dataset.homeArticles = '';
+  articlesHost.hidden = true;
+  grid.appendChild(articlesHost);
 
   page.appendChild(grid);
 
@@ -368,6 +474,20 @@ export function mount(pageElement, context, appContext) {
 
   var heroElement = pageElement.querySelector('[data-prayer-hero]');
   var greetingElement = pageElement.querySelector('.home-greeting');
+  var suggestionsElement = pageElement.querySelector('[data-home-suggestions]');
+
+  function updateSuggestions(prayerState) {
+    var currentSettings = store.get('settings');
+    var timeZone = todayResult ? todayResult.timezone : null;
+    renderSuggestedReadings(
+      suggestionsElement,
+      currentSettings,
+      navigate,
+      prayerState || null,
+      new Date(),
+      timeZone
+    );
+  }
 
   // ---------------------------------------------------------------
   // HERO STATE UPDATERS
@@ -629,6 +749,7 @@ export function mount(pageElement, context, appContext) {
     
     if (!settings || !settings.coordinates) {
       setHeroNoLocation();
+      updateSuggestions(null);
       return;
     }
 
@@ -673,6 +794,7 @@ export function mount(pageElement, context, appContext) {
         
         console.error('Failed to load prayer times:', err);
         setHeroError();
+        updateSuggestions(null);
       });
   }
 
@@ -729,6 +851,7 @@ export function mount(pageElement, context, appContext) {
     }
 
     lastHeroSignature = signature;
+    updateSuggestions(state);
     if (state.nextPrayerIsTomorrow && !tomorrowResult) setHeroAfterIshaNoTomorrow();
     else setHeroSuccess(state);
   }
@@ -797,7 +920,10 @@ export function mount(pageElement, context, appContext) {
       greetingElement = newGreeting;
     }
 
-    if (newFingerprint === lastFingerprint) return;
+    if (newFingerprint === lastFingerprint) {
+      updateSuggestions(todayResult ? getPrayerState(todayResult, new Date(), tomorrowResult) : null);
+      return;
+    }
     lastFingerprint = newFingerprint;
     loadPrayerData();
   }

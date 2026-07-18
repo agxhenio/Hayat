@@ -1,5 +1,5 @@
 /**
- * Hayat — Validated settings storage, schema v3.
+ * Hayat — Validated settings storage, schema v4.
  */
 
 import {
@@ -14,10 +14,14 @@ import {
   isValidAsrSchool
 } from '../config.js';
 
-var CURRENT_SCHEMA_VERSION = 3;
+var CURRENT_SCHEMA_VERSION = 4;
 var KNOWN_KEYS = Object.keys(DEFAULT_SETTINGS);
 var PRAYER_SETTING_KEYS = ['calculationMethod', 'asrSchool', 'adjustments'];
-var DHIKR_SETTING_KEYS = ['showBedtimeQuranReadings'];
+var HOME_SETTING_KEYS = [
+  'showSuggestedReadings',
+  'showFridayAlKahf',
+  'showBedtimeQuranReadings'
+];
 
 function isPlainObject(value) {
   if (value === null || typeof value !== 'object') return false;
@@ -44,8 +48,10 @@ function cloneSettings(settings) {
     homeCards: settings.homeCards.slice(),
     hayatAIEnabled: settings.hayatAIEnabled,
     reducedMotionOverride: settings.reducedMotionOverride,
-    dhikr: {
-      showBedtimeQuranReadings: settings.dhikr.showBedtimeQuranReadings
+    home: {
+      showSuggestedReadings: settings.home.showSuggestedReadings,
+      showFridayAlKahf: settings.home.showFridayAlKahf,
+      showBedtimeQuranReadings: settings.home.showBedtimeQuranReadings
     },
     prayer: {
       calculationMethod: settings.prayer.calculationMethod,
@@ -59,7 +65,7 @@ function freezeSettings(settings) {
   if (settings.coordinates) Object.freeze(settings.coordinates);
   Object.freeze(settings.enabledModules);
   Object.freeze(settings.homeCards);
-  Object.freeze(settings.dhikr);
+  Object.freeze(settings.home);
   Object.freeze(settings.prayer.adjustments);
   Object.freeze(settings.prayer);
   return Object.freeze(settings);
@@ -129,14 +135,20 @@ function validatePrayer(value) {
   };
 }
 
-function validateDhikr(value) {
+function validateHome(value) {
   if (!isPlainObject(value) || Object.keys(value).some(function (key) {
-    return DHIKR_SETTING_KEYS.indexOf(key) === -1;
+    return HOME_SETTING_KEYS.indexOf(key) === -1;
   })) return null;
   return {
+    showSuggestedReadings: typeof value.showSuggestedReadings === 'boolean'
+      ? value.showSuggestedReadings
+      : DEFAULT_SETTINGS.home.showSuggestedReadings,
+    showFridayAlKahf: typeof value.showFridayAlKahf === 'boolean'
+      ? value.showFridayAlKahf
+      : DEFAULT_SETTINGS.home.showFridayAlKahf,
     showBedtimeQuranReadings: typeof value.showBedtimeQuranReadings === 'boolean'
       ? value.showBedtimeQuranReadings
-      : DEFAULT_SETTINGS.dhikr.showBedtimeQuranReadings
+      : DEFAULT_SETTINGS.home.showBedtimeQuranReadings
   };
 }
 
@@ -151,8 +163,22 @@ function migrateSettings(candidate) {
   }
   if (version === 2) {
     migrated.schemaVersion = 3;
-    migrated.dhikr = cloneSettings(DEFAULT_SETTINGS).dhikr;
+    migrated.dhikr = { showBedtimeQuranReadings: true };
     version = 3;
+  }
+  if (version === 3) {
+    var previousBedtimeSetting = migrated.dhikr &&
+      typeof migrated.dhikr.showBedtimeQuranReadings === 'boolean'
+      ? migrated.dhikr.showBedtimeQuranReadings
+      : DEFAULT_SETTINGS.home.showBedtimeQuranReadings;
+    migrated.schemaVersion = 4;
+    migrated.home = {
+      showSuggestedReadings: DEFAULT_SETTINGS.home.showSuggestedReadings,
+      showFridayAlKahf: DEFAULT_SETTINGS.home.showFridayAlKahf,
+      showBedtimeQuranReadings: previousBedtimeSetting
+    };
+    delete migrated.dhikr;
+    version = 4;
   }
   return version === CURRENT_SCHEMA_VERSION ? migrated : null;
 }
@@ -168,10 +194,10 @@ export function validateSettings(candidate) {
   var prayer = candidate.prayer === undefined
     ? fallback.prayer
     : validatePrayer(candidate.prayer);
-  var dhikr = candidate.dhikr === undefined
-    ? fallback.dhikr
-    : validateDhikr(candidate.dhikr);
-  if (!prayer || !dhikr) return null;
+  var home = candidate.home === undefined
+    ? fallback.home
+    : validateHome(candidate.home);
+  if (!prayer || !home) return null;
 
   var settings = {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -189,7 +215,7 @@ export function validateSettings(candidate) {
       ? candidate.hayatAIEnabled : fallback.hayatAIEnabled,
     reducedMotionOverride: ALLOWED_REDUCED_MOTION.indexOf(candidate.reducedMotionOverride) !== -1
       ? candidate.reducedMotionOverride : fallback.reducedMotionOverride,
-    dhikr: dhikr,
+    home: home,
     prayer: prayer
   };
   return freezeSettings(settings);

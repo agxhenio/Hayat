@@ -575,7 +575,7 @@ function mountReader(page, context, appContext) {
       ' · Redaktor fetar: ' + item.source.religiousEditor +
       ' · Redaktor gjuhësor: ' + item.source.languageEditor;
     details.append(reference, edition, credits);
-    if (item.type === 'quran') {
+    if (item.type === 'quran' || item.type === 'quran_group') {
       var quranTranslation = document.createElement('p');
       quranTranslation.className = 'daily-dhikr-item__source-note';
       quranTranslation.textContent = 'Arabishtja dhe përkthimi: QuranEnc · Hasan Nahi. Transliterimi: Mburoja e Muslimanit · Azem Bardhoshi.';
@@ -592,10 +592,12 @@ function mountReader(page, context, appContext) {
   }
 
   function quranReferenceText(item) {
-    var reference = item.quranReference;
-    return reference.ayahStart === reference.ayahEnd
-      ? 'Sureja ' + reference.surah + ', ajeti ' + reference.ayahStart
-      : 'Sureja ' + reference.surah + ', ajetet ' + reference.ayahStart + '–' + reference.ayahEnd;
+    var references = item.type === 'quran_group' ? item.quranReferences : [item.quranReference];
+    return references.map(function (reference) {
+      return reference.ayahStart === reference.ayahEnd
+        ? 'Sureja ' + reference.surah + ', ajeti ' + reference.ayahStart
+        : 'Sureja ' + reference.surah + ', ajetet ' + reference.ayahStart + '–' + reference.ayahEnd;
+    }).join(' · ');
   }
 
   function showQuranLoading(container, item) {
@@ -698,13 +700,19 @@ function mountReader(page, context, appContext) {
     quranController = controller;
     quranCache.set(item.id, { status: 'loading', controller: controller });
     showQuranLoading(container, item);
-    var reference = item.quranReference;
-    var request = reference.ayahStart === reference.ayahEnd
-      ? getAyah(reference.surah, reference.ayahStart, { signal: controller.signal })
-        .then(function (verse) { return [verse]; })
-      : getAyahRange(reference.surah, reference.ayahStart, reference.ayahEnd, {
-        signal: controller.signal
-      });
+    function requestReference(reference) {
+      return reference.ayahStart === reference.ayahEnd
+        ? getAyah(reference.surah, reference.ayahStart, { signal: controller.signal })
+          .then(function (verse) { return [verse]; })
+        : getAyahRange(reference.surah, reference.ayahStart, reference.ayahEnd, {
+          signal: controller.signal
+        });
+    }
+    var request = item.type === 'quran_group'
+      ? Promise.all(item.quranReferences.map(requestReference)).then(function (groups) {
+        return groups.reduce(function (verses, group) { return verses.concat(group); }, []);
+      })
+      : requestReference(item.quranReference);
     request.then(function (verses) {
       var cachedRequest = quranCache.get(item.id);
       if (!cachedRequest || cachedRequest.controller !== controller) return;
@@ -766,7 +774,7 @@ function mountReader(page, context, appContext) {
       markDirty();
     }
     var item = routine.items[index];
-    activeQuranItemId = item.type === 'quran' ? item.id : null;
+    activeQuranItemId = item.type === 'quran' || item.type === 'quran_group' ? item.id : null;
     counterElements = null;
     itemHost.replaceChildren();
 
@@ -797,6 +805,12 @@ function mountReader(page, context, appContext) {
       translation.textContent = item.translationSq;
       body.append(arabic, transliteration, translation);
     } else {
+      if (item.type === 'quran_group' && item.guidanceSq) {
+        var guidance = document.createElement('p');
+        guidance.className = 'daily-dhikr-item__guidance';
+        guidance.textContent = item.guidanceSq;
+        body.appendChild(guidance);
+      }
       var quran = document.createElement('div');
       quran.className = 'daily-dhikr-quran';
       body.appendChild(quran);

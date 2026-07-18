@@ -2847,6 +2847,17 @@
   line-height: var(--leading-relaxed);
 }
 
+.daily-dhikr-item__guidance {
+  margin: 0 0 var(--space-4);
+  padding: var(--space-3);
+  border-inline-start: 3px solid var(--color-accent-secondary);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface-interactive);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
 .daily-dhikr-counter {
   margin-block-start: var(--space-5);
 }

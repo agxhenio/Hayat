@@ -7,12 +7,16 @@
 
 import { isValidSurahAyah } from './quran-surahs.js';
 
-export const DAILY_DHIKR_CONTENT_VERSION = 4;
+export const DAILY_DHIKR_CONTENT_VERSION = 5;
 export const DAILY_DHIKR_REVIEW_STATUS = 'qualified-review-required';
 
 var ROUTINE_FIELDS = ['id', 'titleSq', 'descriptionSq', 'reviewStatus', 'items'];
 var QURAN_ITEM_FIELDS = [
   'id', 'type', 'titleSq', 'quranReference', 'repetitions', 'source', 'reviewStatus'
+];
+var QURAN_GROUP_ITEM_FIELDS = [
+  'id', 'type', 'titleSq', 'quranReferences', 'repetitions', 'source', 'reviewStatus',
+  'guidanceSq'
 ];
 var TEXT_ITEM_FIELDS = [
   'id', 'type', 'titleSq', 'arabic', 'transliterationSq', 'translationSq',
@@ -232,6 +236,90 @@ var MORNING_EVENING_SALAWAT_SOURCE = source(
   '27 — Dhikri i mëngjesit dhe i mbrëmjes',
   [66, 67]
 );
+var WITNESS_SOURCE = source(
+  'Sunan Abu Dawud',
+  'Mburoja e Muslimanit · shënimet 116–117',
+  'Thuhet katër herë; varianti ndryshon mes mëngjesit dhe mbrëmjes.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [58, 59]
+);
+var BLESSINGS_ACKNOWLEDGEMENT_SOURCE = source(
+  'Sunan Abu Dawud',
+  'Mburoja e Muslimanit · shënimet 118–119',
+  'Varianti ndryshon mes mëngjesit dhe mbrëmjes.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [59]
+);
+var RABBIL_ALAMIN_SOURCE = source(
+  'Sunan Abu Dawud',
+  'Mburoja e Muslimanit · shënimet 127–128',
+  'Botimi jep variante të veçanta për ditën dhe natën.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [63, 64]
+);
+var TAHLIL_TEN_SOURCE = source(
+  'En-Nesai; Sunan Abu Dawud',
+  'Mburoja e Muslimanit · shënimet 132–133',
+  'Botimi përmend dhjetë herë, ose një herë kur nuk mundet më shumë.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [65]
+);
+var TAHLIL_HUNDRED_SOURCE = source(
+  'Sahih al-Bukhari; Sahih Muslim',
+  'Mburoja e Muslimanit · shënimi 134',
+  'Thuhet njëqind herë kur gdhihemi.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [65]
+);
+var CREATION_PRAISE_SOURCE = source(
+  'Sahih Muslim',
+  'Mburoja e Muslimanit · shënimi 135',
+  'Thuhet tri herë kur gdhihemi.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [65, 66]
+);
+var BENEFICIAL_KNOWLEDGE_SOURCE = source(
+  'Ibn es-Sunni; Sunan Ibn Majah',
+  'Mburoja e Muslimanit · shënimi 136',
+  'Thuhet kur gdhihemi.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [66]
+);
+var DAILY_ISTIGHFAR_SOURCE = source(
+  'Sahih al-Bukhari; Sahih Muslim',
+  'Mburoja e Muslimanit · shënimi 137',
+  'Botimi e shënon njëqind herë në ditë.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [66]
+);
+var EVENING_PROTECTION_SOURCE = source(
+  'Musnad Ahmad; Sahih at-Tirmidhi',
+  'Mburoja e Muslimanit · shënimi 138',
+  'Thuhet tri herë kur ngrysemi.',
+  '27 — Dhikri i mëngjesit dhe i mbrëmjes',
+  [66]
+);
+var BEDTIME_DEBT_SOURCE = source(
+  'Sahih Muslim',
+  'Mburoja e Muslimanit · shënimi 150',
+  '',
+  '28 — Dhikri kur biem në gjumë',
+  [73, 74]
+);
+var BEDTIME_GRATITUDE_SOURCE = source(
+  'Sahih Muslim',
+  'Mburoja e Muslimanit · shënimi 151',
+  '',
+  '28 — Dhikri kur biem në gjumë',
+  [74]
+);
+var BEDTIME_ALIM_SOURCE = source(
+  'Sunan Abu Dawud; Sahih at-Tirmidhi',
+  'Mburoja e Muslimanit · shënimi 152',
+  '',
+  '28 — Dhikri kur biem në gjumë',
+  [74]
+);
 
 function quranItem(id, titleSq, surah, ayahStart, ayahEnd, repetitions, itemSource) {
   return {
@@ -246,6 +334,25 @@ function quranItem(id, titleSq, surah, ayahStart, ayahEnd, repetitions, itemSour
     repetitions: repetitions,
     source: itemSource,
     reviewStatus: DAILY_DHIKR_REVIEW_STATUS
+  };
+}
+
+function quranGroupItem(id, titleSq, references, repetitions, itemSource, guidanceSq) {
+  return {
+    id: id,
+    type: 'quran_group',
+    titleSq: titleSq,
+    quranReferences: references.map(function (reference) {
+      return {
+        surah: reference.surah,
+        ayahStart: reference.ayahStart,
+        ayahEnd: reference.ayahEnd
+      };
+    }),
+    repetitions: repetitions,
+    source: itemSource,
+    reviewStatus: DAILY_DHIKR_REVIEW_STATUS,
+    guidanceSq: guidanceSq
   };
 }
 
@@ -268,9 +375,18 @@ function morningEveningItems(prefix) {
   return [
     quranItem(prefix + '_ayat_al_kursi', 'Ajetul Kursij', 2, 255, 255, 1,
       MORNING_AYAT_KURSI_SOURCE),
-    quranItem(prefix + '_al_ikhlas', 'Sureja El-Ihlas', 112, 1, 4, 3, ABU_DAWUD_5082),
-    quranItem(prefix + '_al_falaq', 'Sureja El-Felek', 113, 1, 5, 3, ABU_DAWUD_5082),
-    quranItem(prefix + '_an_nas', 'Sureja En-Nas', 114, 1, 6, 3, ABU_DAWUD_5082),
+    quranGroupItem(
+      prefix + '_three_surahs',
+      'El-Ihlas, El-Felek dhe En-Nas',
+      [
+        { surah: 112, ayahStart: 1, ayahEnd: 4 },
+        { surah: 113, ayahStart: 1, ayahEnd: 5 },
+        { surah: 114, ayahStart: 1, ayahEnd: 6 }
+      ],
+      3,
+      ABU_DAWUD_5082,
+      'Lexoji tri suret në këtë rend. Pas përfundimit të En-Nas, shëno një përsëritje. Përsërite ciklin tri herë.'
+    ),
     textItem(
       prefix + '_kingdom',
       morning ? 'U gdhimë dhe sundimi i përket Allahut' : 'U ngrysëm dhe sundimi i përket Allahut',
@@ -300,6 +416,36 @@ function morningEveningItems(prefix) {
         : 'O Allah! U ngrysëm nën kujdesin Tënd dhe u gdhimë nën kujdesin Tënd! Ti na ngjall dhe Ti na vdes, dhe tek Ti është kthimi!',
       1,
       BIKA_ASBAHNA_SOURCE
+    ),
+    textItem(
+      prefix + '_witness',
+      'Dëshmia për njësimin e Allahut',
+      morning
+        ? 'اللَّهُمَّ إِنِّي أَصْبَحْتُ أُشْهِدُكَ، وَأُشْهِدُ حَمَلَةَ عَرْشِكَ، وَمَلَائِكَتَكَ، وَجَمِيعَ خَلْقِكَ، أَنَّكَ أَنْتَ اللَّهُ لَا إِلَهَ إِلَّا أَنْتَ وَحْدَكَ لَا شَرِيكَ لَكَ، وَأَنَّ مُحَمَّدًا عَبْدُكَ وَرَسُولُكَ'
+        : 'اللَّهُمَّ إِنِّي أَمْسَيْتُ أُشْهِدُكَ، وَأُشْهِدُ حَمَلَةَ عَرْشِكَ، وَمَلَائِكَتَكَ، وَجَمِيعَ خَلْقِكَ، أَنَّكَ أَنْتَ اللَّهُ لَا إِلَهَ إِلَّا أَنْتَ وَحْدَكَ لَا شَرِيكَ لَكَ، وَأَنَّ مُحَمَّدًا عَبْدُكَ وَرَسُولُكَ',
+      morning
+        ? 'All-llãhumme innĩ aṣbaḥtu ushhiduke, we ushhidu ḥamelete ‘arshike, we melãiketeke, we xhemĩ’a ḣalḳike, Enneke Entall-llãhu lã ilãhe il-lã Ente, waḥdeke lã sherĩke Leke, we enne Muḥammeden ‘abduke we rasũluke.'
+        : 'All-llãhumme innĩ emsejtu ushhiduke, we ushhidu ḥamelete ‘arshike, we melãiketeke, we xhemĩ’a ḣalḳike, Enneke Entall-llãhu lã ilãhe il-lã Ente, waḥdeke lã sherĩke Leke, we enne Muḥammeden ‘abduke we rasũluke.',
+      morning
+        ? 'O Allah! Unë u gdhiva duke të pasur Ty si dëshmitar, mbajtësit e arshit Tënd, melekët e Tu dhe të gjitha krijesat e Tua për faktin se unë pohoj që Ti je Allahu, se s’ka të adhuruar me të drejtë përveç Teje, se Ti je i Vetëm, i Pashoq, dhe se Muhamedi është robi dhe i Dërguari Yt.'
+        : 'O Allah! Unë u ngrysa duke të pasur Ty si dëshmitar, mbajtësit e arshit Tënd, melekët e Tu dhe të gjitha krijesat e Tua për faktin se unë pohoj që Ti je Allahu, se s’ka të adhuruar me të drejtë përveç Teje, se Ti je i Vetëm, i Pashoq, dhe se Muhamedi është robi dhe i Dërguari Yt.',
+      4,
+      WITNESS_SOURCE
+    ),
+    textItem(
+      prefix + '_blessings',
+      'Falënderimi për mirësitë',
+      morning
+        ? 'اللَّهُمَّ مَا أَصْبَحَ بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ، فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ'
+        : 'اللَّهُمَّ مَا أَمْسَى بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ، فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ',
+      morning
+        ? 'All-llãhumme mã aṣbaḥa bĩ min ni’ëmetin ew bi eḥadin min ḣalḳike, fe minke waḥdeke lã sherĩke leke, fe lekel-ḥamdu, we lekesh-shukru.'
+        : 'All-llãhumme mã emsã bĩ min ni’ëmetin ew bi eḥadin min ḣalḳike, fe minke waḥdeke lã sherĩke leke, fe lekel-ḥamdu, we lekesh-shukru.',
+      morning
+        ? 'O Allah! Çdo mirësi me të cilën unë jam gdhirë ose me të cilën është gdhirë ndonjë krijesë Jotja, është vetëm prej Teje! I Pashoq je Ti! Ty të takon e gjithë lavdia dhe Ty të takon mirënjohja!'
+        : 'O Allah! Çdo mirësi me të cilën unë jam ngrysur ose me të cilën është ngrysur ndonjë krijesë Jotja, është vetëm prej Teje! I Pashoq je Ti! Ty të takon e gjithë lavdia dhe Ty të takon mirënjohja!',
+      1,
+      BLESSINGS_ACKNOWLEDGEMENT_SOURCE
     ),
     textItem(
       prefix + '_sayyid_al_istighfar',
@@ -374,6 +520,21 @@ function morningEveningItems(prefix) {
       YA_HAYYU_SOURCE
     ),
     textItem(
+      prefix + '_rabbil_alamin',
+      morning ? 'E mira e kësaj dite' : 'E mira e kësaj nate',
+      morning
+        ? 'أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ رَبِّ الْعَالَمِينَ، اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ هَذَا الْيَوْمِ: فَتْحَهُ، وَنَصْرَهُ، وَنُورَهُ، وَبَرَكَتَهُ، وَهُدَاهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِيهِ وَشَرِّ مَا بَعْدَهُ'
+        : 'أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ رَبِّ الْعَالَمِينَ، اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ هَذِهِ اللَّيْلَةِ: فَتْحَهَا، وَنَصْرَهَا، وَنُورَهَا، وَبَرَكَتَهَا، وَهُدَاهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِيهَا وَشَرِّ مَا بَعْدَهَا',
+      morning
+        ? 'Aṣbaḥnã we aṣbaḥal mulku lil-lãhi rabbil ‘ãlemĩn. All-llãhumme innĩ es’eluke ḣajra hãdhel jewmi: fet’ḥahu we naṣrahu we nũrahu we beraketehu we hudãhu, we e’ũdhu bike min sherri mã fĩhi we sherri mã ba’ëdehu.'
+        : 'Emsejnã we emsel mulku lil-lãhi rabbil ‘ãlemĩn. All-llãhumme innĩ es’eluke ḣajra hãdhihil-lejleti: fet’ḥahã we naṣrahã we nũrahã we beraketehã we hudãhã, we e’ũdhu bike min sherri mã fĩhã we sherri mã ba’ëdehã.',
+      morning
+        ? 'U gdhimë dhe ndërkohë sundimi mbi gjithçka i përket vetëm Allahut! O Allah! Unë të lutem të më japësh të mirën që krijohet a që zbret në këtë ditë, të më mundësosh realizimin e qëllimit dhe triumfin, të më japësh dritë, të më begatosh dhe të më udhëzosh! Kërkoj të më mbrosh nga e keqja që ndodh në këtë ditë dhe e keqja që do të ndodhë pas saj!'
+        : 'U ngrysëm dhe ndërkohë sundimi mbi gjithçka i përket vetëm Allahut! O Allah! Unë të lutem të më japësh të mirën që krijohet a që zbret në këtë natë, të më mundësosh realizimin e qëllimit dhe triumfin, të më japësh dritë, të më begatosh dhe të më udhëzosh! Kërkoj të më mbrosh nga e keqja që ndodh në këtë natë dhe e keqja që do të ndodhë pas saj!',
+      1,
+      RABBIL_ALAMIN_SOURCE
+    ),
+    textItem(
       prefix + '_fitrah',
       morning ? 'U gdhimë në natyrshmërinë islame' : 'U ngrysëm në natyrshmërinë islame',
       morning
@@ -388,6 +549,64 @@ function morningEveningItems(prefix) {
       1,
       FITRAH_SOURCE
     ),
+    textItem(
+      prefix + '_tahlil_ten',
+      'Nuk ka të adhuruar me të drejtë përveç Allahut',
+      'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ',
+      'Lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh, lehul mulku we lehul ḥamdu we huwe ‘alã kul-li shej’in ḳadĩr.',
+      'S’ka të adhuruar me të drejtë përveç Allahut, Një dhe të Pashoq. Vetëm Atij i përket sundimi dhe lavdia, dhe Ai është i Fuqishëm për çdo gjë!',
+      10,
+      TAHLIL_TEN_SOURCE
+    ),
+    ...(morning ? [
+      textItem(
+        prefix + '_tahlil_hundred',
+        'Tehlili i mëngjesit',
+        'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ',
+        'Lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh, lehul mulku we lehul ḥamdu we huwe ‘alã kul-li shej’in ḳadĩr.',
+        'S’ka të adhuruar me të drejtë përveç Allahut, Një dhe të Pashoq. Vetëm Atij i përket sundimi dhe lavdia, dhe Ai është i Fuqishëm për çdo gjë!',
+        100,
+        TAHLIL_HUNDRED_SOURCE
+      ),
+      textItem(
+        prefix + '_creation_praise',
+        'Lavdërim sa numri i krijesave',
+        'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ',
+        'Subḥãnall-llãhi we biḥamdihi, ‘adede ḣalḳihi, we riḍã nefsihi, we zinete ‘arshihi, we midãde kelimãtihi.',
+        'Allahu është pa të meta dhe i bëj lavdi Atij: aq sa numri i krijesave të Tij, aq sa pëlqen Ai, aq sa peshon arshi i Tij dhe aq sa numri i pafundmë i fjalëve të Tij.',
+        3,
+        CREATION_PRAISE_SOURCE
+      ),
+      textItem(
+        prefix + '_beneficial_knowledge',
+        'Dije e dobishme, furnizim i mirë dhe punë e pranuar',
+        'اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا',
+        'All-llãhumme innĩ es’eluke ‘ilmen nãfi’an, we rizḳan ṭajjiben, we ‘amelen muteḳabbelen.',
+        'O Allah! Unë të kërkoj dije të dobishme, rrizk (furnizim) të mirë e të këndshëm dhe punë të pranuar!',
+        1,
+        BENEFICIAL_KNOWLEDGE_SOURCE
+      ),
+      textItem(
+        prefix + '_daily_istighfar',
+        'Kërkimi i faljes dhe pendimi',
+        'أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ',
+        'Estaġfirull-llãhe we etũbu ilejhi.',
+        'Allahut i kërkoj falje për gjynahet dhe tek Ai kthehem me pendim!',
+        100,
+        DAILY_ISTIGHFAR_SOURCE
+      )
+    ] : []),
+    ...(!morning ? [
+      textItem(
+        prefix + '_perfect_words_protection',
+        'Mbrojtja me fjalët e përsosura të Allahut',
+        'أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ',
+        'E’ũdhu bi kelimãtil-lãhit-tãmmãti min sherri mã ḣaleḳa.',
+        'Kërkoj mbrojtje me fjalët e përsosura të Allahut prej së keqes së çdo gjëje që Ai ka krijuar!',
+        3,
+        EVENING_PROTECTION_SOURCE
+      )
+    ] : []),
     textItem(
       prefix + '_salawat',
       'Salavat dhe selam për Profetin ﷺ',
@@ -430,12 +649,18 @@ var routines = [
     descriptionSq: 'Përkujtimet dhe duatë para gjumit.',
     reviewStatus: DAILY_DHIKR_REVIEW_STATUS,
     items: [
-      quranItem('bedtime_al_ikhlas', 'Sureja El-Ihlas', 112, 1, 4, 3,
-        BEDTIME_THREE_SURAHS_SOURCE),
-      quranItem('bedtime_al_falaq', 'Sureja El-Felek', 113, 1, 5, 3,
-        BEDTIME_THREE_SURAHS_SOURCE),
-      quranItem('bedtime_an_nas', 'Sureja En-Nas', 114, 1, 6, 3,
-        BEDTIME_THREE_SURAHS_SOURCE),
+      quranGroupItem(
+        'bedtime_three_surahs',
+        'El-Ihlas, El-Felek dhe En-Nas para gjumit',
+        [
+          { surah: 112, ayahStart: 1, ayahEnd: 4 },
+          { surah: 113, ayahStart: 1, ayahEnd: 5 },
+          { surah: 114, ayahStart: 1, ayahEnd: 6 }
+        ],
+        3,
+        BEDTIME_THREE_SURAHS_SOURCE,
+        'Mblidhi pëllëmbët, fryj lehtë në to, lexo El-Ihlas, El-Felek dhe En-Nas, pastaj fshij trupin sa të mundesh duke filluar nga koka dhe pjesa e përparme. Përsërite ciklin tri herë.'
+      ),
       quranItem('bedtime_ayat_al_kursi', 'Ajetul Kursij', 2, 255, 255, 1, BUKHARI_2311),
       quranItem(
         'bedtime_last_two_al_baqarah',
@@ -510,6 +735,33 @@ var routines = [
         BUKHARI_5362
       ),
       textItem(
+        'bedtime_debt_and_need',
+        'Lutja për shlyerjen e borxhit dhe largimin e nevojës',
+        'اللَّهُمَّ رَبَّ السَّمَاوَاتِ السَّبْعِ وَرَبَّ الْأَرْضِ، وَرَبَّ الْعَرْشِ الْعَظِيمِ، رَبَّنَا وَرَبَّ كُلِّ شَيْءٍ، فَالِقَ الْحَبِّ وَالنَّوَى، وَمُنْزِلَ التَّوْرَاةِ وَالْإِنْجِيلِ وَالْفُرْقَانِ، أَعُوذُ بِكَ مِنْ شَرِّ كُلِّ شَيْءٍ أَنْتَ آخِذٌ بِنَاصِيَتِهِ. اللَّهُمَّ أَنْتَ الْأَوَّلُ فَلَيْسَ قَبْلَكَ شَيْءٌ، وَأَنْتَ الْآخِرُ فَلَيْسَ بَعْدَكَ شَيْءٌ، وَأَنْتَ الظَّاهِرُ فَلَيْسَ فَوْقَكَ شَيْءٌ، وَأَنْتَ الْبَاطِنُ فَلَيْسَ دُونَكَ شَيْءٌ، اقْضِ عَنَّا الدَّيْنَ وَأَغْنِنَا مِنَ الْفَقْرِ',
+        'All-llãhumme rabbes-semãwãtis-seb’i we rabbel-erḍi we rabbel ‘arshil ‘aḍhĩm, Rabbenã we rabbe kul-li shej’in, fãliḳal ḥabbi wen-newã, we munzilet-tewrãti wel inxhĩli wel furḳãn. E’ũdhu bike min sherri kul-li shej’in Ente ãḣidhun bi nãṣijetihi. All-llãhumme Entel Ewwelu fe lejse ḳableke shej’un, we Entel Ãḣiru fe lejse ba’ëdeke shej’un, we Enteḍh-Ḍhãhiru fe lejse fewḳake shej’un, we Entel Bãṭinu fe lejse dũneke shej’un. Iḳḍi ‘annã ed-dejne we eġninã minel faḳri.',
+        'O Allah, Krijuesi i shtatë qiejve dhe i tokës, Zoti i arshit madhështor, Zoti ynë dhe Zoti i çdo gjëje, Ai i Cili bën të çahet fara dhe bërthama, Zbritësi i Teuratit, Ungjillit dhe Kuranit! Kërkoj mbrojtjen Tënde prej të keqes së çdo gjëje! Ti je i Pari e s’ka gjë para Teje, Ti je i Fundit e s’ka gjë pas Teje, Ti je më i Larti e s’ka gjë mbi Ty, Ti je më i Afërti e s’ka gjë më pranë se Ti! Na i laj borxhet dhe na pasuro që të mos jemi nevojtarë!',
+        1,
+        BEDTIME_DEBT_SOURCE
+      ),
+      textItem(
+        'bedtime_gratitude',
+        'Falënderimi për ushqimin, mbrojtjen dhe strehimin',
+        'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا، وَكَفَانَا، وَآوَانَا، فَكَمْ مِمَّنْ لَا كَافِيَ لَهُ وَلَا مُؤْوِيَ',
+        'Elḥamdu lil-lãhil-ledhĩ eṭ’amenã we seḳãnã, we kefãnã, we ãwãnã; fe kem mimmen lã kãfije lehu we lã mu’wije.',
+        'Lavdia i përket Allahut, i Cili na ushqeu dhe na dha për të pirë, na ruajti, na kreu punët, na plotësoi nevojat dhe na dha banesë për strehim! Sa e sa njerëz ka që nuk kanë mbrojtës dhe strehues!',
+        1,
+        BEDTIME_GRATITUDE_SOURCE
+      ),
+      textItem(
+        'bedtime_alim_al_ghayb',
+        'Mbrojtja nga e keqja e vetes dhe e shejtanit',
+        'اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ، فَاطِرَ السَّمَاوَاتِ وَالْأَرْضِ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي، وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِي سُوءًا، أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ',
+        'All-llãhumme ‘Ãlimel ġajbi wesh-shehãdeti, Fãṭiras-semãwãti wel erḍi, Rabbe kul-li shej’in we Melĩkehu, eshhedu en lã ilãhe il-lã Ente, e’ũdhu bike min sherri nefsĩ, we min sherrish-shejṭãni we shirkihi, we en eḳterife ‘alã nefsĩ sũen ew exhurr-rrahu ilã muslim.',
+        'O Allah! Njohës i së fshehtës dhe së dukshmes, Krijues i qiejve dhe i tokës, Zot dhe Sundues i çdo gjëje! Dëshmoj se askush nuk meriton të adhurohet përveç Teje! Më mbroj nga e keqja e vetvetes, nga e keqja e shejtanit dhe përpjekja e tij për shirk, si dhe që të mos i bëj vetes keq e as ndonjë muslimani!',
+        1,
+        BEDTIME_ALIM_SOURCE
+      ),
+      textItem(
         'bedtime_surrender',
         'Dorëzimi dhe mbështetja tek Allahu',
         'اللَّهُمَّ أَسْلَمْتُ نَفْسِي إِلَيْكَ، وَفَوَّضْتُ أَمْرِي إِلَيْكَ، وَوَجَّهْتُ وَجْهِي إِلَيْكَ، وَأَلْجَأْتُ ظَهْرِي إِلَيْكَ، رَغْبَةً وَرَهْبَةً إِلَيْكَ، لَا مَلْجَأَ وَلَا مَنْجَا مِنْكَ إِلَّا إِلَيْكَ، آمَنْتُ بِكِتَابِكَ الَّذِي أَنْزَلْتَ، وَبِنَبِيِّكَ الَّذِي أَرْسَلْتَ',
@@ -574,9 +826,11 @@ export function validateDailyDhikrContent() {
 
     for (var j = 0; j < routine.items.length; j += 1) {
       var item = routine.items[j];
-      var allowedFields = item && item.type === 'quran' ? QURAN_ITEM_FIELDS : TEXT_ITEM_FIELDS;
+      var allowedFields = item && item.type === 'quran'
+        ? QURAN_ITEM_FIELDS
+        : (item && item.type === 'quran_group' ? QURAN_GROUP_ITEM_FIELDS : TEXT_ITEM_FIELDS);
       if (!hasOnlyFields(item, allowedFields) ||
-          ['quran', 'text'].indexOf(item.type) === -1 ||
+          ['quran', 'quran_group', 'text'].indexOf(item.type) === -1 ||
           !nonEmptyString(item.id) || itemIds.has(item.id) ||
           !nonEmptyString(item.titleSq) ||
           !Number.isInteger(item.repetitions) || item.repetitions < 1 || item.repetitions > 100 ||
@@ -586,6 +840,11 @@ export function validateDailyDhikrContent() {
 
       if (item.type === 'quran') {
         if (!validQuranReference(item.quranReference)) return false;
+      } else if (item.type === 'quran_group') {
+        if (!Array.isArray(item.quranReferences) || item.quranReferences.length < 2 ||
+            !item.quranReferences.every(validQuranReference) || !nonEmptyString(item.guidanceSq)) {
+          return false;
+        }
       } else if (!nonEmptyString(item.arabic) || !/[\u0600-\u06ff]/.test(item.arabic) ||
           !nonEmptyString(item.transliterationSq) || !nonEmptyString(item.translationSq)) {
         return false;

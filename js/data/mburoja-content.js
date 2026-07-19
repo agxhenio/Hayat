@@ -1,0 +1,240 @@
+/**
+ * Hayat — Audited Mburoja content pack 1.
+ * Source: “Mburoja e Muslimanit”, Albanian edition, IslamHouse.
+ */
+
+import { getMburojaChapter } from './mburoja-catalog.js';
+
+export const MBUROJA_CONTENT_VERSION = 1;
+export const MBUROJA_CONTENT_REVIEW_STATUS = 'qualified-review-required';
+
+function textItem(id, titleSq, arabic, transliterationSq, translationSq, repetitions, sourceSq) {
+  return {
+    id: id,
+    type: 'text',
+    titleSq: titleSq,
+    arabic: arabic,
+    transliterationSq: transliterationSq,
+    translationSq: translationSq,
+    repetitions: repetitions || 1,
+    sourceSq: sourceSq,
+    reviewStatus: MBUROJA_CONTENT_REVIEW_STATUS
+  };
+}
+
+function quranLink(id, titleSq, surah, ayahStart, ayahEnd, sourceSq) {
+  return {
+    id: id,
+    type: 'quran_link',
+    titleSq: titleSq,
+    surah: surah,
+    ayahStart: ayahStart,
+    ayahEnd: ayahEnd,
+    sourceSq: sourceSq,
+    reviewStatus: MBUROJA_CONTENT_REVIEW_STATUS
+  };
+}
+
+function chapter(number, guidanceSq, items) {
+  return { number: number, guidanceSq: guidanceSq || '', items: items };
+}
+
+var RAW_CHAPTERS = [
+  chapter(1, 'Këto përkujtime thuhen pas zgjimit nga gjumi.', [
+    textItem('wake-praise', 'Lavdia pas zgjimit',
+      'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا، وَإِلَيْهِ النُّشُورُ',
+      'Elḥamdu lil-lãhil-ledhĩ aḥjãnã ba’ëde mã emãtenã we ilejhin-nushũr.',
+      'Lavdia i takon Allahut, i Cili na ngjalli pasi na vdiq dhe, pasi të ringjallemi, tek Ai do të tubohemi.',
+      1, 'Buhariu dhe Muslimi · Mburoja, f. 11'),
+    textItem('wake-tahlil', 'Përkujtimi gjatë zgjimit natën',
+      'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ، رَبِّ اغْفِرْ لِي',
+      'Lã ilãhe il-lAll-llãhu waḥdehu lã sherĩke lehu, lehul mulku we lehul ḥamdu we huwe ‘alã kul-li shej’in ḳadĩr. Subḥãnall-llãhi welḥamdu lil-lãhi we lã ilãhe il-lAll-llãhu wall-llãhu ekber, we lã ḥawle we lã ḳuwwete il-lã bil-lãhil ‘alijjil ‘aḍhĩmi, rabbiġfir lĩ.',
+      'S’ka të adhuruar me të drejtë përveç Allahut, Një dhe të Pashoq. Vetëm Atij i përket sundimi dhe lavdia, dhe Ai është i Fuqishëm për çdo gjë! Allahu është i dëlirë nga të metat; lavdia i takon Allahut; s’ka të adhuruar me të drejtë përveç Tij; Allahu është më i Madhi; nuk ka lëvizje dhe fuqi veçse me Allahun, të Lartin, Madhështorin. O Zoti im, më fal!',
+      1, 'Sahih al-Bukhari · Mburoja, f. 11'),
+    textItem('wake-health', 'Falënderimi për shëndetin dhe shpirtin',
+      'الْحَمْدُ لِلَّهِ الَّذِي عَافَانِي فِي جَسَدِي، وَرَدَّ عَلَيَّ رُوحِي، وَأَذِنَ لِي بِذِكْرِهِ',
+      'Elḥamdu lil-lãhil-ledhĩ ‘ãfãnĩ fĩ xhesedĩ, we radde ‘alejje rũḥĩ, we edhine lĩ bi dhikrihi.',
+      'Lavdia i takon Allahut, i Cili më dha shëndet në trup, ma ktheu shpirtin dhe më mundësoi ta përmend Atë.',
+      1, 'Tirmidhiu · Mburoja, f. 12'),
+    quranLink('wake-ali-imran', 'Lexo ajetet e fundit të Ali Imranit', 3, 190, 200,
+      'Ali Imran 190–200 · Buhariu dhe Muslimi · Mburoja, f. 12–14')
+  ]),
+  chapter(2, '', [
+    textItem('wear-clothing', 'Kur vesh rrobën',
+      'الْحَمْدُ لِلَّهِ الَّذِي كَسَانِي هَذَا الثَّوْبَ وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ',
+      'Elḥamdu lil-lãhil-ledhĩ kesãnĩ hãdhã eth-thewbe, we razeḳanĩhi min ġajri ḥawlin minnĩ we lã ḳuwweh.',
+      'Lavdia i takon Allahut, i Cili më mundësoi të vesh këtë rrobë dhe më furnizoi me të, pa lëvizje dhe pa fuqi nga ana ime.',
+      1, 'Ebu Davudi, Tirmidhiu dhe Ibn Maxhe · Mburoja, f. 14')
+  ]),
+  chapter(3, '', [
+    textItem('new-clothing', 'Kur vesh një rrobë të re',
+      'اللَّهُمَّ لَكَ الْحَمْدُ أَنْتَ كَسَوْتَنِيهِ، أَسْأَلُكَ مِنْ خَيْرِهِ وَخَيْرِ مَا صُنِعَ لَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّهِ وَشَرِّ مَا صُنِعَ لَهُ',
+      'All-llãhumme lekel-ḥamdu Ente kesewtenĩhi, es’eluke min ḣajrihi we ḣajri mã ṣuni’a lehu, we e’ũdhu bike min sherrihi we sherri mã ṣuni’a lehu.',
+      'O Allah! Ty të takon lavdia! Ti ma dhe këtë veshje. Të kërkoj të mirën e saj dhe të mirën për të cilën është prodhuar; kërkoj të më mbrosh nga e keqja e saj dhe nga përdorimi i saj për të keq.',
+      1, 'Ebu Davudi · Mburoja, f. 14–15')
+  ]),
+  chapter(4, 'Mund të thuhet njëra prej këtyre lutjeve për personin që ka veshur rrobë të re.', [
+    textItem('clothing-for-other-one', 'Urimi për rrobën e re',
+      'تُبْلِي وَيُخْلِفُ اللَّهُ تَعَالَى',
+      'Tublĩ we juḣlifull-llãhu te’ãlã.',
+      'Allahu të dhëntë jetëgjatësi në të mirë, që kjo rrobë të vjetërohet dhe Allahu i Lartësuar ta zëvendësojë me të tjera.',
+      1, 'Ebu Davudi · Mburoja, f. 15'),
+    textItem('clothing-for-other-two', 'Urimi i dytë për rrobën e re',
+      'الْبَسْ جَدِيدًا، وَعِشْ حَمِيدًا، وَمُتْ شَهِيدًا',
+      'Ilbis xhedĩden, we ‘ish ḥamĩden, we mut shehĩden.',
+      'Veshç gjithmonë të reja, jetofsh i nderuar dhe vdeksh si dëshmor!',
+      1, 'Ibn Maxhe · Mburoja, f. 15')
+  ]),
+  chapter(5, 'Thuhet kur zhvishen rrobat.', [
+    textItem('undress-bismillah', 'Kur zhvish rrobat', 'بِسْمِ اللَّهِ', 'Bismil-lãh.',
+      'Me emrin e Allahut.', 1, 'Mburoja, f. 15')
+  ]),
+  chapter(6, 'Thuhet para hyrjes në tualet.', [
+    textItem('enter-toilet', 'Kur hyn në tualet',
+      'بِسْمِ اللَّهِ، اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ',
+      'Bismil-lãh, All-llãhumme innĩ e’ũdhu bike minel-ḣubuthi wel-ḣabãith.',
+      'Me emrin e Allahut. O Allah! Të lutem, më mbroj nga shejtanët dhe shejtanet!',
+      1, 'Buhariu dhe Muslimi · Mburoja, f. 16')
+  ]),
+  chapter(7, 'Thuhet pas daljes nga tualeti.', [
+    textItem('leave-toilet', 'Kur del nga tualeti', 'غُفْرَانَكَ', 'Ġufrãneke.',
+      'Kërkoj faljen Tënde, o Zot!', 1, 'Tirmidhiu · Mburoja, f. 16')
+  ]),
+  chapter(8, 'Thuhet para fillimit të abdesit.', [
+    textItem('before-wudu', 'Para abdesit', 'بِسْمِ اللَّهِ', 'Bismil-lãh.',
+      'Me emrin e Allahut.', 1, 'Ebu Davudi · Mburoja, f. 17')
+  ]),
+  chapter(9, 'Këto përkujtime thuhen pas përfundimit të abdesit.', [
+    textItem('after-wudu-shahadah', 'Dëshmia pas abdesit',
+      'أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ',
+      'Eshhedu en lã ilãhe il-lAll-llãhu waḥdehu lã sherĩke lehu, we eshhedu enne Muḥammeden ‘abduhu we rasũluhu.',
+      'Dëshmoj se nuk ka të adhuruar me të drejtë përveç Allahut, Një dhe të Pashoq, dhe dëshmoj se Muhamedi është rob dhe i Dërguari i Tij.',
+      1, 'Sahih Muslim · Mburoja, f. 17'),
+    textItem('after-wudu-repentance', 'Lutja për pendim dhe pastërti',
+      'اللَّهُمَّ اجْعَلْنِي مِنَ التَّوَّابِينَ، وَاجْعَلْنِي مِنَ الْمُتَطَهِّرِينَ',
+      'All-llãhummexh’alnĩ minet-tewwãbĩne, wexh’alnĩ minel-muteṭahhirĩn.',
+      'O Allah! Më bëj prej atyre që pendohen dhe më bëj prej atyre që pastrohen!',
+      1, 'Tirmidhiu · Mburoja, f. 17'),
+    textItem('after-wudu-glory', 'Lartësimi dhe kërkimi i faljes',
+      'سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ، أَسْتَغْفِرُكَ وَأَتُوبُ إِلَيْكَ',
+      'Subḥãnekall-llãhumme we biḥamdike, eshhedu en lã ilãhe il-lã Ente, estaġfiruke we etũbu ilejk.',
+      'O Allah, Ti je pa të meta dhe Ty të takon lavdia! Dëshmoj se nuk ka të adhuruar me të drejtë përveç Teje! Ty të kërkoj falje dhe tek Ti kthehem me pendim!',
+      1, 'En-Nesai · Mburoja, f. 17–18')
+  ]),
+  chapter(10, 'Këto lutje thuhen kur del nga shtëpia.', [
+    textItem('leave-home-trust', 'Mbështetja tek Allahu',
+      'بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',
+      'Bismil-lãh, tewekkeltu ‘alall-llãhi, we lã ḥawle we lã ḳuwwete il-lã bil-lãh.',
+      'Në emër të Allahut! Jam mbështetur tek Allahu! Nuk ka lëvizje dhe fuqi për asgjë veçse me ndihmën e Allahut.',
+      1, 'Ebu Davudi dhe Tirmidhiu · Mburoja, f. 18'),
+    textItem('leave-home-protection', 'Mbrojtja nga humbja dhe padrejtësia',
+      'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ أَنْ أَضِلَّ، أَوْ أُضَلَّ، أَوْ أَزِلَّ، أَوْ أُزَلَّ، أَوْ أَظْلِمَ، أَوْ أُظْلَمَ، أَوْ أَجْهَلَ، أَوْ يُجْهَلَ عَلَيَّ',
+      'All-llãhumme innĩ e’ũdhu bike en eḍil-le ew uḍal-le, ew ezil-le ew uzel-le, ew eḍhlime ew uḍhleme, ew exhhele ew juxhhele ‘alejje.',
+      'O Allah! Më ruaj që të mos humbas e të mos më çojë dikush në humbje; të mos gaboj e të mos më shtyjë kush në gabim; të mos bëj padrejtësi e të mos më bëhet padrejtësi; të mos sillem keq e të mos sillet keq askush me mua!',
+      1, 'Katër Sunenet · Mburoja, f. 18')
+  ]),
+  chapter(11, 'Pas kësaj i jepet selam familjes.', [
+    textItem('enter-home', 'Kur hyn në shtëpi',
+      'بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى اللَّهِ رَبِّنَا تَوَكَّلْنَا',
+      'Bismil-lãhi welexh’nã, we bismil-lãhi ḣaraxh’nã, we ‘alall-llãhi rabbinã tewekkelnã.',
+      'Me emrin e Allahut hyjmë në shtëpi e po me emrin e Tij dalim, dhe Allahut, Zotit tonë, iu mbështetëm.',
+      1, 'Ebu Davudi · Mburoja, f. 18–19')
+  ]),
+  chapter(12, 'Lutja që thuhet gjatë rrugës për në xhami.', [
+    textItem('going-to-mosque-light', 'Lutja e dritës',
+      'اللَّهُمَّ اجْعَلْ فِي قَلْبِي نُورًا، وَفِي لِسَانِي نُورًا، وَفِي سَمْعِي نُورًا، وَفِي بَصَرِي نُورًا، وَمِنْ فَوْقِي نُورًا، وَمِنْ تَحْتِي نُورًا، وَعَنْ يَمِينِي نُورًا، وَعَنْ شِمَالِي نُورًا، وَمِنْ أَمَامِي نُورًا، وَمِنْ خَلْفِي نُورًا، وَاجْعَلْ فِي نَفْسِي نُورًا، وَأَعْظِمْ لِي نُورًا، وَاجْعَلْ لِي نُورًا، وَاجْعَلْنِي نُورًا، اللَّهُمَّ أَعْطِنِي نُورًا، وَاجْعَلْ فِي عَصَبِي نُورًا، وَفِي لَحْمِي نُورًا، وَفِي دَمِي نُورًا، وَفِي شَعْرِي نُورًا، وَفِي بَشَرِي نُورًا، وَاجْعَلْ لِي نُورًا فِي قَبْرِي، وَنُورًا فِي عِظَامِي، وَزِدْنِي نُورًا، وَهَبْ لِي نُورًا عَلَى نُورٍ',
+      'All-llãhummexh’al fĩ ḳalbĩ nũran, we fĩ lisãnĩ nũran, we fĩ sem’ĩ nũran, we fĩ beṣarĩ nũran, we min fewḳĩ nũran, we min taḥtĩ nũran, we ‘an jemĩnĩ nũran, we ‘an shimãlĩ nũran, we min emãmĩ nũran, we min ḣalfĩ nũran, wexh’al fĩ nefsĩ nũran, we a’ëḍhim lĩ nũran, wexh’al lĩ nũran, wexh’alnĩ nũrã. All-llãhumme a’ëṭinĩ nũran, wexh’al fĩ ‘aṣabĩ nũran, we fĩ laḥmĩ nũran, we fĩ demĩ nũran, we fĩ sha’ërĩ nũran, we fĩ besherĩ nũrã. All-llãhummexh’al lĩ nũran fĩ ḳabrĩ, we nũran fĩ ‘iḍhãmĩ, we zidnĩ nũran, we heb lĩ nũran ‘alã nũr.',
+      'O Allah! Më jep dritë në zemër, në gjuhë, në dëgjim e në shikim. Më bëj dritë nga lart dhe nga poshtë, nga e djathta dhe nga e majta, nga përpara dhe nga prapa. Më bëj dritë në vetvete, ma zmadho dritën, bëj për mua dritë dhe më bëj mua dritë. Më jep dritë në trup, në gjak, në flokë e në lëkurë; ma ndriço varrin dhe kockat; ma shto dritën dhe më dhuro dritë mbi dritë!',
+      1, 'Buhariu, Muslimi dhe transmetime plotësuese · Mburoja, f. 19–20')
+  ]),
+  chapter(13, 'Në xhami hyhet me këmbën e djathtë.', [
+    textItem('enter-mosque-protection', 'Mbrojtja nga shejtani',
+      'أَعُوذُ بِاللَّهِ الْعَظِيمِ، وَبِوَجْهِهِ الْكَرِيمِ، وَسُلْطَانِهِ الْقَدِيمِ، مِنَ الشَّيْطَانِ الرَّجِيمِ',
+      'E’ũdhu bil-lãhil ‘aḍhĩm, we bi wexhhihil kerĩm, we ṣulṭãnihil ḳadĩm, minesh-shejṭãnirr-rraxhĩm.',
+      'Kërkoj nga Allahu i Madhërishëm, me Fytyrën e Tij Fisnike dhe me pushtetin e Tij të përhershëm, të më mbrojë nga shejtani i mallkuar!',
+      1, 'Ebu Davudi · Mburoja, f. 21'),
+    textItem('enter-mosque-mercy', 'Hapja e dyerve të mëshirës',
+      'بِسْمِ اللَّهِ، وَالصَّلَاةُ وَالسَّلَامُ عَلَى رَسُولِ اللَّهِ، اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ',
+      'Bismil-lãh, weṣ-ṣalãtu wes-selãmu ‘alã Rasũlil-lãh. All-llãhumme’ftaḥ lĩ ebwãbe raḥmetike.',
+      'Në emër të Allahut; salavati dhe selami qofshin për të Dërguarin e Allahut. O Allah! Më hap dyert e mëshirës Tënde!',
+      1, 'Muslimi dhe transmetime plotësuese · Mburoja, f. 21')
+  ]),
+  chapter(14, 'Nga xhamia dilet me këmbën e majtë.', [
+    textItem('leave-mosque', 'Kur del nga xhamia',
+      'بِسْمِ اللَّهِ، وَالصَّلَاةُ وَالسَّلَامُ عَلَى رَسُولِ اللَّهِ، اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ، اللَّهُمَّ اعْصِمْنِي مِنَ الشَّيْطَانِ الرَّجِيمِ',
+      'Bismil-lãh, weṣ-ṣalãtu wes-selãmu ‘alã Rasũlil-lãh. All-llãhumme innĩ es’eluke min faḍlike. All-llãhumme i’ëṣimnĩ minesh-shejṭãnirr-rraxhĩm.',
+      'Në emër të Allahut; salavati dhe selami qofshin për të Dërguarin e Allahut. O Allah! Të lutem të më japësh nga mirësitë e Tua. O Allah, më mbroj nga shejtani i mallkuar!',
+      1, 'Muslimi dhe Ibn Maxhe · Mburoja, f. 21–22')
+  ]),
+  chapter(69, 'Përmende emrin e Allahut para ushqimit. Nëse harrohet në fillim, përdoret formula përkatëse.', [
+    textItem('food-bismillah', 'Para ushqimit', 'بِسْمِ اللَّهِ', 'Bismil-lãh.',
+      'Me emrin e Allahut.', 1, 'Ebu Davudi · Mburoja, f. 106'),
+    textItem('food-forgot-bismillah', 'Kur harrohet në fillim',
+      'بِسْمِ اللَّهِ فِي أَوَّلِهِ وَآخِرِهِ',
+      'Bismil-lãhi fĩ ewwelihi we ãḣirihi.',
+      'Me emrin e Allahut, në fillim dhe në fund të ushqimit!',
+      1, 'Ebu Davudi · Mburoja, f. 106'),
+    textItem('food-blessing', 'Lutja për begatinë e ushqimit',
+      'اللَّهُمَّ بَارِكْ لَنَا فِيهِ، وَأَطْعِمْنَا خَيْرًا مِنْهُ',
+      'All-llãhumme bãrik lenã fĩhi, we eṭ’imnã ḣajran minhu.',
+      'O Allah! Na e begato këtë ushqim dhe na jep diçka më të mirë se ky!',
+      1, 'Tirmidhiu · Mburoja, f. 106–107'),
+    textItem('milk-blessing', 'Kur pihet qumësht',
+      'اللَّهُمَّ بَارِكْ لَنَا فِيهِ، وَزِدْنَا مِنْهُ',
+      'All-llãhumme bãrik lenã fĩhi, we zidnã minhu.',
+      'O Allah! Na e bëj të begatshëm dhe na e shto!',
+      1, 'Tirmidhiu · Mburoja, f. 107')
+  ]),
+  chapter(70, 'Këto janë dy forma falënderimi pas ushqimit.', [
+    textItem('after-food-praise', 'Falënderimi pas ushqimit',
+      'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنِي هَذَا، وَرَزَقَنِيهِ، مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ',
+      'Elḥamdu lil-lãhil-ledhĩ eṭ’amenĩ hãdhã, we razeḳanĩhi min ġajri ḥawlin minnĩ we lã ḳuwweh.',
+      'Lavdia i takon Allahut, i Cili më ushqeu dhe më furnizoi me këtë ushqim, pa asnjë manovrim nga unë dhe pa fuqi të timen!',
+      1, 'Ebu Davudi · Mburoja, f. 107'),
+    textItem('after-food-abundant-praise', 'Lavdërimi i bollshëm',
+      'الْحَمْدُ لِلَّهِ حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ، غَيْرَ مَكْفِيٍّ وَلَا مُوَدَّعٍ وَلَا مُسْتَغْنًى عَنْهُ رَبَّنَا',
+      'Elḥamdu lil-lãhi ḥamden kethĩran ṭajjiben mubãraken fĩhi, ġajra mekfijjin we lã muwedde’in, we lã musteġnen ‘anhu Rabbenã.',
+      'Lavdia i takon Allahut! Atij i bëjmë shumë lavdi të dëlira dhe të bekuara. Ne nuk do ta lëmë lavdërimin e Tij dhe gjithmonë do të kemi nevojë për Të. O Zoti ynë, pranoje lavdërimin tonë!',
+      1, 'Sahih al-Bukhari · Mburoja, f. 107–108')
+  ])
+];
+
+export const MBUROJA_CONTENT = Object.freeze(RAW_CHAPTERS.map(function (entry) {
+  return Object.freeze({
+    number: entry.number,
+    guidanceSq: entry.guidanceSq,
+    items: Object.freeze(entry.items.map(function (item) { return Object.freeze(item); }))
+  });
+}));
+
+var BY_CHAPTER = new Map(MBUROJA_CONTENT.map(function (entry) { return [entry.number, entry]; }));
+
+export function getMburojaContent(number) {
+  var value = typeof number === 'string' && /^\d+$/.test(number) ? Number(number) : number;
+  return Number.isInteger(value) ? (BY_CHAPTER.get(value) || null) : null;
+}
+
+export function validateMburojaContent() {
+  var expected = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,69,70];
+  var ids = new Set();
+  return MBUROJA_CONTENT.length === expected.length && MBUROJA_CONTENT.every(function (entry, index) {
+    if (entry.number !== expected[index] || !getMburojaChapter(entry.number) ||
+        typeof entry.guidanceSq !== 'string' || !entry.items.length || !Object.isFrozen(entry)) return false;
+    return entry.items.every(function (item) {
+      if (!item || ids.has(item.id) || typeof item.titleSq !== 'string' || !item.titleSq ||
+          typeof item.sourceSq !== 'string' || !item.sourceSq ||
+          item.reviewStatus !== MBUROJA_CONTENT_REVIEW_STATUS) return false;
+      ids.add(item.id);
+      if (item.type === 'quran_link') {
+        return Number.isInteger(item.surah) && Number.isInteger(item.ayahStart) &&
+          Number.isInteger(item.ayahEnd) && item.ayahEnd >= item.ayahStart;
+      }
+      return item.type === 'text' && typeof item.arabic === 'string' && item.arabic.length > 0 &&
+        typeof item.transliterationSq === 'string' && item.transliterationSq.length > 0 &&
+        typeof item.translationSq === 'string' && item.translationSq.length > 0 &&
+        Number.isInteger(item.repetitions) && item.repetitions >= 1;
+    });
+  });
+}
+
+if (!validateMburojaContent()) throw new Error('Mburoja content pack 1 failed validation');

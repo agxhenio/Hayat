@@ -8,6 +8,7 @@ import {
   getMburojaChapter,
   searchMburojaChapters
 } from '../js/data/mburoja-catalog.js';
+import { getMburojaContent } from '../js/data/mburoja-content.js';
 
 var MBUROJA_PDF_URL = 'https://d1.islamhouse.com/data/sq/ih_books/single/sq_mburoja_muslimanit.pdf';
 
@@ -121,7 +122,12 @@ function chapterRow(chapter) {
   title.textContent = displayTitle(chapter.titleSq);
   var meta = document.createElement('span');
   meta.className = 'mburoja-chapter-row__meta';
-  meta.textContent = 'Faqja ' + chapter.page + ' · Përmbajtja në auditim';
+  var available = getMburojaContent(chapter.number);
+  meta.textContent = available
+    ? 'Faqja ' + chapter.page + ' · ' + available.items.length +
+      (available.items.length === 1 ? ' hyrje' : ' hyrje')
+    : 'Faqja ' + chapter.page + ' · Përmbajtja në auditim';
+  if (available) button.classList.add('mburoja-chapter-row--available');
   text.append(title, meta);
   var trailing = document.createElement('span');
   trailing.className = 'mburoja-chapter-row__trailing';
@@ -213,6 +219,80 @@ function renderCatalog(page) {
   page.append(top, notice, search, filters, status, list, empty);
 }
 
+function mburojaSourceDetails(item) {
+  var details = document.createElement('details');
+  details.className = 'mburoja-entry__source';
+  var summary = document.createElement('summary');
+  summary.textContent = 'Burimi';
+  var text = document.createElement('p');
+  text.textContent = item.sourceSq;
+  details.append(summary, text);
+  return details;
+}
+
+function renderAvailableChapter(page, chapter, content) {
+  var review = document.createElement('p');
+  review.className = 'mburoja-audit-note';
+  review.textContent = 'Përmbajtja është transkriptuar nga botimi burimor dhe mban statusin qualified-review-required deri në kontrollin përfundimtar.';
+  page.appendChild(review);
+  if (content.guidanceSq) {
+    var guidance = document.createElement('p');
+    guidance.className = 'mburoja-entry-guidance';
+    guidance.textContent = content.guidanceSq;
+    page.appendChild(guidance);
+  }
+  var list = document.createElement('div');
+  list.className = 'mburoja-entry-list';
+  content.items.forEach(function (item, index) {
+    var card = document.createElement('article');
+    card.className = 'mburoja-entry card';
+    var body = document.createElement('div');
+    body.className = 'card__body';
+    var step = document.createElement('p');
+    step.className = 'mburoja-entry__step';
+    step.textContent = content.items.length > 1 ? 'Hyrja ' + (index + 1) + ' nga ' + content.items.length : 'Dua dhe dhikër';
+    var title = document.createElement('h2');
+    title.className = 'mburoja-entry__title';
+    title.textContent = item.titleSq;
+    body.append(step, title);
+    if (item.type === 'text') {
+      var arabic = document.createElement('p');
+      arabic.className = 'mburoja-entry__arabic text-arabic';
+      arabic.lang = 'ar';
+      arabic.dir = 'rtl';
+      arabic.textContent = item.arabic;
+      var transliteration = document.createElement('p');
+      transliteration.className = 'mburoja-entry__transliteration';
+      transliteration.textContent = item.transliterationSq;
+      var translation = document.createElement('p');
+      translation.className = 'mburoja-entry__translation';
+      translation.textContent = item.translationSq;
+      body.append(arabic, transliteration, translation);
+      if (item.repetitions > 1) {
+        var repetition = document.createElement('span');
+        repetition.className = 'badge badge--neutral mburoja-entry__repetition';
+        repetition.textContent = 'Përsëritet ×' + item.repetitions;
+        body.appendChild(repetition);
+      }
+    } else {
+      var quranNote = document.createElement('p');
+      quranNote.className = 'mburoja-entry__translation';
+      quranNote.textContent = 'Ky lexim hapet në Quran Reader me tekstin real arab dhe përkthimin shqip.';
+      var quranButton = document.createElement('button');
+      quranButton.type = 'button';
+      quranButton.className = 'btn btn--primary';
+      quranButton.dataset.openMburojaQuran = String(item.surah);
+      quranButton.dataset.openMburojaAyah = String(item.ayahStart);
+      quranButton.append(icon('book-open', 'icon--sm'), document.createTextNode(' Hap në Kuran'));
+      body.append(quranNote, quranButton);
+    }
+    body.appendChild(mburojaSourceDetails(item));
+    card.appendChild(body);
+    list.appendChild(card);
+  });
+  page.appendChild(list);
+}
+
 function renderChapter(page, chapter) {
   page.classList.add('mburoja-page');
   var top = document.createElement('div');
@@ -224,6 +304,13 @@ function renderChapter(page, chapter) {
   back.setAttribute('aria-label', 'Kthehu te katalogu i Mburojës');
   back.appendChild(icon('chevron-left'));
   top.append(back, pageHeader(displayTitle(chapter.titleSq), 'Kapitulli ' + chapter.number, 'Faqja ' + chapter.page + ' në botimin burimor.'));
+  page.appendChild(top);
+
+  var available = getMburojaContent(chapter.number);
+  if (available) {
+    renderAvailableChapter(page, chapter, available);
+    return;
+  }
 
   var card = document.createElement('section');
   card.className = 'mburoja-pending card';
@@ -244,7 +331,7 @@ function renderChapter(page, chapter) {
   link.append(document.createTextNode('Shiko faqen burimore '), icon('external-link', 'icon--sm'));
   body.append(title, text, link);
   card.appendChild(body);
-  page.append(top, card);
+  page.appendChild(card);
 }
 
 function renderInvalidChapter(page) {
@@ -323,6 +410,17 @@ export function mount(page, context, appContext) {
     if (!button || !list.contains(button)) return;
     appContext.navigate('more', {
       params: { section: 'mburoja', chapter: Number(button.dataset.mburojaChapter) }
+    });
+  });
+
+  listen(page, 'click', function (event) {
+    var button = event.target.closest('[data-open-mburoja-quran]');
+    if (!button || !page.contains(button)) return;
+    appContext.navigate('quran', {
+      params: {
+        surah: Number(button.dataset.openMburojaQuran),
+        ayah: Number(button.dataset.openMburojaAyah)
+      }
     });
   });
 

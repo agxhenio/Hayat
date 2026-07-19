@@ -3,9 +3,9 @@
  *
  * Renders the Home route with four priority cards:
  * 1. Prayer hero (real data from Prayer Engine)
- * 2. Per ty tani (contextual planning - mock)
- * 3. Quran continue (mock)
- * 4. Dhikr routine (mock)
+ * 2. Suggested readings with real Daily Dhikr state
+ * 3. Quran continue from saved reading position
+ * 4. Curated articles
  *
  * @module pages/home
  */
@@ -19,6 +19,9 @@ import {
 import { getPrayerLogsForDate } from '../js/storage/prayer-log.js';
 import { getZonedDateParts } from '../js/utils/date-time.js';
 import { BEDTIME_QURAN_READINGS } from '../js/data/daily-dhikr.js';
+import { getSurahMetadata } from '../js/data/quran-surahs.js';
+import { getLastReadPosition } from '../js/storage/quran-reading.js';
+import { getDailyDhikrSession, DAILY_DHIKR_SESSION_STATUS } from '../js/storage/daily-dhikr-progress.js';
 import {
   getArticlesManifest,
   getArticle,
@@ -195,97 +198,52 @@ function buildPrayerHeroSkeleton() {
   return card;
 }
 
-function buildNowCard() {
-  var card = document.createElement('div');
-  card.className = 'card card--elevated';
-
-  var body = document.createElement('div');
-  body.className = 'card__body';
-
-  var nowSection = document.createElement('div');
-  nowSection.className = 'home-now';
-
-  var title = document.createElement('p');
-  title.className = 'home-now__title';
-  title.textContent = 'Për ty tani';
-
-  var list = document.createElement('div');
-  list.className = 'home-now__list';
-
-  var alert = document.createElement('div');
-  alert.className = 'alert alert--warning';
-  alert.setAttribute('role', 'status');
-
-  var alertIcon = createIcon('alert-circle');
-  alertIcon.classList.add('alert__icon');
-
-  var alertContent = document.createElement('div');
-  alertContent.className = 'alert__content';
-
-  var alertMsg = document.createElement('p');
-  alertMsg.className = 'alert__message';
-  alertMsg.textContent = 'Takimi është afër hyrjes së Ikindisë. Planifiko paraprakisht kohën dhe vendin e namazit.';
-
-  alertContent.appendChild(alertMsg);
-  alert.appendChild(alertIcon);
-  alert.appendChild(alertContent);
-
-  var detail = document.createElement('div');
-  detail.className = 'cluster';
-  detail.appendChild(createIcon('calendar', 'icon--sm'));
-  var detailText = document.createElement('small');
-  detailText.textContent = 'Dentist 17:00';
-  detail.appendChild(detailText);
-
-  list.appendChild(alert);
-  list.appendChild(detail);
-
-  nowSection.appendChild(title);
-  nowSection.appendChild(list);
-
-  body.appendChild(nowSection);
-  card.appendChild(body);
-
-  return card;
-}
-
 function buildQuranCard(navigate) {
   var card = document.createElement('div');
   card.className = 'quran-continue';
-
+  card.dataset.homeQuranContinue = '';
+  card.hidden = true;
   var eyebrow = document.createElement('span');
   eyebrow.className = 'quran-continue__eyebrow';
   eyebrow.textContent = 'Vazhdo leximin';
-
   var surah = document.createElement('span');
   surah.className = 'quran-continue__surah';
-  surah.textContent = 'El-Bekare';
-
+  surah.dataset.homeQuranSurah = '';
   var position = document.createElement('span');
   position.className = 'quran-continue__position';
-  position.textContent = 'Ajeti 153 · Faqja 23';
-
+  position.dataset.homeQuranPosition = '';
   var actions = document.createElement('div');
   actions.className = 'quran-continue__actions';
-
   var btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'btn btn--primary btn--sm';
-  btn.appendChild(createIcon('play', 'icon--sm'));
-  var btnText = document.createTextNode(' Vazhdo');
-  btn.appendChild(btnText);
-  btn.addEventListener('click', function () {
-    navigate('quran', { params: { surah: '2', ayah: '153' } });
-  });
-
+  btn.dataset.homeQuranOpen = '';
+  btn.append(createIcon('play', 'icon--sm'), document.createTextNode(' Vazhdo'));
   actions.appendChild(btn);
-
-  card.appendChild(eyebrow);
-  card.appendChild(surah);
-  card.appendChild(position);
-  card.appendChild(actions);
-
+  card.append(eyebrow, surah, position, actions);
   return card;
+}
+
+function renderQuranContinue(card, reading, navigate) {
+  if (!card) return;
+  var metadata = reading ? getSurahMetadata(reading.surah) : null;
+  if (!reading || !metadata) {
+    card.hidden = true;
+    return;
+  }
+  var surah = card.querySelector('[data-home-quran-surah]');
+  var position = card.querySelector('[data-home-quran-position]');
+  var oldButton = card.querySelector('[data-home-quran-open]');
+  if (surah) surah.textContent = metadata.nameTransliteration;
+  if (position) position.textContent = 'Ajeti ' + reading.ayah + (reading.page ? ' · Faqja ' + reading.page : '');
+  if (oldButton) {
+    var button = oldButton.cloneNode(true);
+    button.addEventListener('click', function () {
+      navigate('quran', { params: { surah: reading.surah, ayah: reading.ayah } });
+    });
+    oldButton.replaceWith(button);
+  }
+  card.hidden = false;
 }
 
 function isFridayDateKey(dateKey) {
@@ -312,6 +270,7 @@ function suggestionCard(options, navigate) {
   button.type = 'button';
   button.className = 'home-suggestion-card card';
   button.setAttribute('aria-label', options.title + ', ' + options.actionLabel);
+  if (options.routineId) button.dataset.homeDhikrRoutine = options.routineId;
   button.addEventListener('click', function () {
     navigate(options.route, { params: options.params });
   });
@@ -372,7 +331,8 @@ function renderSuggestedReadings(section, settings, navigate, prayerState, now, 
       actionLabel: 'hap rutinën',
       icon: 'sparkles',
       route: 'dhikr',
-      params: { routine: routineId }
+      params: { routine: routineId },
+      routineId: routineId
     }, navigate));
   }
   if (homeSettings.showFridayAlKahf !== false && isFridayDateKey(dateKey)) {
@@ -672,7 +632,6 @@ export function render(context, appContext) {
   grid.className = 'home-grid';
 
   grid.appendChild(buildPrayerHeroSkeleton());
-  grid.appendChild(buildNowCard());
   grid.appendChild(buildSuggestedReadings(settings, navigate));
   grid.appendChild(buildQuranCard(navigate));
 
@@ -713,6 +672,7 @@ export function mount(pageElement, context, appContext) {
   var greetingElement = pageElement.querySelector('.home-greeting');
   var suggestionsElement = pageElement.querySelector('[data-home-suggestions]');
   var articlesElement = pageElement.querySelector('[data-home-articles]');
+  var quranContinueElement = pageElement.querySelector('[data-home-quran-continue]');
 
   function updateSuggestions(prayerState) {
     var currentSettings = store.get('settings');
@@ -725,6 +685,27 @@ export function mount(pageElement, context, appContext) {
       new Date(),
       timeZone
     );
+    var routineCard = suggestionsElement && suggestionsElement.querySelector('[data-home-dhikr-routine]');
+    if (routineCard) {
+      var routineId = routineCard.dataset.homeDhikrRoutine;
+      var zoned = getZonedDateParts(new Date(), timeZone);
+      var dateKey = zoned ? zoned.dateKey : new Date().toISOString().slice(0, 10);
+      getDailyDhikrSession(dateKey, routineId).then(function (session) {
+        if (!isMounted || !routineCard.isConnected) return;
+        var description = routineCard.querySelector('.home-suggestion-card__description');
+        if (!description) return;
+        description.textContent = !session ? 'I pa filluar' :
+          (session.status === DAILY_DHIKR_SESSION_STATUS.COMPLETED ? 'U krye' : 'Në vazhdim · vazhdo aty ku e le');
+      }).catch(function () {});
+    }
+  }
+
+  function loadQuranContinue() {
+    getLastReadPosition().then(function (reading) {
+      if (isMounted) renderQuranContinue(quranContinueElement, reading, navigate);
+    }).catch(function () {
+      if (isMounted && quranContinueElement) quranContinueElement.hidden = true;
+    });
   }
 
   function loadArticles() {
@@ -1189,6 +1170,7 @@ export function mount(pageElement, context, appContext) {
   lastFingerprint = getPrayerSettingsFingerprint(settings);
 
   loadPrayerData();
+  loadQuranContinue();
   loadArticles();
 
   document.addEventListener('visibilitychange', handleVisibility);

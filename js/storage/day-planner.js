@@ -1,4 +1,5 @@
-/** Hayat — local-first Dita Ime records. */
+/** Hayat — local-first Dita Ime records.
+*/
 import { getAllRecords, putRecord, deleteRecord } from './database.js';
 const STORE = 'dayItems';
 const TYPES = ['task', 'appointment', 'reminder'];

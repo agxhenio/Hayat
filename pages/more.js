@@ -9,6 +9,7 @@ import {
   searchMburojaChapters
 } from '../js/data/mburoja-catalog.js';
 import { getMburojaContent } from '../js/data/mburoja-content.js';
+import { listDayItems, createDayItem, toggleDayItem, removeDayItem } from '../js/storage/day-planner.js';
 
 var MBUROJA_PDF_URL = 'https://d1.islamhouse.com/data/sq/ih_books/single/sq_mburoja_muslimanit.pdf';
 
@@ -91,7 +92,7 @@ function renderHub(page) {
   list.className = 'list-group';
   list.dataset.moreHub = '';
   list.append(
-    hubItem({ title: 'Dita ime', subtitle: 'Së shpejti', icon: 'calendar', disabled: true }),
+    hubItem({ title: 'Dita ime', subtitle: 'Detyra, takime dhe kujtesa', icon: 'calendar', action: 'day' }),
     hubItem({
       title: 'Mburoja',
       subtitle: 'Dua dhe dhikër sipas situatave',
@@ -350,11 +351,44 @@ function renderInvalidChapter(page) {
   page.appendChild(back);
 }
 
+function localDateKey() {
+  var d = new Date();
+  return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+}
+function renderDayPlanner(page) {
+  page.classList.add('day-planner-page');
+  var top = document.createElement('div'); top.className = 'mburoja-page__top';
+  var back = document.createElement('button'); back.type = 'button'; back.className = 'btn btn--icon btn--ghost'; back.dataset.dayBack = ''; back.setAttribute('aria-label', 'Kthehu'); back.appendChild(icon('chevron-left'));
+  top.append(back, pageHeader('Dita ime', 'Planifikim lokal', 'Detyra, takime dhe kujtesa të ruajtura vetëm në pajisjen tënde.')); page.appendChild(top);
+  var form = document.createElement('form'); form.className = 'day-planner-form card'; form.dataset.dayForm = '';
+  var title = document.createElement('input'); title.className = 'input'; title.name = 'title'; title.required = true; title.maxLength = 120; title.placeholder = 'Çfarë dëshiron të planifikosh?'; title.setAttribute('aria-label', 'Titulli');
+  var row = document.createElement('div'); row.className = 'day-planner-form__row';
+  var date = document.createElement('input'); date.className = 'input'; date.type = 'date'; date.name = 'dateKey'; date.required = true; date.value = localDateKey(); date.setAttribute('aria-label', 'Data');
+  var time = document.createElement('input'); time.className = 'input'; time.type = 'time'; time.name = 'time'; time.setAttribute('aria-label', 'Ora');
+  var type = document.createElement('select'); type.className = 'input'; type.name = 'type'; type.setAttribute('aria-label', 'Lloji');
+  [['task','Detyrë'],['appointment','Takim'],['reminder','Kujtesë']].forEach(function(x){ var o=document.createElement('option');o.value=x[0];o.textContent=x[1];type.appendChild(o); });
+  row.append(date,time,type); var save=document.createElement('button');save.type='submit';save.className='btn btn--primary';save.textContent='Ruaj';
+  var status=document.createElement('p');status.className='day-planner-status';status.dataset.dayStatus='';status.setAttribute('role','status');
+  form.append(title,row,save,status); page.appendChild(form);
+  var heading=document.createElement('h2');heading.className='day-planner-heading';heading.textContent='Plani i ditës';
+  var list=document.createElement('div');list.className='day-planner-list';list.dataset.dayList='';
+  page.append(heading,list);
+}
+function paintDayItems(list, items) {
+  list.replaceChildren();
+  if (!items.length) { var empty=document.createElement('p');empty.className='day-planner-empty';empty.textContent='Nuk ka ende asgjë për këtë ditë.';list.appendChild(empty);return; }
+  items.forEach(function(item){ var card=document.createElement('article');card.className='day-planner-item card'+(item.status==='completed'?' day-planner-item--completed':'');card.dataset.dayId=item.id;
+    var check=document.createElement('button');check.type='button';check.className='day-planner-item__check';check.dataset.dayToggle='';check.setAttribute('aria-label',item.status==='completed'?'Shëno si të hapur':'Shëno si të kryer');check.textContent=item.status==='completed'?'✓':'○';
+    var content=document.createElement('div');content.className='day-planner-item__content';var h=document.createElement('h3');h.textContent=item.title;var meta=document.createElement('p');var labels={task:'Detyrë',appointment:'Takim',reminder:'Kujtesë'};meta.textContent=labels[item.type]+(item.time?' · '+item.time:'');content.append(h,meta);
+    var del=document.createElement('button');del.type='button';del.className='btn btn--ghost btn--sm';del.dataset.dayDelete='';del.textContent='Hiq';card.append(check,content,del);list.appendChild(card); });
+}
+
 export function render(context) {
   var page = document.createElement('div');
   page.className = 'route-page more-page';
   var params = context.params || {};
-  if (params.section !== 'mburoja') renderHub(page);
+  if (params.section === 'day') renderDayPlanner(page);
+  else if (params.section !== 'mburoja') renderHub(page);
   else if (params.chapter === undefined) renderCatalog(page);
   else {
     var chapter = getMburojaChapter(params.chapter);
@@ -376,7 +410,8 @@ export function mount(page, context, appContext) {
   listen(hub, 'click', function (event) {
     var button = event.target.closest('[data-more-action]');
     if (!button || !hub.contains(button)) return;
-    if (button.dataset.moreAction === 'settings') appContext.navigate('settings');
+    if (button.dataset.moreAction === 'day') appContext.navigate('more', { params: { section: 'day' } });
+    else if (button.dataset.moreAction === 'settings') appContext.navigate('settings');
     else if (button.dataset.moreAction === 'mburoja') {
       appContext.navigate('more', { params: { section: 'mburoja' } });
     }
@@ -428,6 +463,16 @@ export function mount(page, context, appContext) {
       }
     });
   });
+
+  listen(page.querySelector('[data-day-back]'), 'click', function () { appContext.navigate('more'); });
+  var dayForm = page.querySelector('[data-day-form]');
+  var dayList = page.querySelector('[data-day-list]');
+  var dayStatus = page.querySelector('[data-day-status]');
+  function refreshDay() { if (!dayList || !dayForm) return; listDayItems(dayForm.elements.dateKey.value).then(function(items){ paintDayItems(dayList,items); }).catch(function(){ dayStatus.textContent='Të dhënat nuk u ngarkuan.'; }); }
+  listen(dayForm, 'submit', function(event){ event.preventDefault(); dayStatus.textContent=''; createDayItem({ title:dayForm.elements.title.value,dateKey:dayForm.elements.dateKey.value,time:dayForm.elements.time.value,type:dayForm.elements.type.value }).then(function(){ dayForm.elements.title.value='';dayForm.elements.time.value='';dayStatus.textContent='U ruajt në pajisje.';refreshDay(); }).catch(function(){dayStatus.textContent='Kontrollo të dhënat dhe provo përsëri.';}); });
+  if (dayForm) listen(dayForm.elements.dateKey, 'change', refreshDay);
+  listen(dayList, 'click', function(event){ var card=event.target.closest('[data-day-id]');if(!card)return;listDayItems(dayForm.elements.dateKey.value).then(function(items){var item=items.find(function(x){return x.id===card.dataset.dayId;});if(!item)return;if(event.target.closest('[data-day-toggle]'))return toggleDayItem(item).then(refreshDay);if(event.target.closest('[data-day-delete]'))return removeDayItem(item.id).then(refreshDay);}); });
+  refreshDay();
 
   return function () { cleanups.forEach(function (cleanup) { cleanup(); }); };
 }

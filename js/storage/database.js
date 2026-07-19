@@ -3,12 +3,13 @@
  */
 
 var DB_NAME = 'hayat-db';
-var DB_VERSION = 6;
+var DB_VERSION = 7;
 var STORES = Object.freeze([
   'prayerLogs',
   'postPrayerDhikrSessions',
   'dailyDhikrSessions',
   'articles',
+  'dayItems',
   'quranContent',
   'quranReadingState',
   'meta'
@@ -30,6 +31,7 @@ var INDEXES = Object.freeze({
     'updatedAt'
   ]),
   articles: Object.freeze(['type', 'updatedAt']),
+  dayItems: Object.freeze(['dateKey', 'status', 'updatedAt']),
   quranContent: Object.freeze([
     'verseTranslation',
     'verseKey',
@@ -174,6 +176,16 @@ export function openDatabase() {
       if (!dailyDhikrStore.indexNames.contains('updatedAt')) {
         dailyDhikrStore.createIndex('updatedAt', 'updatedAt', { unique: false });
       }
+
+      var dayStore;
+      if (!database.objectStoreNames.contains('dayItems')) {
+        dayStore = database.createObjectStore('dayItems', { keyPath: 'id' });
+      } else {
+        dayStore = event.target.transaction.objectStore('dayItems');
+      }
+      if (!dayStore.indexNames.contains('dateKey')) dayStore.createIndex('dateKey', 'dateKey', { unique: false });
+      if (!dayStore.indexNames.contains('status')) dayStore.createIndex('status', 'status', { unique: false });
+      if (!dayStore.indexNames.contains('updatedAt')) dayStore.createIndex('updatedAt', 'updatedAt', { unique: false });
 
       var articleStore;
       if (!database.objectStoreNames.contains('articles')) {

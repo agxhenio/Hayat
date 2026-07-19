@@ -367,9 +367,16 @@ function renderDayPlanner(page) {
   var time = document.createElement('input'); time.className = 'input'; time.type = 'time'; time.name = 'time'; time.setAttribute('aria-label', 'Ora');
   var type = document.createElement('select'); type.className = 'input'; type.name = 'type'; type.setAttribute('aria-label', 'Lloji');
   [['task','Detyrë'],['appointment','Takim'],['reminder','Kujtesë']].forEach(function(x){ var o=document.createElement('option');o.value=x[0];o.textContent=x[1];type.appendChild(o); });
-  row.append(date,time,type); var save=document.createElement('button');save.type='submit';save.className='btn btn--primary';save.textContent='Ruaj';
+  row.append(date,time,type);
+  var prayerRow = document.createElement('div'); prayerRow.className = 'day-planner-form__row';
+  var prayer = document.createElement('select'); prayer.className='input'; prayer.name='prayerKey'; prayer.setAttribute('aria-label','Namazi për planifikim');
+  [['','Pa lidhje me namaz'],['fajr','Sabahu'],['dhuhr','Dreka'],['asr','Ikindia'],['maghrib','Akshami'],['isha','Jacia']].forEach(function(x){var o=document.createElement('option');o.value=x[0];o.textContent=x[1];prayer.appendChild(o);});
+  var relation=document.createElement('select');relation.className='input';relation.name='prayerPlan';relation.setAttribute('aria-label','Planifikimi ndaj namazit');relation.disabled=true;
+  [['before','Namazi para aktivitetit'],['after','Namazi pas aktivitetit']].forEach(function(x){var o=document.createElement('option');o.value=x[0];o.textContent=x[1];relation.appendChild(o);});
+  prayerRow.append(prayer,relation);
+  var save=document.createElement('button');save.type='submit';save.className='btn btn--primary';save.textContent='Ruaj';
   var status=document.createElement('p');status.className='day-planner-status';status.dataset.dayStatus='';status.setAttribute('role','status');
-  form.append(title,row,save,status); page.appendChild(form);
+  form.append(title,row,prayerRow,save,status); page.appendChild(form);
   var heading=document.createElement('h2');heading.className='day-planner-heading';heading.textContent='Plani i ditës';
   var list=document.createElement('div');list.className='day-planner-list';list.dataset.dayList='';
   page.append(heading,list);
@@ -379,7 +386,7 @@ function paintDayItems(list, items) {
   if (!items.length) { var empty=document.createElement('p');empty.className='day-planner-empty';empty.textContent='Nuk ka ende asgjë për këtë ditë.';list.appendChild(empty);return; }
   items.forEach(function(item){ var card=document.createElement('article');card.className='day-planner-item card'+(item.status==='completed'?' day-planner-item--completed':'');card.dataset.dayId=item.id;
     var check=document.createElement('button');check.type='button';check.className='day-planner-item__check';check.dataset.dayToggle='';check.setAttribute('aria-label',item.status==='completed'?'Shëno si të hapur':'Shëno si të kryer');check.textContent=item.status==='completed'?'✓':'○';
-    var content=document.createElement('div');content.className='day-planner-item__content';var h=document.createElement('h3');h.textContent=item.title;var meta=document.createElement('p');var labels={task:'Detyrë',appointment:'Takim',reminder:'Kujtesë'};meta.textContent=labels[item.type]+(item.time?' · '+item.time:'');content.append(h,meta);
+    var content=document.createElement('div');content.className='day-planner-item__content';var h=document.createElement('h3');h.textContent=item.title;var meta=document.createElement('p');var labels={task:'Detyrë',appointment:'Takim',reminder:'Kujtesë'};var prayers={fajr:'Sabahu',dhuhr:'Dreka',asr:'Ikindia',maghrib:'Akshami',isha:'Jacia'}; var plan=item.prayerKey ? ' · '+prayers[item.prayerKey]+(item.prayerPlan==='after'?' pas aktivitetit':' para aktivitetit') : ''; meta.textContent=labels[item.type]+(item.time?' · '+item.time:'')+plan;content.append(h,meta);
     var del=document.createElement('button');del.type='button';del.className='btn btn--ghost btn--sm';del.dataset.dayDelete='';del.textContent='Hiq';card.append(check,content,del);list.appendChild(card); });
 }
 
@@ -469,8 +476,13 @@ export function mount(page, context, appContext) {
   var dayList = page.querySelector('[data-day-list]');
   var dayStatus = page.querySelector('[data-day-status]');
   function refreshDay() { if (!dayList || !dayForm) return; listDayItems(dayForm.elements.dateKey.value).then(function(items){ paintDayItems(dayList,items); }).catch(function(){ dayStatus.textContent='Të dhënat nuk u ngarkuan.'; }); }
-  listen(dayForm, 'submit', function(event){ event.preventDefault(); dayStatus.textContent=''; createDayItem({ title:dayForm.elements.title.value,dateKey:dayForm.elements.dateKey.value,time:dayForm.elements.time.value,type:dayForm.elements.type.value }).then(function(){ dayForm.elements.title.value='';dayForm.elements.time.value='';dayStatus.textContent='U ruajt në pajisje.';refreshDay(); }).catch(function(){dayStatus.textContent='Kontrollo të dhënat dhe provo përsëri.';}); });
-  if (dayForm) listen(dayForm.elements.dateKey, 'change', refreshDay);
+  listen(dayForm, 'submit', function(event){ event.preventDefault(); dayStatus.textContent=''; createDayItem({ title:dayForm.elements.title.value,dateKey:dayForm.elements.dateKey.value,time:dayForm.elements.time.value,type:dayForm.elements.type.value,prayerKey:dayForm.elements.prayerKey.value,prayerPlan:dayForm.elements.prayerKey.value?dayForm.elements.prayerPlan.value:'none' }).then(function(){ dayForm.elements.title.value='';dayForm.elements.time.value='';dayStatus.textContent='U ruajt në pajisje.';refreshDay(); }).catch(function(){dayStatus.textContent='Kontrollo të dhënat dhe provo përsëri.';}); });
+  if (dayForm) {
+    listen(dayForm.elements.dateKey, 'change', refreshDay);
+    listen(dayForm.elements.prayerKey, 'change', function () {
+      dayForm.elements.prayerPlan.disabled = !dayForm.elements.prayerKey.value;
+    });
+  }
   listen(dayList, 'click', function(event){ var card=event.target.closest('[data-day-id]');if(!card)return;listDayItems(dayForm.elements.dateKey.value).then(function(items){var item=items.find(function(x){return x.id===card.dataset.dayId;});if(!item)return;if(event.target.closest('[data-day-toggle]'))return toggleDayItem(item).then(refreshDay);if(event.target.closest('[data-day-delete]'))return removeDayItem(item.id).then(refreshDay);}); });
   refreshDay();
 

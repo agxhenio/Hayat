@@ -2,7 +2,7 @@
  * Hayat — Central registry for providers, source works and privacy disclosures.
  */
 
-export const APP_SOURCES_VERSION = 1;
+export const APP_SOURCES_VERSION = 2;
 
 function freezeLink(link) {
   return link ? Object.freeze({ label: link.label, url: link.url }) : null;
@@ -48,6 +48,21 @@ export const APP_SOURCES = Object.freeze([
     }
   ),
   entry(
+    'selected-friday-sermons',
+    'Selected Friday Sermons',
+    'Burim tematik për artikuj të përmbledhur dhe të përshtatur nga Redaksia Hayat.',
+    [
+      'Botues: Darussalam Publishers and Distributors',
+      'Parathënia editoriale: Abdul-Malik Mujahid',
+      'Artikujt në Hayat janë përmbledhje origjinale në shqip, jo përkthime fjalë për fjalë të hutbeve.',
+      'Çdo artikull shënon faqet burimore të përdorura.'
+    ],
+    {
+      label: 'Hap botimin PDF',
+      url: 'https://d1.islamhouse.com/data/en/ih_books/single/en_selected_friday_sermons.pdf'
+    }
+  ),
+  entry(
     'aladhan',
     'AlAdhan Prayer Times API',
     'Burimi teknik për llogaritjen e kohëve të namazit sipas vendndodhjes dhe konfigurimit.',
@@ -69,7 +84,7 @@ export const APP_PRIVACY_DISCLOSURES = Object.freeze([
 
 export function validateAppSources() {
   var ids = new Set();
-  return APP_SOURCES.length === 3 && APP_SOURCES.every(function (source) {
+  return APP_SOURCES.length === 4 && APP_SOURCES.every(function (source) {
     if (!source || typeof source !== 'object' || ids.has(source.id)) return false;
     ids.add(source.id);
     return typeof source.id === 'string' && Boolean(source.id) &&

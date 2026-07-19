@@ -1,0 +1,47 @@
+{
+  "id": "te-drejtat-e-fqinjit",
+  "titleSq": "Të drejtat e fqinjit",
+  "authorSq": "Redaksia Hayat",
+  "publishedAt": "2026-07-19",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "E drejta e fqinjit është theksuar fuqishëm në Islam. Fqinjësia e mirë nuk kufizohet vetëm te muslimani i devotshëm; ajo përfshin mosdëmtimin, respektin dhe mirësinë ndaj atij që jeton pranë teje."
+    },
+    {
+      "type": "heading2",
+      "text": "Minimumi: mos e dëmto"
+    },
+    {
+      "type": "paragraph",
+      "text": "Zhurma, pengimi i rrugës, cenimi i pronës, fyerja dhe shqetësimi i vazhdueshëm bien ndesh me fqinjësinë e mirë. Adhurimi personal nuk e arsyeton dëmin ndaj njerëzve."
+    },
+    {
+      "type": "heading2",
+      "text": "Më shumë se mosdëmtim"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Përshëndete dhe pyet për gjendjen.",
+        "Ndihmoje në rast nevoje.",
+        "Ndaje ushqimin kur është e përshtatshme.",
+        "Ruaje privatësinë e tij.",
+        "Trego durim ndaj gabimeve të vogla.",
+        "Fol drejtpërdrejt dhe me edukatë kur ka problem."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Fqinjësia e mirë krijon siguri. Kur secili e di se personi pranë tij nuk do ta dëmtojë dhe do ta ndihmojë në nevojë, forcohet e gjithë lagjja."
+    },
+    {
+      "type": "heading3",
+      "text": "Burimi dhe shënimi editorial"
+    },
+    {
+      "type": "paragraph",
+      "text": "Burimi: “Selected Friday Sermons”, Darussalam, përgatitur nën kujdesin editorial të Abdul-Malik Mujahid, faqet 295–300. Artikulli është përmbledhur dhe përshtatur në shqip nga Redaksia Hayat; nuk është përkthim fjalë për fjalë i hutbes."
+    }
+  ]
+}

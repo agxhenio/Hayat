@@ -1,5 +1,116 @@
 {
-  "version": 1,
-  "updatedAt": "2026-07-18T00:00:00.000Z",
-  "articles": []
+  "version": 2,
+  "updatedAt": "2026-07-19T00:00:00.000Z",
+  "articles": [
+    {
+      "id": "mbeshtetja-tek-allahu",
+      "titleSq": "Mbështetja tek Allahu",
+      "authorSq": "Redaksia Hayat",
+      "categorySq": "Besim",
+      "publishedAt": "2026-07-19",
+      "readingMinutes": 5,
+      "excerptSq": "Mbështetja e zemrës tek Allahu, duke vepruar me përgjegjësi dhe pa u dorëzuar para frikës.",
+      "imageUrl": "content/articles/images/mbeshtetja-tek-allahu.webp",
+      "contentUrl": "content/articles/mbeshtetja-tek-allahu.json"
+    },
+    {
+      "id": "sinqeriteti-ne-vepra",
+      "titleSq": "Sinqeriteti në vepra",
+      "authorSq": "Redaksia Hayat",
+      "categorySq": "Besim",
+      "publishedAt": "2026-07-19",
+      "readingMinutes": 5,
+      "excerptSq": "Vlera e veprës lidhet me nijetin dhe me faktin nëse ajo bëhet për Allahun.",
+      "imageUrl": "content/articles/images/sinqeriteti-ne-vepra.webp",
+      "contentUrl": "content/articles/sinqeriteti-ne-vepra.json"
+    },
+    {
+      "id": "rendesia-e-namazit",
+      "titleSq": "Rëndësia e namazit",
+      "authorSq": "Redaksia Hayat",
+      "categorySq": "Adhurim",
+      "publishedAt": "2026-07-19",
+      "readingMinutes": 5,
+      "excerptSq": "Namazi është nevojë e robit, lidhje me Allahun dhe bosht i rregullsisë shpirtërore.",
+      "imageUrl": "content/articles/images/rendesia-e-namazit.webp",
+      "contentUrl": "content/articles/rendesia-e-namazit.json"
+    },
+    {
+      "id": "perulesia-ne-namaz",
+      "titleSq": "Përulësia në namaz",
+      "authorSq": "Redaksia Hayat",
+      "categorySq": "Adhurim",
+      "publishedAt": "2026-07-19",
+      "readingMinutes": 6,
+      "excerptSq": "Hushu-ja lind kur zemra e njeh Atë para të Cilit qëndron.",
+      "imageUrl": "content/articles/images/perulesia-ne-namaz.webp",
+      "contentUrl": "content/articles/perulesia-ne-namaz.json"
+    },
+    {
+      "id": "te-keqen-ktheje-me-te-mire",
+      "titleSq": "Të keqen ktheje me të mirë",
+      "authorSq": "Redaksia Hayat",
+      "categorySq": "Karakter",
+      "publishedAt": "2026-07-19",
+      "readingMinutes": 5,
+      "excerptSq": "E mira mund ta ndalë zinxhirin e armiqësisë pa e shfuqizuar drejtësinë.",
+      "imageUrl": "content/articles/images/te-keqen-ktheje-me-te-mire.webp",
+      "contentUrl": "content/articles/te-keqen-ktheje-me-te-mire.json"
+    },
+    {
+      "id": "ruajtja-e-amanetit",
+      "titleSq": "Ruajtja e amanetit",
+      "authorSq": "Redaksia Hayat",
+      "categorySq": "Karakter",
+      "publishedAt": "2026-07-19",
+      "readingMinutes": 5,
+      "excerptSq": "Amaneti përfshin fenë, përgjegjësitë, pasurinë, fjalën dhe të drejtat e njerëzve.",
+      "imageUrl": "content/articles/images/ruajtja-e-amanetit.webp",
+      "contentUrl": "content/articles/ruajtja-e-amanetit.json"
+    },
+    {
+      "id": "meshira",
+      "titleSq": "Mëshira që shfaqet në sjellje",
+      "authorSq": "Redaksia Hayat",
+      "categorySq": "Karakter",
+      "publishedAt": "2026-07-19",
+      "readingMinutes": 5,
+      "excerptSq": "Mëshira është ndjenjë e zemrës që kthehet në mirësi, butësi dhe kujdes.",
+      "imageUrl": "content/articles/images/meshira.webp",
+      "contentUrl": "content/articles/meshira.json"
+    },
+    {
+      "id": "lidhjet-familjare",
+      "titleSq": "Ruajtja e lidhjeve familjare",
+      "authorSq": "Redaksia Hayat",
+      "categorySq": "Familje",
+      "publishedAt": "2026-07-19",
+      "readingMinutes": 6,
+      "excerptSq": "Lidhjet e gjakut kërkojnë kujdes edhe kur marrëdhënia nuk është e lehtë.",
+      "imageUrl": "content/articles/images/lidhjet-familjare.webp",
+      "contentUrl": "content/articles/lidhjet-familjare.json"
+    },
+    {
+      "id": "te-drejtat-e-fqinjit",
+      "titleSq": "Të drejtat e fqinjit",
+      "authorSq": "Redaksia Hayat",
+      "categorySq": "Shoqëri",
+      "publishedAt": "2026-07-19",
+      "readingMinutes": 6,
+      "excerptSq": "Fqinji ka të drejtë për siguri, respekt dhe mirësi, pavarësisht prejardhjes së tij.",
+      "imageUrl": "content/articles/images/te-drejtat-e-fqinjit.webp",
+      "contentUrl": "content/articles/te-drejtat-e-fqinjit.json"
+    },
+    {
+      "id": "pendimi",
+      "titleSq": "Pendimi: një fillim i ri",
+      "authorSq": "Redaksia Hayat",
+      "categorySq": "Zbutje e zemrës",
+      "publishedAt": "2026-07-19",
+      "readingMinutes": 6,
+      "excerptSq": "Pendimi i sinqertë bashkon ndalimin e gjynahut, keqardhjen dhe vendimin për të mos u kthyer.",
+      "imageUrl": "content/articles/images/pendimi.webp",
+      "contentUrl": "content/articles/pendimi.json"
+    }
+  ]
 }

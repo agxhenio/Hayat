@@ -1,0 +1,50 @@
+{
+  "id": "lidhjet-familjare",
+  "titleSq": "Ruajtja e lidhjeve familjare",
+  "authorSq": "Redaksia Hayat",
+  "publishedAt": "2026-07-19",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "Lidhjet familjare përfshijnë të afërmit nga gjaku. Ruajtja e tyre është përgjegjësi fetare dhe shoqërore: vizitë, ndihmë, interesim, pajtim dhe fjalë e mirë."
+    },
+    {
+      "type": "heading2",
+      "text": "Jo vetëm me atë që të viziton"
+    },
+    {
+      "type": "paragraph",
+      "text": "Ruajtja e lidhjeve nuk është thjesht shkëmbim favorësh. Vlera e saj shfaqet kur ti vazhdon të sillesh drejt edhe me të afërmin që është ftohur, pa pranuar abuzim ose padrejtësi."
+    },
+    {
+      "type": "heading2",
+      "text": "Forma të thjeshta"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Telefono dhe pyet për gjendjen.",
+        "Vizito të sëmurin dhe të moshuarin.",
+        "Ndihmo kur ka nevojë reale.",
+        "Mos e ushqe konfliktin me thashetheme.",
+        "Puno për pajtim pa fshehur padrejtësinë."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Kufijtë mund të jenë të nevojshëm kur ka dëm, por kufiri nuk duhet të kthehet automatikisht në urrejtje, shpifje ose ndërprerje të çdo mirësie."
+    },
+    {
+      "type": "quote",
+      "text": "Një mesazh i sinqertë ose një vizitë e shkurtër mund të jetë fillimi i shërimit të një marrëdhënieje të gjatë."
+    },
+    {
+      "type": "heading3",
+      "text": "Burimi dhe shënimi editorial"
+    },
+    {
+      "type": "paragraph",
+      "text": "Burimi: “Selected Friday Sermons”, Darussalam, përgatitur nën kujdesin editorial të Abdul-Malik Mujahid, faqet 287–294. Artikulli është përmbledhur dhe përshtatur në shqip nga Redaksia Hayat; nuk është përkthim fjalë për fjalë i hutbes."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "perulesia-ne-namaz",
+  "titleSq": "Përulësia në namaz",
+  "authorSq": "Redaksia Hayat",
+  "publishedAt": "2026-07-19",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "Përulësia në namaz nuk është vetëm ulja e shikimit ose qetësimi i trupit. Ajo fillon me zemrën: dashuri për Allahun, madhërim, shpresë dhe frikë të ekuilibruar."
+    },
+    {
+      "type": "heading2",
+      "text": "Pse zemra largohet?"
+    },
+    {
+      "type": "paragraph",
+      "text": "Shpërqendrimi shtohet kur hyjmë në namaz me nxitim, kur nuk kuptojmë çfarë lexojmë ose kur mendja është ushqyer pa pushim me zhurmë. Përulësia kërkon përgatitje para tekbirit."
+    },
+    {
+      "type": "heading2",
+      "text": "Hapa praktikë"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Mbylli angazhimet e menjëhershme para namazit.",
+        "Kujto se po qëndron para Allahut.",
+        "Lexo ngadalë dhe kupto kuptimin.",
+        "Ndrysho suret dhe duatë që i njeh.",
+        "Kur mendja largohet, ktheje pa dëshpërim."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Ibn Kajjimi e lidh ëmbëlsinë e namazit me gjendjen e zemrës. Sa më shumë zemra mbushet me njohje dhe dashuri për Allahun, aq më pak namazi ndihet si barrë."
+    },
+    {
+      "type": "quote",
+      "text": "Përulësia nuk fitohet në një ditë; ajo edukohet në çdo namaz."
+    },
+    {
+      "type": "heading3",
+      "text": "Burimi dhe shënimi editorial"
+    },
+    {
+      "type": "paragraph",
+      "text": "Burimi: “Selected Friday Sermons”, Darussalam, përgatitur nën kujdesin editorial të Abdul-Malik Mujahid, faqet 208–213. Artikulli është përmbledhur dhe përshtatur në shqip nga Redaksia Hayat; nuk është përkthim fjalë për fjalë i hutbes."
+    }
+  ]
+}

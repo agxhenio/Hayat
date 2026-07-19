@@ -1,0 +1,49 @@
+{
+  "id": "pendimi",
+  "titleSq": "Pendimi: një fillim i ri",
+  "authorSq": "Redaksia Hayat",
+  "publishedAt": "2026-07-19",
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "Dera e pendimit është shenjë e mëshirës së Allahut. Njeriu nuk urdhërohet të dëshpërohet për shkak të së kaluarës, por të kthehet me sinqeritet dhe të ndryshojë drejtimin."
+    },
+    {
+      "type": "heading2",
+      "text": "Kushtet e pendimit"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Ndalimi i gjynahut.",
+        "Keqardhja e sinqertë për të.",
+        "Vendimi për të mos u kthyer.",
+        "Kthimi i të drejtës kur gjynahu lidhet me një person tjetër."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "Vetëm shqiptimi i istigfarit, ndërsa njeriu këmbëngul me vendosmëri në të njëjtën padrejtësi, nuk është pendimi i plotë. Zemra, fjala dhe veprimi duhet të lëvizin në të njëjtin drejtim."
+    },
+    {
+      "type": "heading2",
+      "text": "Mos e vono kthimin"
+    },
+    {
+      "type": "paragraph",
+      "text": "Askush nuk e di sa kohë i mbetet. Pendimi nuk duhet shtyrë deri në një moment imagjinar kur jeta do të jetë më e lehtë. Fillimi mund të bëhet sot: me një namaz, një kërkim faljeje, një të drejtë të kthyer dhe një derë të mbyllur ndaj gjynahut."
+    },
+    {
+      "type": "quote",
+      "text": "Pendimi nuk e ndryshon të kaluarën, por ndryshon mënyrën si e çon të ardhmen drejt Allahut."
+    },
+    {
+      "type": "heading3",
+      "text": "Burimi dhe shënimi editorial"
+    },
+    {
+      "type": "paragraph",
+      "text": "Burimi: “Selected Friday Sermons”, Darussalam, përgatitur nën kujdesin editorial të Abdul-Malik Mujahid, faqet 329–334. Artikulli është përmbledhur dhe përshtatur në shqip nga Redaksia Hayat; nuk është përkthim fjalë për fjalë i hutbes."
+    }
+  ]
+}

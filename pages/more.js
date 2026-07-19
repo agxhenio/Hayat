@@ -11,6 +11,7 @@ import {
 } from '../js/data/mburoja-catalog.js';
 import { getMburojaContent } from '../js/data/mburoja-content.js';
 import { listDayItems, createDayItem, toggleDayItem, removeDayItem } from '../js/storage/day-planner.js';
+import { getPrayerTimes } from '../js/services/prayer-times.js';
 
 var MBUROJA_PDF_URL = 'https://d1.islamhouse.com/data/sq/ih_books/single/sq_mburoja_muslimanit.pdf';
 
@@ -382,12 +383,21 @@ function renderDayPlanner(page) {
   var list=document.createElement('div');list.className='day-planner-list';list.dataset.dayList='';
   page.append(heading,list);
 }
-function paintDayItems(list, items) {
+function paintDayItems(list, items, timings) {
   list.replaceChildren();
   if (!items.length) { var empty=document.createElement('p');empty.className='day-planner-empty';empty.textContent='Nuk ka ende asgjë për këtë ditë.';list.appendChild(empty);return; }
   items.forEach(function(item){ var card=document.createElement('article');card.className='day-planner-item card'+(item.status==='completed'?' day-planner-item--completed':'');card.dataset.dayId=item.id;
     var check=document.createElement('button');check.type='button';check.className='day-planner-item__check';check.dataset.dayToggle='';check.setAttribute('aria-label',item.status==='completed'?'Shëno si të hapur':'Shëno si të kryer');check.textContent=item.status==='completed'?'✓':'○';
-    var content=document.createElement('div');content.className='day-planner-item__content';var h=document.createElement('h3');h.textContent=item.title;var meta=document.createElement('p');var labels={task:'Detyrë',appointment:'Takim',reminder:'Kujtesë'};var prayers={fajr:'Sabahu',dhuhr:'Dreka',asr:'Ikindia',maghrib:'Akshami',isha:'Jacia'}; var plan=item.prayerKey ? ' · '+prayers[item.prayerKey]+(item.prayerPlan==='after'?' pas aktivitetit':' para aktivitetit') : ''; meta.textContent=labels[item.type]+(item.time?' · '+item.time:'')+plan;content.append(h,meta);
+    var content=document.createElement('div');content.className='day-planner-item__content';var h=document.createElement('h3');h.textContent=item.title;var meta=document.createElement('p');var labels={task:'Detyrë',appointment:'Takim',reminder:'Kujtesë'};var prayers={fajr:'Sabahu',dhuhr:'Dreka',asr:'Ikindia',maghrib:'Akshami',isha:'Jacia'}; var prayerTime=item.prayerKey && timings ? timings[item.prayerKey] : ''; var plan=item.prayerKey ? ' · '+prayers[item.prayerKey]+(prayerTime?' '+prayerTime:'')+(item.prayerPlan==='after'?' pas aktivitetit':' para aktivitetit') : ''; meta.textContent=labels[item.type]+(item.time?' · '+item.time:'')+plan;content.append(h,meta);
+    if (item.prayerKey && item.time && prayerTime) {
+      var toMinutes=function(value){var p=value.split(':').map(Number);return p[0]*60+p[1];};
+      var gap=toMinutes(item.time)-toMinutes(prayerTime); var note=document.createElement('p');note.className='day-planner-item__prayer-note';
+      if (item.prayerPlan==='before' && gap >= 0) note.textContent='Plan: '+prayers[item.prayerKey]+' para aktivitetit · '+gap+' min diferencë.';
+      else if (item.prayerPlan==='before') { note.classList.add('day-planner-item__prayer-note--attention'); note.textContent='Aktiviteti fillon para hyrjes së '+prayers[item.prayerKey]+'. Rishiko planin.'; }
+      else if (gap <= 0) note.textContent='Plan: '+prayers[item.prayerKey]+' pas aktivitetit · '+Math.abs(gap)+' min diferencë.';
+      else { note.classList.add('day-planner-item__prayer-note--attention'); note.textContent='Aktiviteti fillon pas hyrjes së '+prayers[item.prayerKey]+'. Kontrollo që namazi të mos shtyhet jashtë kohës.'; }
+      content.appendChild(note);
+    }
     var del=document.createElement('button');del.type='button';del.className='btn btn--ghost btn--sm';del.dataset.dayDelete='';del.textContent='Hiq';card.append(check,content,del);list.appendChild(card); });
 }
 
@@ -476,7 +486,19 @@ export function mount(page, context, appContext) {
   var dayForm = page.querySelector('[data-day-form]');
   var dayList = page.querySelector('[data-day-list]');
   var dayStatus = page.querySelector('[data-day-status]');
-  function refreshDay() { if (!dayList || !dayForm) return; listDayItems(dayForm.elements.dateKey.value).then(function(items){ paintDayItems(dayList,items); }).catch(function(){ dayStatus.textContent='Të dhënat nuk u ngarkuan.'; }); }
+  function prayerOptions(dateKey) {
+    var settings = appContext.store.get('settings');
+    if (!settings || !settings.coordinates) return null;
+    return { date: new Date(dateKey + 'T12:00:00'), latitude: settings.coordinates.latitude, longitude: settings.coordinates.longitude, calculationMethod: settings.prayer.calculationMethod, asrSchool: settings.prayer.asrSchool, adjustments: settings.prayer.adjustments, forceRefresh: false, timeZone: settings.city === 'Tiranë' ? 'Europe/Tirane' : undefined };
+  }
+  function refreshDay() {
+    if (!dayList || !dayForm) return;
+    var dateKey = dayForm.elements.dateKey.value;
+    var options = prayerOptions(dateKey);
+    Promise.all([listDayItems(dateKey), options ? getPrayerTimes(options).catch(function(){ return null; }) : Promise.resolve(null)])
+      .then(function(result){ paintDayItems(dayList, result[0], result[1] ? result[1].timings : null); if (result[0].some(function(x){return x.prayerKey;}) && !result[1]) dayStatus.textContent='Oraret e namazit nuk janë të disponueshme; lidhja me namazin ruhet gjithsesi.'; })
+      .catch(function(){ dayStatus.textContent='Të dhënat nuk u ngarkuan.'; });
+  }
   listen(dayForm, 'submit', function(event){ event.preventDefault(); dayStatus.textContent=''; createDayItem({ title:dayForm.elements.title.value,dateKey:dayForm.elements.dateKey.value,time:dayForm.elements.time.value,type:dayForm.elements.type.value,prayerKey:dayForm.elements.prayerKey.value,prayerPlan:dayForm.elements.prayerKey.value?dayForm.elements.prayerPlan.value:'none' }).then(function(){ dayForm.elements.title.value='';dayForm.elements.time.value='';dayStatus.textContent='U ruajt në pajisje.';refreshDay(); }).catch(function(){dayStatus.textContent='Kontrollo të dhënat dhe provo përsëri.';}); });
   if (dayForm) {
     listen(dayForm.elements.dateKey, 'change', refreshDay);

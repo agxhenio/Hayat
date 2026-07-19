@@ -5,7 +5,7 @@
 
 import { getMburojaChapter } from './mburoja-catalog.js';
 
-export const MBUROJA_CONTENT_VERSION = 2;
+export const MBUROJA_CONTENT_VERSION = 3;
 export const MBUROJA_CONTENT_REVIEW_STATUS = 'qualified-review-required';
 
 function textItem(id, titleSq, arabic, transliterationSq, translationSq, repetitions, sourceSq) {
@@ -282,7 +282,38 @@ var RAW_CHAPTERS = [
       'Elḥamdu lil-lãhi ḥamden kethĩran ṭajjiben mubãraken fĩhi, ġajra mekfijjin we lã muwedde’in, we lã musteġnen ‘anhu Rabbenã.',
       'Lavdia i takon Allahut! Atij i bëjmë shumë lavdi të dëlira dhe të bekuara. Ne nuk do ta lëmë lavdërimin e Tij dhe gjithmonë do të kemi nevojë për Të. O Zoti ynë, pranoje lavdërimin tonë!',
       1, 'Sahih al-Bukhari · Mburoja, f. 107–108')
+  ]),
+  chapter(95, 'Kur vendos këmbën për të hipur thuhet “Bismil-lãh”; pjesa tjetër thuhet pasi ulemi në mjet.', [
+    textItem('ride-opening', 'Fillimi i duasë së hipjes', 'بِسْمِ اللَّهِ، وَالْحَمْدُ لِلَّهِ', 'Bismil-lãh, welḥamdu lil-lãh.', 'Me emrin e Allahut! Falënderimi i takon Allahut!', 1, 'Ebu Davudi dhe Tirmidhiu · Mburoja, f. 117–118'),
+    quranLink('ride-quran', 'Lexo Ez-Zuhruf 13–14', 43, 13, 14, 'Ez-Zuhruf 43:13–14 · Mburoja, f. 117'),
+    textItem('ride-praise-forgiveness', 'Lavdërimi dhe kërkimi i faljes', 'الْحَمْدُ لِلَّهِ، الْحَمْدُ لِلَّهِ، الْحَمْدُ لِلَّهِ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، سُبْحَانَكَ اللَّهُمَّ إِنِّي ظَلَمْتُ نَفْسِي فَاغْفِرْ لِي، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ', 'Elḥamdu lil-lãh, Elḥamdu lil-lãh, Elḥamdu lil-lãh! All-llãhu Ekber, All-llãhu Ekber, All-llãhu Ekber! Subḥãnekall-llãhumme innĩ ḍhalemtu nefsĩ, feġfir lĩ, fe innehu lã jeġfirudh-dhunũbe il-lã Ente.', 'Falënderimi i takon Allahut! (tri herë.) Allahu është më i Madhi! (tri herë.) I Patëmeta je Ti, o Allah! Me të vërtetë, unë i kam bërë padrejtësi vetes, prandaj më fal, sepse askush tjetër veç Teje nuk i fal gjynahet!', 1, 'Ebu Davudi dhe Tirmidhiu · Mburoja, f. 117–118')
+  ]),
+  chapter(96, 'Pas tri tekbireve lexohet Ez-Zuhruf 13–14 dhe vazhdohet me duanë e udhëtimit.', [
+    textItem('travel-takbir', 'Tekbiri para duasë', 'اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ', 'All-llãhu Ekber, All-llãhu Ekber, All-llãhu Ekber!', 'Allahu është më i Madhi! (tri herë.)', 1, 'Muslimi · Mburoja, f. 118'),
+    quranLink('travel-quran', 'Lexo Ez-Zuhruf 13–14', 43, 13, 14, 'Ez-Zuhruf 43:13–14 · Muslimi · Mburoja, f. 118'),
+    textItem('travel-main-dua', 'Lutja e udhëtimit', 'اللَّهُمَّ إِنَّا نَسْأَلُكَ فِي سَفَرِنَا هَذَا الْبِرَّ وَالتَّقْوَى، وَمِنَ الْعَمَلِ مَا تَرْضَى، اللَّهُمَّ هَوِّنْ عَلَيْنَا سَفَرَنَا هَذَا وَاطْوِ عَنَّا بُعْدَهُ، اللَّهُمَّ أَنْتَ الصَّاحِبُ فِي السَّفَرِ، وَالْخَلِيفَةُ فِي الْأَهْلِ، اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ وَعْثَاءِ السَّفَرِ، وَكَآبَةِ الْمَنْظَرِ، وَسُوءِ الْمُنْقَلَبِ فِي الْمَالِ وَالْأَهْلِ', 'All-llãhumme innã nes’eluke fĩ seferinã hãdhã el birr-rra wet-taḳwã, we minel ‘ameli mã terḍã. All-llãhumme hewwin ‘alejnã seferenã hãdhã, weṭwi ‘annã bu‘ëdehu. All-llãhumme Enteṣ-ṣãḥibu fis-seferi, wel ḣalĩfetu fil ehli. All-llãhumme innĩ e‘ũdhu bike min wa‘ëthãis-sefer, we keãbetil menḍhar, we sũil munḳalebi fil mãli wel ehl.', 'O Allah! Në këtë udhëtim të kërkojmë mirësi, devotshmëri dhe vepra që Ti i pëlqen. Na e lehtëso udhëtimin dhe na e shkurto largësinë. Ti je Shoqëruesi në udhëtim dhe Kujdestari i familjes. Më ruaj nga vështirësitë e udhëtimit, pamja e trishtueshme dhe kthimi i keq te pasuria e familja!', 1, 'Muslimi · Mburoja, f. 118–119'),
+    textItem('travel-return-addition', 'Shtesa gjatë kthimit', 'آيِبُونَ، تَائِبُونَ، عَابِدُونَ، لِرَبِّنَا حَامِدُونَ', 'Ãjibũne, tãibũne, ‘ãbidũne, li Rabbinã ḥãmidũn!', 'Po kthehemi të penduar, adhurues dhe falënderues ndaj Zotit tonë!', 1, 'Muslimi · Mburoja, f. 119')
+  ]),
+  chapter(97, '', [textItem('enter-town', 'Kur hyjmë në një qytet ose vendbanim', 'اللَّهُمَّ رَبَّ السَّمَاوَاتِ السَّبْعِ وَمَا أَظْلَلْنَ، وَرَبَّ الْأَرَضِينَ السَّبْعِ وَمَا أَقْلَلْنَ، وَرَبَّ الشَّيَاطِينِ وَمَا أَضْلَلْنَ، وَرَبَّ الرِّيَاحِ وَمَا ذَرَيْنَ، أَسْأَلُكَ خَيْرَ هَذِهِ الْقَرْيَةِ، وَخَيْرَ أَهْلِهَا، وَخَيْرَ مَا فِيهَا، وَأَعُوذُ بِكَ مِنْ شَرِّهَا، وَشَرِّ أَهْلِهَا، وَشَرِّ مَا فِيهَا', 'All-llãhumme Rabbes-semãwãtis-seb‘i we mã aḍhlelne, we Rabbel erãḍĩnes-seb‘i we mã aḳlelne, we Rabbesh-shejãṭĩni we mã aḍlelne, we Rabberr-rrijãḥi we mã dherajne! Es’eluke ḣajra hãdhihil ḳarjeti, we ḣajra ehlihã, we ḣajra mã fĩhã, we e‘ũdhu bike min sherrihã, we sherri ehlihã, we sherri mã fĩhã.', 'O Allah, Zot i shtatë qiejve dhe asaj që kanë nën strehë, Zot i shtatë tokave dhe asaj që mbajnë, Zot i shejtanëve dhe atyre që çojnë në humbje, Zot i erërave dhe asaj që shpërndajnë! Të kërkoj të mirën e këtij vendbanimi, të banorëve dhe të gjithçkaje në të; më mbroj nga e keqja e tij, e banorëve dhe e gjithçkaje në të!', 1, 'Hakimi dhe Ibn Sunni · Mburoja, f. 119–120')]),
+  chapter(98, '', [textItem('enter-market', 'Kur hyjmë në treg', 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، يُحْيِي وَيُمِيتُ، وَهُوَ حَيٌّ لَا يَمُوتُ، بِيَدِهِ الْخَيْرُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', 'Lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh, lehul mulku we lehul ḥamdu, juḥjĩ we jumĩt, we huwe Ḥajjun lã jemũtu, bi jedihil ḣajru, we huwe ‘alã kul-li shej’in ḳadĩr.', 'S’ka të adhuruar me të drejtë veç Allahut, Një dhe i Pashoq! Atij i takon sundimi dhe lavdia. Ai jep jetë dhe vdekje. Ai është i Gjallë, i Pavdekshëm! E gjithë e mira është në dorën e Tij dhe Ai është i Plotfuqishëm për çdo gjë!', 1, 'Tirmidhiu · Mburoja, f. 120')]),
+  chapter(99, '', [textItem('animal-stumbles', 'Kur kafsha e udhëtimit pengohet', 'بِسْمِ اللَّهِ', 'Bismil-lãh.', 'Me emrin e Allahut.', 1, 'Ebu Davudi · Mburoja, f. 121')]),
+  chapter(100, '', [textItem('traveler-farewell', 'Udhëtari kur ndahet me njerëzit', 'أَسْتَوْدِعُكُمُ اللَّهَ الَّذِي لَا تَضِيعُ وَدَائِعُهُ', 'Estewdi‘ukumull-llãhel-ledhĩ lã teḍĩ‘u wedãi‘uhu.', 'Ju lë amanet tek Allahu, të Cilit nuk i humbin amanetet.', 1, 'Ahmedi · Mburoja, f. 121')]),
+  chapter(101, '', [
+    textItem('farewell-to-traveler', 'Lutja për udhëtarin', 'أَسْتَوْدِعُ اللَّهَ دِينَكَ، وَأَمَانَتَكَ، وَخَوَاتِيمَ عَمَلِكَ', 'Estewdi‘ull-llãhe dĩneke, we emãneteke, we ḣawãtĩme ‘amelike!', 'Po i lë amanet Allahut fenë tënde, amanetin tënd dhe përfundimin e veprave të tua!', 1, 'Ahmedi · Mburoja, f. 121'),
+    textItem('traveler-provision', 'Urimi për devotshmëri dhe mirësi', 'زَوَّدَكَ اللَّهُ التَّقْوَى، وَغَفَرَ ذَنْبَكَ، وَيَسَّرَ لَكَ الْخَيْرَ حَيْثُ مَا كُنْتَ', 'Zewwedekall-llãhut-taḳwã, we ġafera dhenbeke, we jessera lekel ḣajra ḥajthu mã kunte!', 'Allahu të pajistë me devotshmëri, ta faltë gjynahun dhe ta bëftë mbarë të mirën kudo qofsh!', 1, 'Tirmidhiu · Mburoja, f. 121–122')
+  ]),
+  chapter(102, 'Gjatë udhëtimit, kur ngjitemi përpjetë thuhet tekbiri; kur zbresim tatëpjetë thuhet tesbihu.', [
+    textItem('travel-uphill', 'Kur ngjitemi përpjetë', 'اللَّهُ أَكْبَرُ', 'All-llãhu Ekber.', 'Allahu është më i Madhi.', 1, 'Buhariu · Mburoja, f. 122'),
+    textItem('travel-downhill', 'Kur zbresim tatëpjetë', 'سُبْحَانَ اللَّهِ', 'Subḥãnall-llãh.', 'I Dëlirë nga të metat është Allahu.', 1, 'Buhariu · Mburoja, f. 122')
+  ]),
+  chapter(103, '', [textItem('traveler-before-dawn', 'Dhikri pak para agimit', 'سَمَّعَ سَامِعٌ بِحَمْدِ اللَّهِ، وَحُسْنِ بَلَائِهِ عَلَيْنَا، رَبَّنَا صَاحِبْنَا، وَأَفْضِلْ عَلَيْنَا، عَائِذًا بِاللَّهِ مِنَ النَّارِ', 'Semme‘a sãmi‘un biḥamdil-lãhi we ḥusni belãihi ‘alejnã, Rabbenã ṣãḥibnã, we efḍil ‘alejnã, ‘ãidhen bil-lãhi minen-nãr.', 'Kush dëgjon lavdin që po i bëjmë Allahut dhe mirënjohjen për mirësitë e Tij, le t’ia përcjellë një tjetri! O Zoti ynë, na ruaj dhe na jep mirësi! I lutemi Allahut të na mbrojë nga Zjarri!', 1, 'Muslimi · Mburoja, f. 122–123')]),
+  chapter(104, '', [textItem('staying-place', 'Kur qëndrojmë në një vend', 'أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ', 'E‘ũdhu bi kelimãtil-lãhit-tãmmãti min sherri mã ḣaleḳ.', 'Mbrohem me fjalët e përkryera të Allahut nga sherri i gjithçkaje që Ai ka krijuar!', 1, 'Muslimi · Mburoja, f. 123')]),
+  chapter(105, 'Gjatë kthimit, mbi çdo vend të ngritur bëhen tri tekbire dhe pastaj thuhet ky dhikër.', [textItem('return-from-travel', 'Dhikri i kthimit nga udhëtimi', 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ، وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، آيِبُونَ، تَائِبُونَ، عَابِدُونَ، لِرَبِّنَا حَامِدُونَ، صَدَقَ اللَّهُ وَعْدَهُ، وَنَصَرَ عَبْدَهُ، وَهَزَمَ الْأَحْزَابَ وَحْدَهُ', 'Lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh, lehul mulku, we lehul ḥamdu, we huwe ‘alã kul-li shej’in ḳadĩr. Ãjibũne, tãibũne, ‘ãbidũne, li Rabbinã ḥãmidũn. Ṣadeḳall-llãhu wa‘ëdehu, we neṣara ‘abdehu, we hezemel aḥzãbe waḥdehu.', 'S’ka të adhuruar me të drejtë përveç Allahut, Një dhe i Pashoq! Atij i përket sundimi dhe lavdia, dhe Ai është i Fuqishëm për çdo gjë. Po kthehemi të penduar, adhurues e falënderues ndaj Zotit tonë. Allahu e përmbushi premtimin, e ndihmoi robin e Vet dhe i mposhti i Vetëm grupet aleate.', 1, 'Buhariu dhe Muslimi · Mburoja, f. 123–124')]),
+  chapter(106, 'Thuhet forma përkatëse sipas asaj që ka ndodhur.', [
+    textItem('joyful-news', 'Kur vjen diçka që gëzon', 'الْحَمْدُ لِلَّهِ الَّذِي بِنِعْمَتِهِ تَتِمُّ الصَّالِحَاتُ', 'Elḥamdu lil-lãhil-ledhĩ bi ni‘ëmetihi tetimmuṣ-ṣãliḥãt.', 'Lavdia i takon Allahut, me mirësinë e të Cilit plotësohen të mirat.', 1, 'Ibn Maxhe; vlerësuar i mirë · Mburoja, f. 124'),
+    textItem('unwelcome-news', 'Kur vjen diçka e padëshiruar', 'الْحَمْدُ لِلَّهِ عَلَى كُلِّ حَالٍ', 'Elḥamdu lil-lãhi ‘alã kul-li ḥãl.', 'Lavdia i takon Allahut për çfarëdolloj gjendjeje!', 1, 'Ibn Maxhe; vlerësuar i mirë · Mburoja, f. 124–125')
   ])
+
 ];
 
 export const MBUROJA_CONTENT = Object.freeze(RAW_CHAPTERS.map(function (entry) {
@@ -301,7 +332,7 @@ export function getMburojaContent(number) {
 }
 
 export function validateMburojaContent() {
-  var expected = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,34,35,36,37,38,39,40,41,42,43,44,45,46,69,70];
+  var expected = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,34,35,36,37,38,39,40,41,42,43,44,45,46,69,70,95,96,97,98,99,100,101,102,103,104,105,106];
   var ids = new Set();
   return MBUROJA_CONTENT.length === expected.length && MBUROJA_CONTENT.every(function (entry, index) {
     if (entry.number !== expected[index] || !getMburojaChapter(entry.number) ||
@@ -324,4 +355,4 @@ export function validateMburojaContent() {
   });
 }
 
-if (!validateMburojaContent()) throw new Error('Mburoja content pack 2 failed validation');
+if (!validateMburojaContent()) throw new Error('Mburoja content pack 3 failed validation');

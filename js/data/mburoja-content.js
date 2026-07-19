@@ -1,11 +1,11 @@
 /**
- * Hayat — Audited Mburoja content pack 1.
+ * Hayat — Audited Mburoja content packs 1–2.
  * Source: “Mburoja e Muslimanit”, Albanian edition, IslamHouse.
  */
 
 import { getMburojaChapter } from './mburoja-catalog.js';
 
-export const MBUROJA_CONTENT_VERSION = 1;
+export const MBUROJA_CONTENT_VERSION = 2;
 export const MBUROJA_CONTENT_REVIEW_STATUS = 'qualified-review-required';
 
 function textItem(id, titleSq, arabic, transliterationSq, translationSq, repetitions, sourceSq) {
@@ -17,6 +17,17 @@ function textItem(id, titleSq, arabic, transliterationSq, translationSq, repetit
     transliterationSq: transliterationSq,
     translationSq: translationSq,
     repetitions: repetitions || 1,
+    sourceSq: sourceSq,
+    reviewStatus: MBUROJA_CONTENT_REVIEW_STATUS
+  };
+}
+
+function instructionItem(id, titleSq, bodySq, sourceSq) {
+  return {
+    id: id,
+    type: 'instruction',
+    titleSq: titleSq,
+    bodySq: bodySq,
     sourceSq: sourceSq,
     reviewStatus: MBUROJA_CONTENT_REVIEW_STATUS
   };
@@ -166,6 +177,81 @@ var RAW_CHAPTERS = [
       'Në emër të Allahut; salavati dhe selami qofshin për të Dërguarin e Allahut. O Allah! Të lutem të më japësh nga mirësitë e Tua. O Allah, më mbroj nga shejtani i mallkuar!',
       1, 'Muslimi dhe Ibn Maxhe · Mburoja, f. 21–22')
   ]),
+  chapter(34, 'Këto lutje thuhen për largimin e ankthit, shqetësimit dhe trishtimit.', [
+    textItem('distress-quran-heart', 'Kurani, pranverë e zemrës',
+      'اللَّهُمَّ إِنِّي عَبْدُكَ، ابْنُ عَبْدِكَ، ابْنُ أَمَتِكَ، نَاصِيَتِي بِيَدِكَ، مَاضٍ فِيَّ حُكْمُكَ، عَدْلٌ فِيَّ قَضَاؤُكَ، أَسْأَلُكَ بِكُلِّ اسْمٍ هُوَ لَكَ، سَمَّيْتَ بِهِ نَفْسَكَ، أَوْ أَنْزَلْتَهُ فِي كِتَابِكَ، أَوْ عَلَّمْتَهُ أَحَدًا مِنْ خَلْقِكَ، أَوِ اسْتَأْثَرْتَ بِهِ فِي عِلْمِ الْغَيْبِ عِنْدَكَ، أَنْ تَجْعَلَ الْقُرْآنَ رَبِيعَ قَلْبِي، وَنُورَ صَدْرِي، وَجَلَاءَ حُزْنِي، وَذَهَابَ هَمِّي',
+      'All-llãhumme, innĩ ‘abduke, ibnu ‘abdike, ibnu emetike! Nãṣijetĩ bi jedike! Mãḍin fijje ḥukmuke! ‘Adlun fijje ḳaḍãuke! Es’eluke bi kul-lismin huwe lek, semmejte bihi nefsek, ew enzeltehu fĩ kitãbike, ew ‘al-lemtehu eḥaden min ḣalḳike ew iste’therte bihi fĩ ‘ilmil ġajbi ‘indek, en texh’alel Kur’ãne rabĩ‘a ḳalbĩ, we nũra ṣadrĩ, we xhelãe ḥuznĩ, we dhehãbe hemmĩ!',
+      'O Allah, unë jam robi Yt, biri i robit Tënd, biri i robëreshës Tënde! Qenia ime është në dorën Tënde! Vendimi Yt mbi mua sigurisht që ndodh! Të drejta janë të gjitha caktimet e Tua për mua! Po të drejtohem me të gjithë emrat e Tu, me të cilët e ke emërtuar Veten, apo të cilët i ke shpallur në Librin Tënd, apo të cilët ia ke mësuar ndonjë prej krijesave të Tua, apo të cilët i ke ruajtur në dijen Tënde të fshehtë: që ta bësh Kuranin pranverë të zemrës sime, dritë të gjoksit tim, largues të trishtimit tim dhe heqës të ankthit tim!',
+      1, 'Ahmedi; Albani e vlerëson hadithin të saktë · Mburoja, f. 80–81'),
+    textItem('distress-protection', 'Mbrojtja nga shqetësimi dhe rëndimi',
+      'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ وَغَلَبَةِ الرِّجَالِ',
+      'All-llãhumme innĩ e‘ũdhu bike minel hemmi wel ḥazeni, wel ‘axhzi wel keseli, wel buḣli wel xhubni, we ḍale‘id-dejni we ġalebetirr-rrixhãl.',
+      'O Allah! Më mbroj nga shqetësimi dhe trishtimi, nga paaftësia dhe përtacia, nga koprracia dhe frika, nga rëndimi i borxhit dhe shtypja e njerëzve!',
+      1, 'Buhariu · Mburoja, f. 81')
+  ]),
+  chapter(35, 'Këto lutje thuhen në gjendje sprove dhe mundimi.', [
+    textItem('trial-great-throne', 'Zoti i Fronit madhështor',
+      'لَا إِلَهَ إِلَّا اللَّهُ الْعَظِيمُ الْحَلِيمُ، لَا إِلَهَ إِلَّا اللَّهُ رَبُّ الْعَرْشِ الْعَظِيمِ، لَا إِلَهَ إِلَّا اللَّهُ رَبُّ السَّمَاوَاتِ وَرَبُّ الْأَرْضِ وَرَبُّ الْعَرْشِ الْكَرِيمِ',
+      'Lã ilãhe il-lall-llãhu, El ‘Aḍhĩmul Ḥalĩm! Lã ilãhe il-lall-llãhu, Rabbul ‘arshil ‘aḍhĩm! Lã ilãhe il-lall-llãhu Rabbus-semawãti, we Rabbul erḍi, we Rabbul ‘arshil kerĩm!',
+      'Nuk ka të adhuruar me të drejtë veç Allahut, të Madhërishmit, Duruesit! Nuk ka të adhuruar me të drejtë veç Allahut, Zotit të Fronit madhështor! Nuk ka të adhuruar me të drejtë veç Allahut, Zotit të shtatë qiejve, Zotit të tokës, Zotit të Fronit të Nderuar!',
+      1, 'Buhariu dhe Muslimi · Mburoja, f. 82'),
+    textItem('trial-mercy', 'Në mëshirën Tënde shpresoj',
+      'اللَّهُمَّ رَحْمَتَكَ أَرْجُو، فَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ، وَأَصْلِحْ لِي شَأْنِي كُلَّهُ، لَا إِلَهَ إِلَّا أَنْتَ',
+      'All-llãhumme! Raḥmeteke erxhũ! Felã tekilnĩ ilã nefsĩ ṭarfete ‘ajnin, we aṣliḥ lĩ she’nĩ kul-lehu, lã ilãhe il-lã Ente!',
+      'O Allah! Në mëshirën Tënde shpresoj! Mos më lër të mbështetem në veten time as sa një pulitje sysh dhe m’i rregullo mua të gjitha çështjet e mia! Nuk ka të adhuruar me të drejtë veç Teje!',
+      1, 'Ebu Davudi dhe Ahmedi · Mburoja, f. 82'),
+    textItem('trial-yunus', 'Lutja e Junusit', 'لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ',
+      'Lã ilãhe il-lã Ente, Subḥãneke, innĩ kuntu mineḍh-ḍhãlimĩn!',
+      'Nuk ka të adhuruar me të drejtë veç Teje! I dëlirë je Ti nga çdo e metë! Vërtet, unë jam gjynahqar!', 1,
+      'Tirmidhiu · Mburoja, f. 82'),
+    textItem('trial-allah-my-lord', 'Allahu është Zoti im', 'اللَّهُ اللَّهُ رَبِّي لَا أُشْرِكُ بِهِ شَيْئًا',
+      'Allãhu, Allãhu Rabbĩ! Lã ushriku bihi shej’en.', 'Allahu, Allahu është Zoti im! Unë nuk shoqëroj asgjë e asnjë me Të!', 1,
+      'Ebu Davudi · Mburoja, f. 83')
+  ]),
+  chapter(36, 'Këto lutje thuhen kur përballemi me armikun ose me njeriun me pushtet.', [
+    textItem('enemy-protection', 'Mbrojtja nga e keqja e tyre', 'اللَّهُمَّ إِنَّا نَجْعَلُكَ فِي نُحُورِهِمْ، وَنَعُوذُ بِكَ مِنْ شُرُورِهِمْ',
+      'All-llãhumme innã nexh’aluke fĩ nuḥũrihim, we ne‘ũdhu bike min shurũrihim.', 'O Allah, të lutemi të na i shmangësh ata dhe të na ruash prej të këqijave të tyre.', 1,
+      'Ebu Davudi dhe Hakimi · Mburoja, f. 83'),
+    textItem('enemy-support', 'Ti je ndihmësi im', 'اللَّهُمَّ أَنْتَ عَضُدِي، وَأَنْتَ نَصِيرِي، بِكَ أَحُولُ، وَبِكَ أَصُولُ، وَبِكَ أُقَاتِلُ',
+      'All-llãhumme Ente aḍudĩ, we Ente neṣĩrĩ, bike eḥũlu, we bike eṣũlu, we bike uḳãtil.', 'O Allah! Ti je krahu im, Ti je ndihmësi im, me ndihmën Tënde arrij të shmang kurthin e armikut, të bëj mësymje shpartalluese dhe t’i luftoj armiqtë.', 1,
+      'Ebu Davudi dhe Tirmidhiu · Mburoja, f. 83'),
+    textItem('enemy-sufficient', 'Na mjafton Allahu', 'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ', 'Ḥasbunall-llãhu we ni‘ëmel Wekĩl.',
+      'Na mjafton Allahu, dhe Ai për ne është Rregulluesi më i mirë i punëve!', 1, 'Buhariu · Mburoja, f. 83–84')
+  ]),
+  chapter(37, 'Te vendi “filani, i biri i filanit” përmendet emri i personit nga i cili kërkohet mbrojtje.', [
+    textItem('ruler-protection', 'Mbrojtja nga zullumi',
+      'اللَّهُمَّ رَبَّ السَّمَاوَاتِ السَّبْعِ، وَرَبَّ الْعَرْشِ الْعَظِيمِ، كُنْ لِي جَارًا مِنْ فُلَانِ بْنِ فُلَانٍ، وَأَحْزَابِهِ مِنْ خَلَائِقِكَ، أَنْ يَفْرُطَ عَلَيَّ أَحَدٌ مِنْهُمْ أَوْ يَطْغَى، عَزَّ جَارُكَ، وَجَلَّ ثَنَاؤُكَ، وَلَا إِلَهَ إِلَّا أَنْتَ',
+      'All-llãhumme Rabbes-semãwãtis-seb‘i we Rabbel ‘arshil ‘aḍhĩm, kun lĩ xhãran min fulãn ibni fulãn, we aḥzãbihi min ḣalãiḳike, en jefruṭa ‘alejje eḥadun minhum ew jeṭġã. ‘Azze xhãruke, we xhel-le thenãuke, we lã ilãhe il-lã Ente.',
+      'O Allah! Zoti i shtatë qiejve dhe Zoti i Fronit madhështor! Më mbroj nga dëmi i filanit të birit të filanit dhe grupeve të tij prej krijesave Tua, që të mos më sulmojë ndonjëri prej tyre dhe të mos më bëjë padrejtësi! Ngadhënjyes dhe i fortë qoftë ai që të kërkon mbrojtje Ty! E lartë është lavdia Jote! Nuk ka të adhuruar me të drejtë veç Teje!', 1,
+      'Buhariu në Edebul Mufred · Mburoja, f. 84'),
+    textItem('ruler-protection-long', 'Mbrojtja e Allahut nga dëmi i tyre',
+      'اللَّهُ أَكْبَرُ، اللَّهُ أَعَزُّ مِنْ خَلْقِهِ جَمِيعًا، اللَّهُ أَعَزُّ مِمَّا أَخَافُ وَأَحْذَرُ، وَأَعُوذُ بِاللَّهِ الَّذِي لَا إِلَهَ إِلَّا هُوَ، الْمُمْسِكِ السَّمَاوَاتِ السَّبْعَ أَنْ يَقَعْنَ عَلَى الْأَرْضِ إِلَّا بِإِذْنِهِ، مِنْ شَرِّ عَبْدِكَ فُلَانٍ، وَجُنُودِهِ وَأَتْبَاعِهِ وَأَشْيَاعِهِ مِنَ الْجِنِّ وَالْإِنْسِ، اللَّهُمَّ كُنْ لِي جَارًا مِنْ شَرِّهِمْ، جَلَّ ثَنَاؤُكَ، وَعَزَّ جَارُكَ، وَتَبَارَكَ اسْمُكَ، وَلَا إِلَهَ غَيْرُكَ',
+      'All-llãhu ekber, All-llãhu e‘azzu min ḣalḳihi xhemĩ‘an, All-llãhu e‘azzu mimmã eḣãfu we aḥdheru, we e‘ũdhu bil-lãhil-ledhĩ lã ilãhe il-lã huwel mumsikus-semawãtis-seb‘i en jeḳa‘ëne ‘alel erḍi il-lã bi idhnihi, min sherri ‘abdike fulãn, we xhunũdihi we etbã‘ihi we eshjã‘ihi minel xhinni wel insi. All-llãhumme kun lĩ xhãran min sherrihim, xhel-le thenãuke we ‘azze xhãruke we tebãrekesmuke we lã ilãhe ġajruke.',
+      'Allahu është më i madhi. Allahu është më i fortë se të gjitha krijesat e Tij. Allahu është më i fuqishëm se krijesa që unë e kam frikë dhe i ruhem. Unë kërkoj mbrojtje tek Allahu, përveç të Cilit nuk ka hyjni të vërtetë, dhe i Cili i mban shtatë qiejt të mos bien në Tokë veçse me lejen e Tij; nga sherri i robit Tënd, filanit, ushtarëve, pasuesve dhe përkrahësve të tij prej xhindëve dhe njerëzve. O Allah, më mbroj nga dëmi i tyre. E lartë është Lavdia Jote! Ngadhënjyes dhe i fortë qoftë ai që të kërkon mbrojtje Ty! Emri Yt është i bekuar! Nuk ka të adhuruar të vërtetë përveç Teje!', 3,
+      'Buhariu në Edebul Mufred · Mburoja, f. 84–85')
+  ]),
+  chapter(38, '', [textItem('against-enemy', 'Lutja kundër armikut', 'اللَّهُمَّ مُنْزِلَ الْكِتَابِ، سَرِيعَ الْحِسَابِ، اهْزِمِ الْأَحْزَابَ، اللَّهُمَّ اهْزِمْهُمْ وَزَلْزِلْهُمْ',
+    'All-llãhumme munzilel kitãb, serĩ‘al ḥisãb, ihzimil aḥzãb. All-llãhumme ihzimhum we zelzilhum.', 'O Allah, o Zbritësi i Librit, o Ti që e bën shpejt llogarinë e krijesave, mposhti ushtritë! O Allah, mposhti ata dhe tronditi, që të mos kenë qëndresë.', 1, 'Muslimi · Mburoja, f. 86')]),
+  chapter(39, '', [textItem('fear-group', 'Mbrojtja prej një grupi', 'اللَّهُمَّ اكْفِنِيهِمْ بِمَا شِئْتَ', 'All-llãhumme ikfinĩhim bimã shi’te!', 'O Allah, më ruaj prej tyre me mënyrën që Ti do!', 1, 'Muslimi · Mburoja, f. 86')]),
+  chapter(40, 'Kërkohet mbrojtja e Allahut dhe hiqet vëmendja nga dyshimi.', [
+    textItem('faith-doubt-refuge', 'Kërkimi i mbrojtjes', 'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ', 'E‘ũdhu bil-lãhi minesh-shejṭãnirr-rraxhĩm.', 'I mbështetem Allahut të më mbrojë nga shejtani i mallkuar.', 1, 'Buhariu dhe Muslimi · Mburoja, f. 86'),
+    textItem('faith-doubt-belief', 'Pohimi i besimit', 'آمَنْتُ بِاللَّهِ وَرُسُلِهِ', 'Ãmentu bil-lãhi we rusulihi.', 'Besova në Allahun dhe të Dërguarit e Tij.', 1, 'Muslimi · Mburoja, f. 87'),
+    quranLink('faith-doubt-hadid', 'Lexo El-Hadid, ajeti 3', 57, 3, 3, 'El-Hadid 57:3 · Ebu Davudi · Mburoja, f. 87')
+  ]),
+  chapter(41, 'Këto lutje bëhen për shlyerjen e borxheve.', [
+    textItem('debt-halal-provision', 'Mjaftimi me hallall', 'اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ، وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ', 'All-llãhumme ikfinĩ bi ḥalãlike ‘an ḥarãmike, we eġninĩ bi faḍlike ‘am-men siwãke.', 'O Allah, më ruaj me rrizk të mjaftueshëm hallall nga harami, dhe m’i plotëso nevojat me mirësinë Tënde, që të mos kem nevojë për askënd tjetër veç Teje.', 1, 'Tirmidhiu · Mburoja, f. 87'),
+    textItem('debt-burden', 'Mbrojtja nga rëndimi i borxhit', 'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ وَغَلَبَةِ الرِّجَالِ', 'All-llãhumme innĩ e‘ũdhu bike minel hemmi wel ḥazeni, wel ‘axhzi wel keseli, wel buḣli wel xhubni, we ḍale‘id-dejni we ġalebetirr-rrixhãl!', 'O Allah! Më mbroj nga ankthi dhe dëshpërimi, nga paaftësia dhe përtacia, nga koprracia dhe frika, nga zhytja në borxhe dhe shtypja e burrave mizorë!', 1, 'Buhariu · Mburoja, f. 88')
+  ]),
+  chapter(42, 'Pas kërkimit të mbrojtjes, pështyhet lehtë tri herë në të majtë.', [textItem('prayer-whisper-refuge', 'Mbrojtja gjatë namazit dhe leximit', 'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ', 'E‘ũdhu bil-lãhi minesh-shejṭãnirr-rraxhĩm.', 'I mbështetem Allahut të më mbrojë nga shejtani i mallkuar.', 1, 'Muslimi · Mburoja, f. 88')]),
+  chapter(43, '', [textItem('difficulty-ease', 'Kur vështirësohen çështjet', 'اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا', 'All-llãhumme lã sehle il-lã mã xhe‘altehu sehlen, we Ente texh‘alul ḥazne idhã shi’te sehlã!', 'O Allah! Asgjë nuk është e lehtë përveç asaj që Ti e bën të lehtë. Ti e bën të vështirën, nëse dëshiron, të lehtë.', 1, 'Ibn Hibani · Mburoja, f. 88–89')]),
+  chapter(44, 'Pas një gjynahu: pastrohu mirë me abdes ose gusul, fal dy rekate namaz dhe kërkoji falje Allahut.', [
+    instructionItem('sin-repentance-action', 'Pendimi pas gjynahut', 'Pejgamberi ﷺ ka treguar se robi që, pasi bën një gjynah, pastrohet mirë, fal dy rekate dhe i kërkon falje Allahut, Allahu ia fal gjynahun.', 'Ebu Davudi dhe Tirmidhiu · Mburoja, f. 89')
+  ]),
+  chapter(45, 'Krahas kërkimit të mbrojtjes, burimi udhëzon thirrjen e ezanit, dhikrin ditor dhe leximin e Kuranit.', [
+    textItem('whispers-refuge', 'Kërkimi i mbrojtjes nga shejtani', 'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ', 'E‘ũdhu bil-lãhi minesh-shejṭãnirr-rraxhĩm.', 'I mbështetem Allahut të më mbrojë nga shejtani i mallkuar.', 1, 'Ebu Davudi · Mburoja, f. 89'),
+    instructionItem('whispers-practices', 'Veprime të përmendura në burim', 'Thirre ezanin; bëj dhikrin ditor; lexo Kuran. Burimi përmend veçanërisht suren El-Bekare, Ajetin Kursi, dy ajetet e fundit të El-Bekares dhe dhikret e ligjshme të mëngjesit, mbrëmjes, gjumit, shtëpisë e xhamisë.', 'Buhariu dhe Muslimi; Muslimi · Mburoja, f. 89–90')
+  ]),
+  chapter(46, '', [textItem('disliked-decree', 'Kur ndodh diçka që nuk të pëlqen', 'قَدَرُ اللَّهِ وَمَا شَاءَ فَعَلَ', 'Ḳaderull-llãhi we mã shãe fe‘al.', 'Ky qe kaderi i Allahut. Atë që deshi Ai, e bëri.', 1, 'Muslimi · Mburoja, f. 90')]),
   chapter(69, 'Përmende emrin e Allahut para ushqimit. Nëse harrohet në fillim, përdoret formula përkatëse.', [
     textItem('food-bismillah', 'Para ushqimit', 'بِسْمِ اللَّهِ', 'Bismil-lãh.',
       'Me emrin e Allahut.', 1, 'Ebu Davudi · Mburoja, f. 106'),
@@ -215,7 +301,7 @@ export function getMburojaContent(number) {
 }
 
 export function validateMburojaContent() {
-  var expected = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,69,70];
+  var expected = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,34,35,36,37,38,39,40,41,42,43,44,45,46,69,70];
   var ids = new Set();
   return MBUROJA_CONTENT.length === expected.length && MBUROJA_CONTENT.every(function (entry, index) {
     if (entry.number !== expected[index] || !getMburojaChapter(entry.number) ||
@@ -229,6 +315,7 @@ export function validateMburojaContent() {
         return Number.isInteger(item.surah) && Number.isInteger(item.ayahStart) &&
           Number.isInteger(item.ayahEnd) && item.ayahEnd >= item.ayahStart;
       }
+      if (item.type === 'instruction') return typeof item.bodySq === 'string' && item.bodySq.length > 0;
       return item.type === 'text' && typeof item.arabic === 'string' && item.arabic.length > 0 &&
         typeof item.transliterationSq === 'string' && item.transliterationSq.length > 0 &&
         typeof item.translationSq === 'string' && item.translationSq.length > 0 &&
@@ -237,4 +324,4 @@ export function validateMburojaContent() {
   });
 }
 
-if (!validateMburojaContent()) throw new Error('Mburoja content pack 1 failed validation');
+if (!validateMburojaContent()) throw new Error('Mburoja content pack 2 failed validation');

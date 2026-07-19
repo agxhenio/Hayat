@@ -274,6 +274,11 @@ function renderAvailableChapter(page, chapter, content) {
         repetition.textContent = 'Përsëritet ×' + item.repetitions;
         body.appendChild(repetition);
       }
+    } else if (item.type === 'instruction') {
+      var instruction = document.createElement('p');
+      instruction.className = 'mburoja-entry__translation';
+      instruction.textContent = item.bodySq;
+      body.appendChild(instruction);
     } else {
       var quranNote = document.createElement('p');
       quranNote.className = 'mburoja-entry__translation';

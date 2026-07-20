@@ -30,6 +30,23 @@ export async function createDayItem(input) {
   if (!item) throw new TypeError('Invalid item');
   await putRecord(STORE, item); return item;
 }
+export async function updateDayItem(item, changes) {
+  const valid = validateDayItem(item);
+  if (!valid || !changes || typeof changes !== 'object') throw new TypeError('Invalid item update');
+  const updated = validateDayItem(Object.assign({}, valid, {
+    title: changes.title,
+    dateKey: changes.dateKey,
+    time: changes.time || '',
+    endTime: changes.endTime || '',
+    type: changes.type || 'task',
+    prayerKey: changes.prayerKey || '',
+    prayerPlan: changes.prayerKey ? (changes.prayerPlan || 'before') : 'none',
+    updatedAt: new Date().toISOString()
+  }));
+  if (!updated) throw new TypeError('Invalid item update');
+  await putRecord(STORE, updated);
+  return updated;
+}
 export async function toggleDayItem(item) {
   const valid = validateDayItem(item); if (!valid) throw new TypeError('Invalid item');
   const updated = validateDayItem(Object.assign({}, valid, { status: valid.status === 'open' ? 'completed' : 'open', updatedAt: new Date().toISOString() }));

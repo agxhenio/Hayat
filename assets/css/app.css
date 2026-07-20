@@ -3879,3 +3879,4 @@
 .day-planner-item__content h3,.day-planner-item__content p{margin:0}.day-planner-item__content p{color:var(--color-text-secondary);font-size:var(--text-sm)}
 .day-planner-item--completed .day-planner-item__content{opacity:.62}.day-planner-item--completed h3{text-decoration:line-through}.day-planner-empty{color:var(--color-text-secondary);text-align:center;padding:var(--space-6)}
 .day-planner-item__prayer-note{margin-top:var(--space-1)!important;color:var(--color-primary)!important}.day-planner-item__prayer-note--attention{color:var(--color-warning)!important}
+.day-planner-form__actions,.day-planner-item__actions{display:flex;gap:var(--space-2);align-items:center}.day-planner-item__actions{flex-direction:column;align-items:stretch}

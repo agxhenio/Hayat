@@ -10,7 +10,7 @@ import {
   searchMburojaChapters
 } from '../js/data/mburoja-catalog.js';
 import { getMburojaContent } from '../js/data/mburoja-content.js';
-import { listDayItems, createDayItem, toggleDayItem, removeDayItem } from '../js/storage/day-planner.js';
+import { listDayItems, createDayItem, updateDayItem, toggleDayItem, removeDayItem } from '../js/storage/day-planner.js';
 import { getPrayerTimes } from '../js/services/prayer-times.js';
 
 var MBUROJA_PDF_URL = 'https://d1.islamhouse.com/data/sq/ih_books/single/sq_mburoja_muslimanit.pdf';
@@ -377,9 +377,9 @@ function renderDayPlanner(page) {
   var relation=document.createElement('select');relation.className='input';relation.name='prayerPlan';relation.setAttribute('aria-label','Planifikimi ndaj namazit');relation.disabled=true;
   [['before','Namazi para aktivitetit'],['after','Namazi pas aktivitetit']].forEach(function(x){var o=document.createElement('option');o.value=x[0];o.textContent=x[1];relation.appendChild(o);});
   prayerRow.append(prayer,relation);
-  var save=document.createElement('button');save.type='submit';save.className='btn btn--primary';save.textContent='Ruaj';
+  var actions=document.createElement('div');actions.className='day-planner-form__actions'; var save=document.createElement('button');save.type='submit';save.className='btn btn--primary';save.dataset.daySave='';save.textContent='Ruaj'; var cancel=document.createElement('button');cancel.type='button';cancel.className='btn btn--ghost';cancel.dataset.dayCancel='';cancel.textContent='Anulo ndryshimin';cancel.hidden=true;actions.append(save,cancel);
   var status=document.createElement('p');status.className='day-planner-status';status.dataset.dayStatus='';status.setAttribute('role','status');
-  form.append(title,row,prayerRow,save,status); page.appendChild(form);
+  form.append(title,row,prayerRow,actions,status); page.appendChild(form);
   var heading=document.createElement('h2');heading.className='day-planner-heading';heading.textContent='Plani i ditës';
   var list=document.createElement('div');list.className='day-planner-list';list.dataset.dayList='';
   page.append(heading,list);
@@ -400,7 +400,7 @@ function paintDayItems(list, items, timings) {
       else { note.classList.add('day-planner-item__prayer-note--attention'); note.textContent='Aktiviteti fillon pas hyrjes së '+prayers[item.prayerKey]+'. Kontrollo planin e namazit.'; }
       content.appendChild(note);
     }
-    var del=document.createElement('button');del.type='button';del.className='btn btn--ghost btn--sm';del.dataset.dayDelete='';del.textContent='Hiq';card.append(check,content,del);list.appendChild(card); });
+    var itemActions=document.createElement('div');itemActions.className='day-planner-item__actions'; var edit=document.createElement('button');edit.type='button';edit.className='btn btn--ghost btn--sm';edit.dataset.dayEdit='';edit.textContent='Ndrysho'; var del=document.createElement('button');del.type='button';del.className='btn btn--ghost btn--sm';del.dataset.dayDelete='';del.textContent='Hiq';itemActions.append(edit,del);card.append(check,content,itemActions);list.appendChild(card); });
 }
 
 export function render(context) {
@@ -488,6 +488,7 @@ export function mount(page, context, appContext) {
   var dayForm = page.querySelector('[data-day-form]');
   var dayList = page.querySelector('[data-day-list]');
   var dayStatus = page.querySelector('[data-day-status]');
+  var editingItem = null;
   function prayerOptions(dateKey) {
     var settings = appContext.store.get('settings');
     if (!settings || !settings.coordinates) return null;
@@ -501,14 +502,17 @@ export function mount(page, context, appContext) {
       .then(function(result){ paintDayItems(dayList, result[0], result[1] ? result[1].timings : null); if (result[0].some(function(x){return x.prayerKey;}) && !result[1]) dayStatus.textContent='Oraret e namazit nuk janë të disponueshme; lidhja me namazin ruhet gjithsesi.'; })
       .catch(function(){ dayStatus.textContent='Të dhënat nuk u ngarkuan.'; });
   }
-  listen(dayForm, 'submit', function(event){ event.preventDefault(); dayStatus.textContent=''; createDayItem({ title:dayForm.elements.title.value,dateKey:dayForm.elements.dateKey.value,time:dayForm.elements.time.value,endTime:dayForm.elements.endTime.value,type:dayForm.elements.type.value,prayerKey:dayForm.elements.prayerKey.value,prayerPlan:dayForm.elements.prayerKey.value?dayForm.elements.prayerPlan.value:'none' }).then(function(){ dayForm.elements.title.value='';dayForm.elements.time.value='';dayForm.elements.endTime.value='';dayStatus.textContent='U ruajt në pajisje.';refreshDay(); }).catch(function(){dayStatus.textContent='Kontrollo të dhënat dhe provo përsëri.';}); });
+  function formValues(){ return {title:dayForm.elements.title.value,dateKey:dayForm.elements.dateKey.value,time:dayForm.elements.time.value,endTime:dayForm.elements.endTime.value,type:dayForm.elements.type.value,prayerKey:dayForm.elements.prayerKey.value,prayerPlan:dayForm.elements.prayerKey.value?dayForm.elements.prayerPlan.value:'none'}; }
+  function leaveEdit(message){ editingItem=null;dayForm.elements.title.value='';dayForm.elements.time.value='';dayForm.elements.endTime.value='';dayForm.elements.prayerKey.value='';dayForm.elements.prayerPlan.disabled=true;dayForm.querySelector('[data-day-save]').textContent='Ruaj';dayForm.querySelector('[data-day-cancel]').hidden=true;dayStatus.textContent=message||''; }
+  listen(dayForm, 'submit', function(event){ event.preventDefault(); dayStatus.textContent=''; var operation=editingItem?updateDayItem(editingItem,formValues()):createDayItem(formValues()); operation.then(function(){leaveEdit(editingItem?'Ndryshimi u ruajt.':'U ruajt në pajisje.');refreshDay();}).catch(function(){dayStatus.textContent='Kontrollo të dhënat dhe provo përsëri.';}); });
+  listen(dayForm && dayForm.querySelector('[data-day-cancel]'), 'click', function(){leaveEdit('Ndryshimi u anulua.');});
   if (dayForm) {
     listen(dayForm.elements.dateKey, 'change', refreshDay);
     listen(dayForm.elements.prayerKey, 'change', function () {
       dayForm.elements.prayerPlan.disabled = !dayForm.elements.prayerKey.value;
     });
   }
-  listen(dayList, 'click', function(event){ var card=event.target.closest('[data-day-id]');if(!card)return;listDayItems(dayForm.elements.dateKey.value).then(function(items){var item=items.find(function(x){return x.id===card.dataset.dayId;});if(!item)return;if(event.target.closest('[data-day-toggle]'))return toggleDayItem(item).then(refreshDay);if(event.target.closest('[data-day-delete]'))return removeDayItem(item.id).then(refreshDay);}); });
+  listen(dayList, 'click', function(event){ var card=event.target.closest('[data-day-id]');if(!card)return;listDayItems(dayForm.elements.dateKey.value).then(function(items){var item=items.find(function(x){return x.id===card.dataset.dayId;});if(!item)return;if(event.target.closest('[data-day-toggle]'))return toggleDayItem(item).then(refreshDay);if(event.target.closest('[data-day-delete]'))return removeDayItem(item.id).then(refreshDay);if(event.target.closest('[data-day-edit]')){editingItem=item;dayForm.elements.title.value=item.title;dayForm.elements.time.value=item.time;dayForm.elements.endTime.value=item.endTime;dayForm.elements.type.value=item.type;dayForm.elements.prayerKey.value=item.prayerKey;dayForm.elements.prayerPlan.value=item.prayerPlan==='none'?'before':item.prayerPlan;dayForm.elements.prayerPlan.disabled=!item.prayerKey;dayForm.querySelector('[data-day-save]').textContent='Ruaj ndryshimin';dayForm.querySelector('[data-day-cancel]').hidden=false;dayForm.elements.title.focus();dayForm.scrollIntoView({behavior:'smooth',block:'start'});}}); });
   refreshDay();
 
   return function () { cleanups.forEach(function (cleanup) { cleanup(); }); };

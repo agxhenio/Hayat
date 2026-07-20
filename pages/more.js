@@ -357,7 +357,7 @@ function localDateKey() {
   var d = new Date();
   return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
 }
-function renderDayPlanner(page) {
+function renderDayPlanner(page, selectedDate) {
   page.classList.add('day-planner-page');
   var top = document.createElement('div'); top.className = 'mburoja-page__top';
   var back = document.createElement('button'); back.type = 'button'; back.className = 'btn btn--icon btn--ghost'; back.dataset.dayBack = ''; back.setAttribute('aria-label', 'Kthehu'); back.appendChild(icon('chevron-left'));
@@ -365,7 +365,7 @@ function renderDayPlanner(page) {
   var form = document.createElement('form'); form.className = 'day-planner-form card'; form.dataset.dayForm = '';
   var title = document.createElement('input'); title.className = 'input'; title.name = 'title'; title.required = true; title.maxLength = 120; title.placeholder = 'Çfarë dëshiron të planifikosh?'; title.setAttribute('aria-label', 'Titulli');
   var row = document.createElement('div'); row.className = 'day-planner-form__row';
-  [['dateKey', 'date', 'Data'], ['time', 'time', 'Ora e fillimit'], ['endTime', 'time', 'Ora e përfundimit']].forEach(function (spec) { var input = document.createElement('input'); input.className = 'input'; input.name = spec[0]; input.type = spec[1]; input.setAttribute('aria-label', spec[2]); if (spec[0] === 'dateKey') { input.required = true; input.value = localDateKey(); } row.appendChild(input); });
+  [['dateKey', 'date', 'Data'], ['time', 'time', 'Ora e fillimit'], ['endTime', 'time', 'Ora e përfundimit']].forEach(function (spec) { var input = document.createElement('input'); input.className = 'input'; input.name = spec[0]; input.type = spec[1]; input.setAttribute('aria-label', spec[2]); if (spec[0] === 'dateKey') { input.required = true; input.value = typeof selectedDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(selectedDate) ? selectedDate : localDateKey(); } row.appendChild(input); });
   var type = document.createElement('select'); type.className = 'input'; type.name = 'type'; type.setAttribute('aria-label', 'Lloji'); [['task', 'Detyrë'], ['appointment', 'Takim'], ['reminder', 'Kujtesë']].forEach(function (x) { var option = document.createElement('option'); option.value = x[0]; option.textContent = x[1]; type.appendChild(option); }); row.appendChild(type);
   var details = document.createElement('div'); details.className = 'day-planner-form__row';
   var category = document.createElement('select'); category.className = 'input'; category.name = 'category'; category.setAttribute('aria-label', 'Kategoria'); [['', 'Pa kategori'], ['family', 'Familje'], ['work', 'Punë'], ['school', 'Shkollë'], ['personal', 'Personale']].forEach(function (x) { var option = document.createElement('option'); option.value = x[0]; option.textContent = x[1]; category.appendChild(option); });
@@ -395,7 +395,7 @@ export function render(context) {
   var page = document.createElement('div');
   page.className = 'route-page more-page';
   var params = context.params || {};
-  if (params.section === 'day') renderDayPlanner(page);
+  if (params.section === 'day') renderDayPlanner(page, params.date);
   else if (params.section !== 'mburoja') renderHub(page);
   else if (params.chapter === undefined) renderCatalog(page);
   else {

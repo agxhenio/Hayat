@@ -22,6 +22,7 @@ import { BEDTIME_QURAN_READINGS } from '../js/data/daily-dhikr.js';
 import { getSurahMetadata } from '../js/data/quran-surahs.js';
 import { getLastReadPosition } from '../js/storage/quran-reading.js';
 import { getDailyDhikrSession, DAILY_DHIKR_SESSION_STATUS } from '../js/storage/daily-dhikr-progress.js';
+import { listDayItems } from '../js/storage/day-planner.js';
 import {
   getArticlesManifest,
   getArticle,
@@ -196,6 +197,52 @@ function buildPrayerHeroSkeleton() {
   card.appendChild(actions);
 
   return card;
+}
+
+function buildNowCard() {
+  var card = document.createElement('section');
+  card.className = 'home-now card';
+  card.dataset.homeNow = '';
+  card.hidden = true;
+  var eyebrow = document.createElement('span'); eyebrow.className = 'home-now__eyebrow'; eyebrow.textContent = 'Për ty tani';
+  var title = document.createElement('h2'); title.className = 'home-now__title'; title.dataset.homeNowTitle = '';
+  var meta = document.createElement('p'); meta.className = 'home-now__meta'; meta.dataset.homeNowMeta = '';
+  var notice = document.createElement('p'); notice.className = 'home-now__notice'; notice.dataset.homeNowNotice = ''; notice.hidden = true;
+  var action = document.createElement('button'); action.type = 'button'; action.className = 'btn btn--ghost btn--sm'; action.dataset.homeNowOpen = ''; action.append(document.createTextNode('Hap planin e ditës '), createIcon('chevron-right', 'icon--sm'));
+  card.append(eyebrow, title, meta, notice, action);
+  return card;
+}
+
+function localTimeValue(date) {
+  return String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
+}
+
+function renderNowCard(card, items, timings, dateKey, now, navigate) {
+  if (!card) return;
+  var item = items.filter(function (candidate) { return candidate.status === 'open' && candidate.time && candidate.time >= now; })[0];
+  if (!item) { card.hidden = true; return; }
+  var labels = { task: 'Detyrë', appointment: 'Takim', reminder: 'Kujtesë' };
+  var categories = { family: 'Familje', work: 'Punë', school: 'Shkollë', personal: 'Personale' };
+  var prayers = { fajr: 'Sabahu', dhuhr: 'Dreka', asr: 'Ikindia', maghrib: 'Akshami', isha: 'Jacia' };
+  var title = card.querySelector('[data-home-now-title]');
+  var meta = card.querySelector('[data-home-now-meta]');
+  var notice = card.querySelector('[data-home-now-notice]');
+  if (title) title.textContent = item.title;
+  if (meta) meta.textContent = labels[item.type] + (item.category ? ' · ' + categories[item.category] : '') + ' · ' + item.time + (item.endTime ? '–' + item.endTime : '');
+  if (notice) {
+    notice.hidden = true; notice.textContent = '';
+    var prayerTime = item.prayerKey && timings ? timings[item.prayerKey] : '';
+    if (prayerTime) {
+      var starts = Number(item.time.slice(0, 2)) * 60 + Number(item.time.slice(3));
+      var prayerAt = Number(prayerTime.slice(0, 2)) * 60 + Number(prayerTime.slice(3));
+      var ends = item.endTime ? Number(item.endTime.slice(0, 2)) * 60 + Number(item.endTime.slice(3)) : starts;
+      if (item.endTime && prayerAt >= starts && prayerAt <= ends) { notice.hidden = false; notice.textContent = prayers[item.prayerKey] + ' hyn gjatë këtij aktiviteti (' + prayerTime + '). Planifiko paraprakisht vendin dhe kohën e namazit.'; }
+      else { notice.hidden = false; notice.textContent = 'Plan: ' + prayers[item.prayerKey] + ' ' + (item.prayerPlan === 'after' ? 'pas aktivitetit' : 'para aktivitetit') + ' · ' + prayerTime + '.'; }
+    }
+  }
+  var oldAction = card.querySelector('[data-home-now-open]');
+  if (oldAction) { var action = oldAction.cloneNode(true); action.addEventListener('click', function () { navigate('more', { params: { section: 'day', date: dateKey } }); }); oldAction.replaceWith(action); }
+  card.hidden = false;
 }
 
 function buildQuranCard(navigate) {
@@ -632,6 +679,7 @@ export function render(context, appContext) {
   grid.className = 'home-grid';
 
   grid.appendChild(buildPrayerHeroSkeleton());
+  grid.appendChild(buildNowCard());
   grid.appendChild(buildSuggestedReadings(settings, navigate));
   grid.appendChild(buildQuranCard(navigate));
 
@@ -673,6 +721,7 @@ export function mount(pageElement, context, appContext) {
   var suggestionsElement = pageElement.querySelector('[data-home-suggestions]');
   var articlesElement = pageElement.querySelector('[data-home-articles]');
   var quranContinueElement = pageElement.querySelector('[data-home-quran-continue]');
+  var nowElement = pageElement.querySelector('[data-home-now]');
 
   function updateSuggestions(prayerState) {
     var currentSettings = store.get('settings');
@@ -698,6 +747,15 @@ export function mount(pageElement, context, appContext) {
           (session.status === DAILY_DHIKR_SESSION_STATUS.COMPLETED ? 'U krye' : 'Në vazhdim · vazhdo aty ku e le');
       }).catch(function () {});
     }
+  }
+
+  function loadNowCard() {
+    var timeZone = todayResult ? todayResult.timezone : null;
+    var zoned = getZonedDateParts(new Date(), timeZone);
+    var dateKey = zoned ? zoned.dateKey : new Date().toISOString().slice(0, 10);
+    listDayItems(dateKey).then(function (items) {
+      if (isMounted) renderNowCard(nowElement, items, todayResult ? todayResult.timings : null, dateKey, zoned ? String(zoned.hours).padStart(2, '0') + ':' + String(zoned.minutes).padStart(2, '0') : localTimeValue(new Date()), navigate);
+    }).catch(function () { if (isMounted && nowElement) nowElement.hidden = true; });
   }
 
   function loadQuranContinue() {
@@ -1086,6 +1144,7 @@ export function mount(pageElement, context, appContext) {
     updateSuggestions(state);
     if (state.nextPrayerIsTomorrow && !tomorrowResult) setHeroAfterIshaNoTomorrow();
     else setHeroSuccess(state);
+    loadNowCard();
   }
 
   // ---------------------------------------------------------------
@@ -1171,6 +1230,7 @@ export function mount(pageElement, context, appContext) {
 
   loadPrayerData();
   loadQuranContinue();
+  loadNowCard();
   loadArticles();
 
   document.addEventListener('visibilitychange', handleVisibility);

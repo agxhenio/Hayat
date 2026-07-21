@@ -46,7 +46,8 @@ var dom = {
   /** @type {HTMLElement} */
   offlineBanner: null,
   /** @type {HTMLUListElement} */
-  bottomNavList: null
+  bottomNavList: null,
+  installPrompt: null
 };
 
 /** @type {Function|null} Cleanup function from the current page's mount() */
@@ -426,6 +427,7 @@ function boot() {
   dom.view = document.getElementById('app-view');
   dom.offlineBanner = document.getElementById('app-offline');
   dom.bottomNavList = document.getElementById('app-bottom-nav');
+  dom.installPrompt = document.querySelector('[data-app-install]');
 
   if (!dom.appRoot || !dom.view) {
     throw new Error('[Hayat] Required DOM nodes not found (.app, #app-view)');
@@ -461,6 +463,8 @@ function boot() {
   // 9. Mark app as ready
   set('app.ready', true);
   emit(EVENTS.APP_READY, { version: APP.version });
+  registerServiceWorker();
+  initInstallPrompt();
 
   // 10. Register pagehide cleanup
   window.addEventListener('pagehide', function () {
@@ -507,6 +511,42 @@ function cleanup(onlineCleanup) {
     }
   });
   storeUnsubscribes.length = 0;
+}
+
+function initInstallPrompt() {
+  if (!dom.installPrompt || !('serviceWorker' in navigator)) return;
+  var deferredPrompt = null;
+  var accept = dom.installPrompt.querySelector('[data-app-install-accept]');
+  var dismiss = dom.installPrompt.querySelector('[data-app-install-dismiss]');
+  window.addEventListener('beforeinstallprompt', function (event) {
+    event.preventDefault();
+    deferredPrompt = event;
+    dom.installPrompt.hidden = false;
+  });
+  window.addEventListener('appinstalled', function () {
+    deferredPrompt = null;
+    dom.installPrompt.hidden = true;
+  });
+  if (accept) accept.addEventListener('click', function () {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.finally(function () {
+      deferredPrompt = null;
+      dom.installPrompt.hidden = true;
+    });
+  });
+  if (dismiss) dismiss.addEventListener('click', function () {
+    dom.installPrompt.hidden = true;
+  });
+}
+
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./service-worker.js').catch(function () {
+      /* Offline support remains unavailable when registration fails. */
+    });
+  }, { once: true });
 }
 
 // ====================================================================

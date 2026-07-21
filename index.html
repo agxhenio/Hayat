@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="Hayat — Aplikacion i menaxhimit të jetës islame për myslimanët shqipfolës.">
+  <meta name="theme-color" content="#0b2b28">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./assets/icons/hayat-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="./assets/icons/hayat-192.png">
   <title>Hayat</title>
   <link rel="stylesheet" href="./assets/css/design-tokens.css">
   <link rel="stylesheet" href="./assets/css/base.css">
@@ -59,6 +63,15 @@
     </nav>
 
   </div>
+
+  <!-- Install prompt: shown only when the browser offers PWA installation. -->
+  <aside class="app-install" data-app-install hidden aria-label="Instalo Hayat">
+    <p class="app-install__text">Instalo Hayat për qasje më të shpejtë edhe jashtë linje.</p>
+    <div class="app-install__actions">
+      <button type="button" class="btn btn--primary btn--sm" data-app-install-accept>Instalo</button>
+      <button type="button" class="btn btn--ghost btn--sm" data-app-install-dismiss>Jo tani</button>
+    </div>
+  </aside>
 
   <!-- Toast Region -->
   <div class="app__toast-region" aria-live="polite" aria-label="Njoftimet"></div>

@@ -10,6 +10,7 @@
  * @module pages/home
  */
 
+
 import { PRAYER_LABELS_SQ } from '../js/config.js';
 import {
   getTodayAndTomorrowPrayerTimes,

@@ -14,6 +14,9 @@
 
 import { APP_SOURCES, APP_PRIVACY_DISCLOSURES } from '../js/data/app-sources.js';
 import { createPersonalDataExport, personalDataExportFilename } from '../js/storage/data-export.js';
+import { restorePersonalData } from '../js/storage/data-import.js';
+import { createPersonalDataExport, personalDataExportFilename } from '../js/storage/data-export.js';
+import { restorePersonalData } from '../js/storage/data-import.js';
 
 // ====================================================================
 // ICON HELPER
@@ -259,6 +262,8 @@ function buildDataSection(appContext) {
   var title = document.createElement('h2'); title.id = 'settings-data-title'; title.className = 'settings-section-title'; title.textContent = 'Të dhënat e tua';
   var description = document.createElement('p'); description.className = 'settings-section-description'; description.textContent = 'Shkarko një kopje JSON të cilësimeve, regjistrimeve të namazit, dhikrit, Dita Ime dhe pozicionit të leximit. Përmbajtjet e shkarkuara për cache nuk përfshihen.';
   var action = document.createElement('button'); action.type = 'button'; action.className = 'btn btn--outline'; action.dataset.dataExport = ''; action.append(document.createTextNode('Shkarko kopjen '), createIcon('external-link', 'icon--sm'));
+  var restore = document.createElement('button'); restore.type = 'button'; restore.className = 'btn btn--ghost'; restore.dataset.dataRestore = ''; restore.textContent = 'Rikthe nga kopja';
+  var input = document.createElement('input'); input.type = 'file'; input.accept = 'application/json,.json'; input.hidden = true; input.dataset.dataRestoreInput = ''; input.setAttribute('aria-label', 'Zgjidh kopjen JSON të Hayat');
   var status = document.createElement('p'); status.className = 'settings-data__status'; status.dataset.dataExportStatus = ''; status.setAttribute('role', 'status');
   action.addEventListener('click', function () {
     action.disabled = true; status.textContent = 'Po përgatitet kopja…';
@@ -272,7 +277,19 @@ function buildDataSection(appContext) {
       status.textContent = 'Kopja nuk u përgatit. Provo përsëri.';
     }).finally(function () { action.disabled = false; });
   });
-  section.append(title, description, action, status);
+  restore.addEventListener('click', function () { input.click(); });
+  input.addEventListener('change', function () {
+    var file = input.files && input.files[0]; input.value = '';
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { status.textContent = 'Kopja është shumë e madhe për rikthim.'; return; }
+    if (!window.confirm('Rikthimi do të zëvendësojë të dhënat personale aktuale në këtë pajisje. Të vazhdojmë?')) return;
+    action.disabled = true; restore.disabled = true; status.textContent = 'Po rikthehen të dhënat…';
+    file.text().then(function (text) { return restorePersonalData(JSON.parse(text), appContext.settingsStorage.save); }).then(function (settings) {
+      appContext.store.set('settings', settings, { source: 'data-restore' });
+      status.textContent = 'Të dhënat u rikthyen. Rifresko aplikacionin për të parë çdo ndryshim.';
+    }).catch(function () { status.textContent = 'Kopja nuk u pranua ose rikthimi dështoi.'; }).finally(function () { action.disabled = false; restore.disabled = false; });
+  });
+  section.append(title, description, action, restore, input, status);
   return section;
 }
 

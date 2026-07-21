@@ -379,3 +379,40 @@ export function clearStore(storeName) {
     return store.clear();
   }, 'DELETE_FAILED');
 }
+
+export async function replaceRecordsAtomically(recordsByStore) {
+  if (!recordsByStore || typeof recordsByStore !== 'object') {
+    throw new TypeError('Invalid replacement records');
+  }
+  var storeNames = Object.keys(recordsByStore);
+  if (!storeNames.length) throw new TypeError('No stores to replace');
+  storeNames.forEach(function (storeName) {
+    assertStore(storeName);
+    if (!Array.isArray(recordsByStore[storeName])) throw new TypeError('Invalid store records');
+  });
+  var database = await openDatabase();
+  return new Promise(function (resolve, reject) {
+    var transaction;
+    try {
+      transaction = database.transaction(storeNames, 'readwrite');
+      storeNames.forEach(function (storeName) {
+        var store = transaction.objectStore(storeName);
+        store.clear();
+        recordsByStore[storeName].forEach(function (record) { store.put(cloneData(record)); });
+      });
+    } catch (error) {
+      reject(new DatabaseError('Unable to restore database records', 'RESTORE_FAILED', {
+        cause: error,
+        recoverable: true
+      }));
+      return;
+    }
+    transaction.oncomplete = function () { resolve(); };
+    transaction.onerror = function () {
+      reject(errorFromTransaction(transaction, 'Data restore failed', 'RESTORE_FAILED'));
+    };
+    transaction.onabort = function () {
+      reject(errorFromTransaction(transaction, 'Data restore aborted', 'RESTORE_FAILED'));
+    };
+  });
+}

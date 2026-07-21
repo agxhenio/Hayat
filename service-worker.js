@@ -29,6 +29,7 @@ const APP_SHELL = [
   './js/storage/article-cache.js',
   './js/storage/daily-dhikr-progress.js',
   './js/storage/database.js',
+  './js/storage/data-export.js',
   './js/storage/day-planner.js',
   './js/storage/post-prayer-dhikr-progress.js',
   './js/storage/prayer-cache.js',

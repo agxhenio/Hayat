@@ -13,6 +13,7 @@
  */
 
 import { APP_SOURCES, APP_PRIVACY_DISCLOSURES } from '../js/data/app-sources.js';
+import { createPersonalDataExport, personalDataExportFilename } from '../js/storage/data-export.js';
 
 // ====================================================================
 // ICON HELPER
@@ -251,6 +252,30 @@ function buildSourcesSection() {
   return section;
 }
 
+function buildDataSection(appContext) {
+  var section = document.createElement('section');
+  section.className = 'settings-data';
+  section.setAttribute('aria-labelledby', 'settings-data-title');
+  var title = document.createElement('h2'); title.id = 'settings-data-title'; title.className = 'settings-section-title'; title.textContent = 'Të dhënat e tua';
+  var description = document.createElement('p'); description.className = 'settings-section-description'; description.textContent = 'Shkarko një kopje JSON të cilësimeve, regjistrimeve të namazit, dhikrit, Dita Ime dhe pozicionit të leximit. Përmbajtjet e shkarkuara për cache nuk përfshihen.';
+  var action = document.createElement('button'); action.type = 'button'; action.className = 'btn btn--outline'; action.dataset.dataExport = ''; action.append(document.createTextNode('Shkarko kopjen '), createIcon('external-link', 'icon--sm'));
+  var status = document.createElement('p'); status.className = 'settings-data__status'; status.dataset.dataExportStatus = ''; status.setAttribute('role', 'status');
+  action.addEventListener('click', function () {
+    action.disabled = true; status.textContent = 'Po përgatitet kopja…';
+    createPersonalDataExport(appContext.store.get('settings')).then(function (backup) {
+      var blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a'); link.href = url; link.download = personalDataExportFilename(new Date()); link.hidden = true;
+      section.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
+      status.textContent = 'Kopja u përgatit në pajisjen tënde.';
+    }).catch(function () {
+      status.textContent = 'Kopja nuk u përgatit. Provo përsëri.';
+    }).finally(function () { action.disabled = false; });
+  });
+  section.append(title, description, action, status);
+  return section;
+}
+
 function buildPrivacySection() {
   var section = document.createElement('section');
   section.className = 'settings-privacy';
@@ -383,12 +408,14 @@ export function render(context, appContext) {
   homeGroup.append(homeTitle, homeControls);
 
   var sourcesSection = buildSourcesSection();
+  var dataSection = buildDataSection(appContext);
   var privacySection = buildPrivacySection();
 
   content.appendChild(appearanceGroup);
   content.appendChild(themeControl);
   content.appendChild(homeGroup);
   content.appendChild(sourcesSection);
+  content.appendChild(dataSection);
   content.appendChild(privacySection);
 
   page.appendChild(header);

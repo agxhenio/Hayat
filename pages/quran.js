@@ -16,6 +16,7 @@ import {
   saveHatmahPosition
 } from '../js/storage/quran-reading.js';
 import { isQuranBookmark, toggleQuranBookmark, listQuranBookmarks } from '../js/storage/quran-bookmarks.js';
+import { getQuranSearchIndex, downloadQuranSearchIndex, searchQuranTranslation } from '../js/services/quran-search-index.js';
 
 function icon(name, sizeClass) {
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -179,6 +180,13 @@ function renderHome(page) {
   var bookmarksList = document.createElement('div'); bookmarksList.className = 'quran-bookmarks-list'; bookmarksList.dataset.quranBookmarksList = '';
   bookmarks.body.append(bookmarksStatus, bookmarksList);
 
+  var translationSearch = homeCard('Kërko në përkthimin shqip', 'search');
+  var searchInfo = document.createElement('p'); searchInfo.className = 'quran-home-card__description'; searchInfo.dataset.quranTranslationInfo = ''; searchInfo.textContent = 'Aktivizo indeksin offline për kërkim në gjithë përkthimin Hasan Nahi.';
+  var download = document.createElement('button'); download.type = 'button'; download.className = 'btn btn--outline btn--sm'; download.dataset.quranTranslationDownload = ''; download.textContent = 'Aktivizo kërkimin offline';
+  var translationInput = document.createElement('input'); translationInput.className = 'input'; translationInput.type = 'search'; translationInput.placeholder = 'Kërko fjalë në përkthim'; translationInput.hidden = true; translationInput.dataset.quranTranslationSearch = '';
+  var translationResults = document.createElement('div'); translationResults.className = 'quran-bookmarks-list'; translationResults.dataset.quranTranslationResults = '';
+  translationSearch.body.append(searchInfo, download, translationInput, translationResults);
+
   var allSurahs = homeCard('Të gjitha suret', 'search');
   allSurahs.card.classList.add('quran-surah-browser');
 
@@ -224,7 +232,7 @@ function renderHome(page) {
   allSurahs.body.append(searchField, status, list, emptyState);
   renderSurahList(list, emptyState, status, QURAN_SURAHS);
 
-  cards.append(last.card, hatmah.card, bookmarks.card, allSurahs.card);
+  cards.append(last.card, hatmah.card, bookmarks.card, translationSearch.card, allSurahs.card);
   home.appendChild(cards);
   page.appendChild(home);
 }
@@ -422,6 +430,14 @@ function mountHome(page, appContext) {
   }
   function loadBookmarks() { listQuranBookmarks().then(function (bookmarks) { if (mounted) renderBookmarks(bookmarks); }).catch(showStorageWarning); }
   loadBookmarks();
+
+  var translationIndex = null;
+  var translationInfo = page.querySelector('[data-quran-translation-info]'); var translationDownload = page.querySelector('[data-quran-translation-download]'); var translationInput = page.querySelector('[data-quran-translation-search]'); var translationResults = page.querySelector('[data-quran-translation-results]');
+  function renderTranslationResults() { if (!translationIndex || !translationResults) return; translationResults.replaceChildren(); searchQuranTranslation(translationIndex, translationInput.value, 50).forEach(function (result) { var metadata = getSurahMetadata(result.surah); var button = document.createElement('button'); button.type = 'button'; button.className = 'btn btn--ghost btn--sm'; button.textContent = (metadata ? metadata.nameTransliteration : 'Sureja ' + result.surah) + ' · ' + result.surah + ':' + result.ayah + ' — ' + result.text; button.addEventListener('click', function () { appContext.navigate('quran', { params: { surah: result.surah, ayah: result.ayah } }); }); translationResults.appendChild(button); }); }
+  function readyTranslationIndex(index) { translationIndex = index; if (translationInfo) translationInfo.textContent = 'Kërkimi offline është aktiv. Burimi: QuranEnc · Hasan Nahi.'; if (translationDownload) translationDownload.hidden = true; if (translationInput) translationInput.hidden = false; }
+  getQuranSearchIndex().then(function (index) { if (mounted && index) readyTranslationIndex(index); }).catch(showStorageWarning);
+  if (translationDownload) translationDownload.addEventListener('click', function () { var controller = new AbortController(); translationDownload.disabled = true; if (translationInfo) translationInfo.textContent = 'Po shkarkohet indeksi… 0/114 sure'; downloadQuranSearchIndex(function (done, total) { if (translationInfo) translationInfo.textContent = 'Po shkarkohet indeksi… ' + done + '/' + total + ' sure'; }, controller.signal).then(function (index) { if (mounted) readyTranslationIndex(index); }).catch(function () { if (translationInfo) translationInfo.textContent = 'Indeksi nuk u shkarkua. Provo përsëri.'; }).finally(function () { translationDownload.disabled = false; }); });
+  if (translationInput) translationInput.addEventListener('input', renderTranslationResults);
 
   var searchInput = page.querySelector('[data-quran-surah-search]');
   var list = page.querySelector('[data-quran-surah-list]');

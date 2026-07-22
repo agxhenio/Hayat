@@ -15,7 +15,7 @@ import {
   getHatmahPosition,
   saveHatmahPosition
 } from '../js/storage/quran-reading.js';
-import { isQuranBookmark, toggleQuranBookmark } from '../js/storage/quran-bookmarks.js';
+import { isQuranBookmark, toggleQuranBookmark, listQuranBookmarks } from '../js/storage/quran-bookmarks.js';
 
 function icon(name, sizeClass) {
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -494,6 +494,20 @@ function mountReader(page, reader, context, appContext) {
     appContext.navigate('quran', { params: { surah: targetSurah.number, ayah: 1 } });
   }
   content.addEventListener('click', surahNavigationHandler);
+  function verseBookmarkHandler(event) {
+    var button = event.target && typeof event.target.closest === 'function' ? event.target.closest('[data-verse-bookmark]') : null;
+    if (!button || !content.contains(button)) return;
+    var bookmarkSurah = Number(button.dataset.bookmarkSurah); var bookmarkAyah = Number(button.dataset.bookmarkAyah);
+    toggleQuranBookmark(bookmarkSurah, bookmarkAyah).then(function (saved) {
+      if (!mounted) return;
+      button.classList.toggle('quran-reader__verse-bookmark--saved', saved); button.setAttribute('aria-pressed', String(saved));
+      button.setAttribute('aria-label', (saved ? 'Hiq shënimin për ajetin ' : 'Shëno ajetin ') + bookmarkSurah + ':' + bookmarkAyah);
+      button.lastChild.textContent = saved ? ' E shënuar' : ' Shëno';
+      if (bookmarkSurah === currentPosition.surah && bookmarkAyah === currentPosition.ayah) refreshBookmark();
+      showFeedback(saved ? 'Ajeti u shënua.' : 'Shënimi u hoq.', 'success');
+    }).catch(function () { if (mounted) showFeedback('Shënimi nuk u ruajt.', 'warning'); });
+  }
+  content.addEventListener('click', verseBookmarkHandler);
 
   function showFeedback(message, type) {
     feedbackHost.replaceChildren();
@@ -556,7 +570,12 @@ function mountReader(page, reader, context, appContext) {
       var verseRef = document.createElement('p');
       verseRef.className = 'quran-reader__verse-reference';
       verseRef.textContent = verse.verseKey;
-      article.append(arabic, translation, verseRef);
+      var bookmark = document.createElement('button');
+      bookmark.type = 'button'; bookmark.className = 'quran-reader__verse-bookmark';
+      bookmark.dataset.verseBookmark = ''; bookmark.dataset.bookmarkSurah = String(surah); bookmark.dataset.bookmarkAyah = String(verse.ayah);
+      bookmark.setAttribute('aria-label', 'Shëno ajetin ' + verse.verseKey);
+      bookmark.append(icon('bookmark', 'icon--sm'), document.createTextNode(' Shëno'));
+      article.append(arabic, translation, verseRef, bookmark);
       if (verse.footnotesSq) {
         var details = document.createElement('details');
         details.className = 'quran-reader__footnotes';
@@ -576,6 +595,17 @@ function mountReader(page, reader, context, appContext) {
     link.target = '_blank'; link.rel = 'noopener noreferrer'; link.textContent = verses[0].provider;
     attribution.append(link, document.createTextNode(' · ' + verses[0].translationNameSq));
     content.append(list, attribution, createSurahNavigation(surah));
+    listQuranBookmarks().then(function (bookmarks) {
+      if (!mounted) return;
+      var saved = new Set(bookmarks.map(function (bookmark) { return bookmark.surah + ':' + bookmark.ayah; }));
+      list.querySelectorAll('[data-verse-bookmark]').forEach(function (button) {
+        var marked = saved.has(button.dataset.bookmarkSurah + ':' + button.dataset.bookmarkAyah);
+        button.classList.toggle('quran-reader__verse-bookmark--saved', marked);
+        button.setAttribute('aria-pressed', String(marked));
+        button.setAttribute('aria-label', (marked ? 'Hiq shënimin për ajetin ' : 'Shëno ajetin ') + button.dataset.bookmarkSurah + ':' + button.dataset.bookmarkAyah);
+        button.lastChild.textContent = marked ? ' E shënuar' : ' Shëno';
+      });
+    }).catch(function () {});
 
     currentPosition = { surah: surah, ayah: requestedAyah, page: null };
     reference.textContent = surah + ':' + requestedAyah;
@@ -667,6 +697,7 @@ function mountReader(page, reader, context, appContext) {
     controller.abort();
     if (feedbackTimer) clearTimeout(feedbackTimer);
     content.removeEventListener('click', surahNavigationHandler);
+    content.removeEventListener('click', verseBookmarkHandler);
     document.removeEventListener('visibilitychange', hiddenHandler);
     window.removeEventListener('pagehide', pageHideHandler);
   };

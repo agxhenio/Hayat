@@ -1,98 +1,13 @@
 /** Hayat — local-first Dita Ime records. */
 import { getAllRecords, putRecord, deleteRecord } from './database.js';
-
-const STORE = 'dayItems';
-const TYPES = ['task', 'appointment', 'reminder'];
-const CATEGORIES = ['', 'family', 'work', 'school', 'personal'];
-const PRAYERS = ['', 'fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
-const PRAYER_PLANS = ['none', 'before', 'after'];
-
-function dateKeyOk(value) { return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value); }
-function timeOk(value) { return value === '' || (typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value)); }
-function noteOk(value) { return typeof value === 'string' && value.length <= 1000; }
-
-export function validateDayItem(item) {
-  if (!item || typeof item !== 'object' || typeof item.id !== 'string' || !item.id ||
-      typeof item.title !== 'string' || !item.title.trim() || item.title.trim().length > 120 ||
-      !dateKeyOk(item.dateKey) || !timeOk(item.time) || !timeOk(item.endTime || '') ||
-      ((item.endTime || '') && (!item.time || item.endTime <= item.time)) ||
-      TYPES.indexOf(item.type) < 0 || CATEGORIES.indexOf(item.category || '') < 0 || !noteOk(item.notes || '') ||
-      PRAYERS.indexOf(item.prayerKey || '') < 0 || PRAYER_PLANS.indexOf(item.prayerPlan || 'none') < 0 ||
-      (!(item.prayerKey || '') && (item.prayerPlan || 'none') !== 'none') ||
-      ['open', 'completed'].indexOf(item.status) < 0 || !Number.isFinite(Date.parse(item.createdAt)) ||
-      !Number.isFinite(Date.parse(item.updatedAt))) return null;
-
-  return Object.freeze(Object.assign({}, item, {
-    title: item.title.trim(),
-    endTime: item.endTime || '',
-    category: item.category || '',
-    notes: item.notes || '',
-    prayerKey: item.prayerKey || '',
-    prayerPlan: item.prayerPlan || 'none'
-  }));
-}
-
-export async function listDayItems(dateKey) {
-  if (!dateKeyOk(dateKey)) throw new TypeError('Invalid date');
-  const all = await getAllRecords(STORE);
-  return all.map(validateDayItem).filter(item => item && item.dateKey === dateKey)
-    .sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99') || a.createdAt.localeCompare(b.createdAt));
-}
-
-export async function createDayItem(input) {
-  const now = new Date().toISOString();
-  const item = validateDayItem({
-    id: 'day-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 9),
-    title: input.title,
-    dateKey: input.dateKey,
-    time: input.time || '',
-    endTime: input.endTime || '',
-    type: input.type || 'task',
-    category: input.category || '',
-    notes: input.notes || '',
-    prayerKey: input.prayerKey || '',
-    prayerPlan: input.prayerKey ? (input.prayerPlan || 'before') : 'none',
-    status: 'open',
-    createdAt: now,
-    updatedAt: now
-  });
-  if (!item) throw new TypeError('Invalid item');
-  await putRecord(STORE, item);
-  return item;
-}
-
-export async function updateDayItem(item, changes) {
-  const valid = validateDayItem(item);
-  if (!valid || !changes || typeof changes !== 'object') throw new TypeError('Invalid item update');
-  const updated = validateDayItem(Object.assign({}, valid, {
-    title: changes.title,
-    dateKey: changes.dateKey,
-    time: changes.time || '',
-    endTime: changes.endTime || '',
-    type: changes.type || 'task',
-    category: changes.category || '',
-    notes: changes.notes || '',
-    prayerKey: changes.prayerKey || '',
-    prayerPlan: changes.prayerKey ? (changes.prayerPlan || 'before') : 'none',
-    updatedAt: new Date().toISOString()
-  }));
-  if (!updated) throw new TypeError('Invalid item update');
-  await putRecord(STORE, updated);
-  return updated;
-}
-
-export async function toggleDayItem(item) {
-  const valid = validateDayItem(item);
-  if (!valid) throw new TypeError('Invalid item');
-  const updated = validateDayItem(Object.assign({}, valid, {
-    status: valid.status === 'open' ? 'completed' : 'open',
-    updatedAt: new Date().toISOString()
-  }));
-  await putRecord(STORE, updated);
-  return updated;
-}
-
-export async function removeDayItem(id) {
-  if (typeof id !== 'string' || !id) throw new TypeError('Invalid id');
-  await deleteRecord(STORE, id);
-}
+const STORE = 'dayItems'; const OCCURRENCES = 'dayItemOccurrences';
+const TYPES = ['task', 'appointment', 'reminder']; const CATEGORIES = ['', 'family', 'work', 'school', 'personal'];
+const PRAYERS = ['', 'fajr', 'dhuhr', 'asr', 'maghrib', 'isha']; const PLANS = ['none', 'before', 'after']; const REPEATS = ['none', 'daily', 'weekly'];
+function dateOk(v) { return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v); } function timeOk(v) { return v === '' || (typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v)); }
+function repeatMatches(item, dateKey) { if (item.recurrence === 'daily') return dateKey >= item.dateKey; if (item.recurrence === 'weekly') return dateKey >= item.dateKey && new Date(dateKey + 'T12:00:00').getDay() === item.repeatWeekday; return false; }
+export function validateDayItem(x) { if (!x || typeof x !== 'object' || typeof x.id !== 'string' || !x.id || typeof x.title !== 'string' || !x.title.trim() || x.title.trim().length > 120 || !dateOk(x.dateKey) || !timeOk(x.time) || !timeOk(x.endTime || '') || ((x.endTime || '') && (!x.time || x.endTime <= x.time)) || TYPES.indexOf(x.type) < 0 || CATEGORIES.indexOf(x.category || '') < 0 || typeof (x.notes || '') !== 'string' || (x.notes || '').length > 1000 || PRAYERS.indexOf(x.prayerKey || '') < 0 || PLANS.indexOf(x.prayerPlan || 'none') < 0 || REPEATS.indexOf(x.recurrence || 'none') < 0 || ((x.recurrence || 'none') === 'weekly' && (!Number.isInteger(x.repeatWeekday) || x.repeatWeekday < 0 || x.repeatWeekday > 6)) || (!(x.prayerKey || '') && (x.prayerPlan || 'none') !== 'none') || ['open', 'completed'].indexOf(x.status) < 0 || !Number.isFinite(Date.parse(x.createdAt)) || !Number.isFinite(Date.parse(x.updatedAt))) return null; return Object.freeze(Object.assign({}, x, { title:x.title.trim(),endTime:x.endTime||'',category:x.category||'',notes:x.notes||'',prayerKey:x.prayerKey||'',prayerPlan:x.prayerPlan||'none',recurrence:x.recurrence||'none',repeatWeekday:(x.recurrence||'none')==='weekly'?x.repeatWeekday:null })); }
+export async function listDayItems(dateKey) { if (!dateOk(dateKey)) throw new TypeError('Invalid date'); const result=await Promise.all([getAllRecords(STORE),getAllRecords(OCCURRENCES)]); const all=result[0].map(validateDayItem).filter(Boolean); const occurrences=result[1]; const direct=all.filter(x=>x.dateKey===dateKey); const ids=new Set(direct.map(x=>x.id)); all.filter(x=>x.recurrence!=='none'&&repeatMatches(x,dateKey)&&x.dateKey!==dateKey).forEach(x=>{const key=x.id+'@'+dateKey;const o=occurrences.find(y=>y.id===key);if(!o||o.deleted) direct.push(Object.freeze(Object.assign({},x,{id:key,dateKey,status:o?o.status:'open',occurrenceKey:key,templateId:x.id,recurrence:'none'})));}); return direct.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')||a.createdAt.localeCompare(b.createdAt)); }
+export async function createDayItem(input) { const now=new Date().toISOString();const item=validateDayItem({id:'day-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9),title:input.title,dateKey:input.dateKey,time:input.time||'',endTime:input.endTime||'',type:input.type||'task',category:input.category||'',notes:input.notes||'',prayerKey:input.prayerKey||'',prayerPlan:input.prayerKey?(input.prayerPlan||'before'):'none',recurrence:input.recurrence||'none',repeatWeekday:input.recurrence==='weekly'?input.repeatWeekday:null,status:'open',createdAt:now,updatedAt:now});if(!item)throw new TypeError('Invalid item');await putRecord(STORE,item);return item; }
+export async function toggleDayItem(item) { const valid=validateDayItem(item);if(!valid)throw new TypeError('Invalid item');if(item.occurrenceKey){const now=new Date().toISOString();await putRecord(OCCURRENCES,{id:item.occurrenceKey,templateId:item.templateId,dateKey:item.dateKey,status:item.status==='open'?'completed':'open',deleted:false,updatedAt:now});return item;}const updated=validateDayItem(Object.assign({},valid,{status:valid.status==='open'?'completed':'open',updatedAt:new Date().toISOString()}));await putRecord(STORE,updated);return updated; }
+export async function removeDayItem(item) { if (item&&item.occurrenceKey){await putRecord(OCCURRENCES,{id:item.occurrenceKey,templateId:item.templateId,dateKey:item.dateKey,status:'open',deleted:true,updatedAt:new Date().toISOString()});return;}if(typeof item!=='string'||!item)throw new TypeError('Invalid id');await deleteRecord(STORE,item); }
+export async function updateDayItem(item,changes){const valid=validateDayItem(item);if(!valid||item.occurrenceKey)throw new TypeError('Invalid item update');const updated=validateDayItem(Object.assign({},valid,changes,{updatedAt:new Date().toISOString()}));if(!updated)throw new TypeError('Invalid item update');await putRecord(STORE,updated);return updated;}

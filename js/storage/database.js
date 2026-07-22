@@ -3,13 +3,14 @@
  */
 
 var DB_NAME = 'hayat-db';
-var DB_VERSION = 7;
+var DB_VERSION = 8;
 var STORES = Object.freeze([
   'prayerLogs',
   'postPrayerDhikrSessions',
   'dailyDhikrSessions',
   'articles',
   'dayItems',
+  'dayItemOccurrences',
   'quranContent',
   'quranReadingState',
   'meta'
@@ -32,6 +33,7 @@ var INDEXES = Object.freeze({
   ]),
   articles: Object.freeze(['type', 'updatedAt']),
   dayItems: Object.freeze(['dateKey', 'status', 'updatedAt']),
+  dayItemOccurrences: Object.freeze(['templateDate', 'dateKey', 'updatedAt']),
   quranContent: Object.freeze([
     'verseTranslation',
     'verseKey',
@@ -186,6 +188,16 @@ export function openDatabase() {
       if (!dayStore.indexNames.contains('dateKey')) dayStore.createIndex('dateKey', 'dateKey', { unique: false });
       if (!dayStore.indexNames.contains('status')) dayStore.createIndex('status', 'status', { unique: false });
       if (!dayStore.indexNames.contains('updatedAt')) dayStore.createIndex('updatedAt', 'updatedAt', { unique: false });
+
+      var occurrenceStore;
+      if (!database.objectStoreNames.contains('dayItemOccurrences')) {
+        occurrenceStore = database.createObjectStore('dayItemOccurrences', { keyPath: 'id' });
+      } else {
+        occurrenceStore = event.target.transaction.objectStore('dayItemOccurrences');
+      }
+      if (!occurrenceStore.indexNames.contains('templateDate')) occurrenceStore.createIndex('templateDate', 'templateDate', { unique: true });
+      if (!occurrenceStore.indexNames.contains('dateKey')) occurrenceStore.createIndex('dateKey', 'dateKey', { unique: false });
+      if (!occurrenceStore.indexNames.contains('updatedAt')) occurrenceStore.createIndex('updatedAt', 'updatedAt', { unique: false });
 
       var articleStore;
       if (!database.objectStoreNames.contains('articles')) {

@@ -14,7 +14,7 @@ import {
   isValidAsrSchool
 } from '../config.js';
 
-var CURRENT_SCHEMA_VERSION = 4;
+var CURRENT_SCHEMA_VERSION = 5;
 var KNOWN_KEYS = Object.keys(DEFAULT_SETTINGS);
 var PRAYER_SETTING_KEYS = ['calculationMethod', 'asrSchool', 'adjustments'];
 var HOME_SETTING_KEYS = [
@@ -49,6 +49,7 @@ function cloneSettings(settings) {
     homeCards: settings.homeCards.slice(),
     hayatAIEnabled: settings.hayatAIEnabled,
     reducedMotionOverride: settings.reducedMotionOverride,
+    prayerDefaultsApplied: settings.prayerDefaultsApplied,
     home: {
       showSuggestedReadings: settings.home.showSuggestedReadings,
       showFridayAlKahf: settings.home.showFridayAlKahf,
@@ -186,6 +187,11 @@ function migrateSettings(candidate) {
     delete migrated.dhikr;
     version = 4;
   }
+  if (version === 4) {
+    migrated.schemaVersion = 5;
+    migrated.prayerDefaultsApplied = false;
+    version = 5;
+  }
   return version === CURRENT_SCHEMA_VERSION ? migrated : null;
 }
 
@@ -221,6 +227,8 @@ export function validateSettings(candidate) {
       ? candidate.hayatAIEnabled : fallback.hayatAIEnabled,
     reducedMotionOverride: ALLOWED_REDUCED_MOTION.indexOf(candidate.reducedMotionOverride) !== -1
       ? candidate.reducedMotionOverride : fallback.reducedMotionOverride,
+    prayerDefaultsApplied: typeof candidate.prayerDefaultsApplied === 'boolean'
+      ? candidate.prayerDefaultsApplied : false,
     home: home,
     prayer: prayer
   };

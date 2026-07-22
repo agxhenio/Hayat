@@ -850,6 +850,14 @@ export function mount(pageElement, context, appContext) {
     subtitle.textContent = 'Zgjidh vendndodhjen';
   }
 
+  function prayerDefaultsForLocation(settings, country) {
+    if (settings && settings.prayerDefaultsApplied) return {};
+    if (country === 'Shqipëri') {
+      return { prayer: { calculationMethod: 13, asrSchool: 0, adjustments: { fajr: 0, dhuhr: 0, asr: 0, maghrib: 0, isha: 0 } }, prayerDefaultsApplied: true };
+    }
+    return { prayerDefaultsApplied: true };
+  }
+
   function handleCurrentLocation() {
     showRegion('loading');
     regions.loading.replaceChildren();
@@ -871,13 +879,14 @@ export function mount(pageElement, context, appContext) {
         var rounded = Number.isFinite(pos.accuracy) ? Math.round(pos.accuracy) : null;
         locationAccuracy = rounded;
         sessionTimeZone = null;
-        var newSettings = settingsStorage.patchSettings({
-          coordinates: {
-            latitude: pos.latitude,
-            longitude: pos.longitude
-          },
+        var locationPatch = {
+          coordinates: { latitude: pos.latitude, longitude: pos.longitude },
           city: 'Vendndodhja aktuale'
-        });
+        };
+        var newSettings = settingsStorage.patchSettings(Object.assign(
+          locationPatch,
+          prayerDefaultsForLocation(store.get('settings'), null)
+        ));
         store.set('settings', newSettings);
         events.emit(EVENTS.SETTINGS_CHANGED, {
           source: 'prayer-location',
@@ -906,14 +915,15 @@ export function mount(pageElement, context, appContext) {
   function handleTiranaPreset() {
     sessionTimeZone = TIRANA_PRESET.timeZone;
     locationAccuracy = null;
-    var newSettings = settingsStorage.patchSettings({
-      coordinates: {
-        latitude: TIRANA_PRESET.latitude,
-        longitude: TIRANA_PRESET.longitude
-      },
+    var locationPatch = {
+      coordinates: { latitude: TIRANA_PRESET.latitude, longitude: TIRANA_PRESET.longitude },
       city: TIRANA_PRESET.city,
       country: TIRANA_PRESET.country
-    });
+    };
+    var newSettings = settingsStorage.patchSettings(Object.assign(
+      locationPatch,
+      prayerDefaultsForLocation(store.get('settings'), TIRANA_PRESET.country)
+    ));
     store.set('settings', newSettings);
     events.emit(EVENTS.SETTINGS_CHANGED, {
       source: 'prayer-location',

@@ -172,7 +172,7 @@ var ALLOWED_ASR_SCHOOLS = deepFreeze([0, 1]);
 // ====================================================================
 
 var DEFAULT_SETTINGS = deepFreeze({
-  schemaVersion: 4,
+  schemaVersion: 5,
   theme: 'dark',
   locale: 'sq-AL',
   city: 'Tiranë',
@@ -183,6 +183,7 @@ var DEFAULT_SETTINGS = deepFreeze({
   homeCards: ['prayer', 'now', 'quran', 'dhikr'],
   hayatAIEnabled: false,
   reducedMotionOverride: 'system',
+  prayerDefaultsApplied: false,
   home: {
     showSuggestedReadings: true,
     showFridayAlKahf: true,

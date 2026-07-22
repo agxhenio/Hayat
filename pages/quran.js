@@ -32,6 +32,14 @@ function numeric(value) {
   return typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : null;
 }
 
+function parseVerseReference(value) {
+  if (typeof value !== 'string') return null;
+  var match = value.trim().match(/^(\d{1,3})\s*[:.\/]\s*(\d{1,3})$/);
+  if (!match) return null;
+  var surah = Number(match[1]); var ayah = Number(match[2]);
+  return isValidSurahAyah(surah, ayah) ? { surah: surah, ayah: ayah } : null;
+}
+
 function pageHeader(title, subtitle) {
   var header = document.createElement('header');
   header.className = 'route-page__header';
@@ -421,7 +429,16 @@ function mountHome(page, appContext) {
   var status = page.querySelector('[data-quran-surah-results]');
 
   var inputHandler = function () {
+    var reference = parseVerseReference(searchInput.value);
     renderSurahList(list, emptyState, status, searchSurahs(searchInput.value));
+    if (reference) {
+      emptyState.hidden = true;
+      status.textContent = 'Referencë e drejtpërdrejtë: ' + reference.surah + ':' + reference.ayah;
+      list.replaceChildren();
+      var item = document.createElement('li'); var button = document.createElement('button');
+      button.type = 'button'; button.className = 'quran-surah-row'; button.textContent = 'Hap ajetin ' + reference.surah + ':' + reference.ayah;
+      button.addEventListener('click', function () { appContext.navigate('quran', { params: reference }); }); item.appendChild(button); list.appendChild(item);
+    }
   };
   var listClickHandler = function (event) {
     var target = event.target;
@@ -436,6 +453,7 @@ function mountHome(page, appContext) {
   };
 
   searchInput.addEventListener('input', inputHandler);
+  searchInput.addEventListener('keydown', function (event) { var reference = parseVerseReference(searchInput.value); if (event.key === 'Enter' && reference) { event.preventDefault(); appContext.navigate('quran', { params: reference }); } });
   list.addEventListener('click', listClickHandler);
   return function () {
     mounted = false;

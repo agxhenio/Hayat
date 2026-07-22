@@ -165,6 +165,12 @@ function renderHome(page) {
   hatmahActions.dataset.hatmahActions = '';
   hatmah.body.append(hatmahPosition, explanation, hatmahActions);
 
+  var bookmarks = homeCard('Ajetet e shënuara', 'bookmark');
+  bookmarks.card.classList.add('quran-bookmarks-card');
+  var bookmarksStatus = document.createElement('p'); bookmarksStatus.className = 'quran-home-card__position'; bookmarksStatus.dataset.quranBookmarksStatus = ''; bookmarksStatus.textContent = 'Duke ngarkuar...';
+  var bookmarksList = document.createElement('div'); bookmarksList.className = 'quran-bookmarks-list'; bookmarksList.dataset.quranBookmarksList = '';
+  bookmarks.body.append(bookmarksStatus, bookmarksList);
+
   var allSurahs = homeCard('Të gjitha suret', 'search');
   allSurahs.card.classList.add('quran-surah-browser');
 
@@ -210,7 +216,7 @@ function renderHome(page) {
   allSurahs.body.append(searchField, status, list, emptyState);
   renderSurahList(list, emptyState, status, QURAN_SURAHS);
 
-  cards.append(last.card, hatmah.card, allSurahs.card);
+  cards.append(last.card, hatmah.card, bookmarks.card, allSurahs.card);
   home.appendChild(cards);
   page.appendChild(home);
 }
@@ -390,6 +396,24 @@ function mountHome(page, appContext) {
       positionButton(null, 'Hap pozicionin', hatmahTarget, hatmahActions); showStorageWarning();
     }
   });
+
+  function renderBookmarks(bookmarks) {
+    var target = page.querySelector('[data-quran-bookmarks-list]');
+    var statusTarget = page.querySelector('[data-quran-bookmarks-status]');
+    if (!target || !statusTarget) return;
+    target.replaceChildren();
+    statusTarget.textContent = bookmarks.length ? (bookmarks.length === 1 ? '1 ajet i shënuar' : bookmarks.length + ' ajete të shënuara') : 'Nuk ke shënuar ende asnjë ajet.';
+    bookmarks.forEach(function (bookmark) {
+      var metadata = getSurahMetadata(bookmark.surah); var row = document.createElement('div'); row.className = 'quran-bookmarks-list__item';
+      var open = document.createElement('button'); open.type = 'button'; open.className = 'btn btn--ghost btn--sm'; open.textContent = (metadata ? metadata.nameTransliteration : 'Sureja ' + bookmark.surah) + ' · ' + bookmark.surah + ':' + bookmark.ayah;
+      open.addEventListener('click', function () { appContext.navigate('quran', { params: { surah: bookmark.surah, ayah: bookmark.ayah } }); });
+      var remove = document.createElement('button'); remove.type = 'button'; remove.className = 'btn btn--ghost btn--sm'; remove.textContent = 'Hiq'; remove.setAttribute('aria-label', 'Hiq shënimin ' + bookmark.surah + ':' + bookmark.ayah);
+      remove.addEventListener('click', function () { toggleQuranBookmark(bookmark.surah, bookmark.ayah).then(loadBookmarks).catch(showStorageWarning); });
+      row.append(open, remove); target.appendChild(row);
+    });
+  }
+  function loadBookmarks() { listQuranBookmarks().then(function (bookmarks) { if (mounted) renderBookmarks(bookmarks); }).catch(showStorageWarning); }
+  loadBookmarks();
 
   var searchInput = page.querySelector('[data-quran-surah-search]');
   var list = page.querySelector('[data-quran-surah-list]');

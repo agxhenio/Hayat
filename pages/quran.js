@@ -15,6 +15,7 @@ import {
   getHatmahPosition,
   saveHatmahPosition
 } from '../js/storage/quran-reading.js';
+import { isQuranBookmark, toggleQuranBookmark } from '../js/storage/quran-bookmarks.js';
 
 function icon(name, sizeClass) {
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -253,7 +254,8 @@ function renderReader(page, surah, ayah, metadata) {
   hatmahLabel.className = 'quran-reader__hatmah-label';
   hatmahLabel.textContent = 'Ruaj si hatme';
   hatmah.append(icon('bookmark', 'icon--sm'), hatmahLabel);
-  topbar.append(back, titles, hatmah);
+  var bookmark = document.createElement('button'); bookmark.type = 'button'; bookmark.className = 'btn btn--ghost btn--sm quran-reader__bookmark-button'; bookmark.dataset.quranBookmark = ''; bookmark.setAttribute('aria-label', 'Shëno ajetin aktual'); bookmark.append(icon('bookmark', 'icon--sm'), document.createTextNode(' Shëno'));
+  topbar.append(back, titles, hatmah, bookmark);
 
   var controls = document.createElement('div');
   controls.className = 'quran-reader__controls';
@@ -457,6 +459,21 @@ function mountReader(page, reader, context, appContext) {
     flushPosition();
     appContext.navigate('quran');
   });
+  var bookmarkButton = page.querySelector('[data-quran-bookmark]');
+  function refreshBookmark() {
+    isQuranBookmark(currentPosition.surah, currentPosition.ayah).then(function (saved) {
+      if (!mounted || !bookmarkButton) return;
+      bookmarkButton.textContent = saved ? 'E shënuar' : 'Shëno';
+      bookmarkButton.prepend(icon('bookmark', 'icon--sm'), document.createTextNode(' '));
+      bookmarkButton.setAttribute('aria-pressed', String(saved));
+    }).catch(function () {});
+  }
+  if (bookmarkButton) bookmarkButton.addEventListener('click', function () {
+    toggleQuranBookmark(currentPosition.surah, currentPosition.ayah).then(function (saved) {
+      refreshBookmark(); if (mounted) showFeedback(saved ? 'Ajeti u shënua.' : 'Shënimi u hoq.', 'success');
+    }).catch(function () { if (mounted) showFeedback('Shënimi nuk u ruajt.', 'warning'); });
+  });
+
   page.querySelector('[data-save-hatmah]').addEventListener('click', function () {
     saveHatmahPosition(currentPosition).then(function () {
       if (mounted) showFeedback('Pozicioni i hatmes u ruajt.', 'success');
@@ -563,6 +580,7 @@ function mountReader(page, reader, context, appContext) {
     currentPosition = { surah: surah, ayah: requestedAyah, page: null };
     reference.textContent = surah + ':' + requestedAyah;
     queuePosition(currentPosition);
+    refreshBookmark();
     var targetElement = list.querySelector('[data-ayah="' + requestedAyah + '"]');
     requestAnimationFrame(function () {
       if (!mounted || !targetElement) return;
@@ -597,6 +615,7 @@ function mountReader(page, reader, context, appContext) {
         });
         nearest.classList.add('quran-reader__verse--active');
         queuePosition(currentPosition);
+        refreshBookmark();
       }
     }, { root: appView, threshold: [0.25, 0.5, 0.75], rootMargin: '-10% 0px -65% 0px' });
     list.querySelectorAll('.quran-reader__verse').forEach(function (verse) { observer.observe(verse); });

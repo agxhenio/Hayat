@@ -13,6 +13,7 @@
  */
 
 import { APP_SOURCES, APP_PRIVACY_DISCLOSURES } from '../js/data/app-sources.js';
+import { PRAYER_LABELS_SQ } from '../js/config.js';
 import { createPersonalDataExport, personalDataExportFilename } from '../js/storage/data-export.js';
 import { restorePersonalData } from '../js/storage/data-import.js';
 
@@ -253,6 +254,41 @@ function buildSourcesSection() {
   return section;
 }
 
+function buildPrayerSettingsSection(appContext) {
+  var settings = appContext.store.get('settings') || {};
+  var prayer = settings.prayer || {};
+  var methods = [
+    [0, 'Xhaferi / Ithna-Ashari'], [1, 'University of Islamic Sciences, Karachi'],
+    [2, 'Islamic Society of North America'], [3, 'Muslim World League'],
+    [4, 'Umm Al-Qura, Mekkë'], [5, 'Egyptian General Authority of Survey'],
+    [7, 'Institute of Geophysics, Tehran'], [8, 'Gulf Region'], [9, 'Kuwait'],
+    [10, 'Qatar'], [11, 'Singapore'], [12, 'Union des Organisations Islamiques de France'],
+    [13, 'Diyanet İşleri Başkanlığı, Turqi'], [14, 'Spiritual Administration of Muslims of Russia'],
+    [15, 'Moonsighting Committee Worldwide'], [16, 'Dubai'], [17, 'JAKIM, Malajzi'],
+    [18, 'Tunizi'], [19, 'Algjeri'], [20, 'KEMENAG, Indonezi'], [21, 'Marok'],
+    [22, 'Portugali'], [23, 'Jordani']
+  ];
+  var section = document.createElement('section'); section.className = 'settings-prayer'; section.setAttribute('aria-labelledby', 'settings-prayer-title');
+  var title = document.createElement('h2'); title.id = 'settings-prayer-title'; title.className = 'settings-section-title'; title.textContent = 'Oraret e namazit';
+  var description = document.createElement('p'); description.className = 'settings-section-description'; description.textContent = 'Zgjidh metodën dhe shkollën sipas udhëzimit që ndjek. Korrigjimet janë vetëm për shfaqjen lokale të orareve.';
+  var methodLabel = document.createElement('label'); methodLabel.className = 'settings-prayer__label'; methodLabel.textContent = 'Metoda e llogaritjes';
+  var method = document.createElement('select'); method.className = 'input'; method.name = 'calculationMethod'; methods.forEach(function (entry) { var option = document.createElement('option'); option.value = String(entry[0]); option.textContent = entry[0] + ' · ' + entry[1]; option.selected = entry[0] === prayer.calculationMethod; method.appendChild(option); }); methodLabel.appendChild(method);
+  var schoolLabel = document.createElement('label'); schoolLabel.className = 'settings-prayer__label'; schoolLabel.textContent = 'Shkolla e Ikindisë';
+  var school = document.createElement('select'); school.className = 'input'; school.name = 'asrSchool'; [[0, 'Standarde'], [1, 'Hanefi']].forEach(function (entry) { var option = document.createElement('option'); option.value = String(entry[0]); option.textContent = entry[1]; option.selected = entry[0] === prayer.asrSchool; school.appendChild(option); }); schoolLabel.appendChild(school);
+  var adjustmentsTitle = document.createElement('h3'); adjustmentsTitle.className = 'settings-prayer__subtitle'; adjustmentsTitle.textContent = 'Korrigjime në minuta';
+  var adjustments = document.createElement('div'); adjustments.className = 'settings-prayer__adjustments';
+  ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].forEach(function (key) { var label = document.createElement('label'); label.className = 'settings-prayer__adjustment'; var text = document.createElement('span'); text.textContent = PRAYER_LABELS_SQ[key]; var input = document.createElement('input'); input.className = 'input'; input.type = 'number'; input.name = key; input.min = '-30'; input.max = '30'; input.step = '1'; input.value = String((prayer.adjustments || {})[key] || 0); input.setAttribute('aria-label', 'Korrigjimi për ' + PRAYER_LABELS_SQ[key] + ' në minuta'); label.append(text, input); adjustments.appendChild(label); });
+  var status = document.createElement('p'); status.className = 'settings-prayer__status'; status.setAttribute('role', 'status');
+  function save() {
+    var nextAdjustments = {}; var valid = true;
+    adjustments.querySelectorAll('input').forEach(function (input) { var value = Number(input.value); if (!Number.isInteger(value) || value < -30 || value > 30) valid = false; nextAdjustments[input.name] = value; });
+    if (!valid) { status.textContent = 'Korrigjimet duhet të jenë numra të plotë nga -30 deri në 30.'; return; }
+    try { var latest = appContext.store.get('settings') || {}; var saved = appContext.settingsStorage.patchSettings({ prayer: { calculationMethod: Number(method.value), asrSchool: Number(school.value), adjustments: nextAdjustments } }); appContext.store.set('settings', saved, { source: 'prayer-settings' }); appContext.events.emit(appContext.events.EVENTS.SETTINGS_CHANGED, { key: 'prayer', value: saved.prayer, settings: saved }); status.textContent = 'Oraret do të llogariten me cilësimet e reja.'; } catch (error) { status.textContent = 'Cilësimet nuk u ruajtën. Provo përsëri.'; }
+  }
+  method.addEventListener('change', save); school.addEventListener('change', save); adjustments.querySelectorAll('input').forEach(function (input) { input.addEventListener('change', save); });
+  section.append(title, description, methodLabel, schoolLabel, adjustmentsTitle, adjustments, status); return section;
+}
+
 function buildDataSection(appContext) {
   var section = document.createElement('section');
   section.className = 'settings-data';
@@ -422,6 +458,7 @@ export function render(context, appContext) {
   );
   homeGroup.append(homeTitle, homeControls);
 
+  var prayerSettingsSection = buildPrayerSettingsSection(appContext);
   var sourcesSection = buildSourcesSection();
   var dataSection = buildDataSection(appContext);
   var privacySection = buildPrivacySection();
@@ -429,6 +466,7 @@ export function render(context, appContext) {
   content.appendChild(appearanceGroup);
   content.appendChild(themeControl);
   content.appendChild(homeGroup);
+  content.appendChild(prayerSettingsSection);
   content.appendChild(sourcesSection);
   content.appendChild(dataSection);
   content.appendChild(privacySection);

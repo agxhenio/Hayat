@@ -15,8 +15,6 @@
 import { APP_SOURCES, APP_PRIVACY_DISCLOSURES } from '../js/data/app-sources.js';
 import { createPersonalDataExport, personalDataExportFilename } from '../js/storage/data-export.js';
 import { restorePersonalData } from '../js/storage/data-import.js';
-import { createPersonalDataExport, personalDataExportFilename } from '../js/storage/data-export.js';
-import { restorePersonalData } from '../js/storage/data-import.js';
 
 // ====================================================================
 // ICON HELPER

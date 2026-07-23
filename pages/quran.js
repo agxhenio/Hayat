@@ -16,7 +16,7 @@ import {
   saveHatmahPosition
 } from '../js/storage/quran-reading.js';
 import { isQuranBookmark, toggleQuranBookmark, listQuranBookmarks } from '../js/storage/quran-bookmarks.js';
-import { getQuranSearchIndex, downloadQuranSearchIndex, searchQuranTranslation } from '../js/services/quran-search-index.js';
+import { getQuranSearchIndex, downloadQuranSearchIndex, searchQuranTranslation, clearQuranSearchIndex } from '../js/services/quran-search-index.js';
 
 function icon(name, sizeClass) {
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -185,7 +185,7 @@ function renderHome(page) {
   var download = document.createElement('button'); download.type = 'button'; download.className = 'btn btn--outline btn--sm'; download.dataset.quranTranslationDownload = ''; download.textContent = 'Aktivizo kërkimin offline';
   var translationInput = document.createElement('input'); translationInput.className = 'input'; translationInput.type = 'search'; translationInput.placeholder = 'Kërko fjalë në përkthim'; translationInput.hidden = true; translationInput.dataset.quranTranslationSearch = '';
   var translationResults = document.createElement('div'); translationResults.className = 'quran-bookmarks-list'; translationResults.dataset.quranTranslationResults = '';
-  translationSearch.body.append(searchInfo, download, translationInput, translationResults);
+  var clearIndex = document.createElement('button'); clearIndex.type = 'button'; clearIndex.className = 'btn btn--ghost btn--sm'; clearIndex.dataset.quranTranslationClear = ''; clearIndex.textContent = 'Hiq indeksin offline'; clearIndex.hidden = true; translationSearch.body.append(searchInfo, download, clearIndex, translationInput, translationResults);
 
   var allSurahs = homeCard('Të gjitha suret', 'search');
   allSurahs.card.classList.add('quran-surah-browser');
@@ -432,12 +432,16 @@ function mountHome(page, appContext) {
   loadBookmarks();
 
   var translationIndex = null;
-  var translationInfo = page.querySelector('[data-quran-translation-info]'); var translationDownload = page.querySelector('[data-quran-translation-download]'); var translationInput = page.querySelector('[data-quran-translation-search]'); var translationResults = page.querySelector('[data-quran-translation-results]');
+  var translationInfo = page.querySelector('[data-quran-translation-info]'); var translationDownload = page.querySelector('[data-quran-translation-download]'); var translationInput = page.querySelector('[data-quran-translation-search]'); var translationResults = page.querySelector('[data-quran-translation-results]'); var clearIndex = page.querySelector('[data-quran-translation-clear]');
   function renderTranslationResults() { if (!translationIndex || !translationResults) return; translationResults.replaceChildren(); searchQuranTranslation(translationIndex, translationInput.value, 50).forEach(function (result) { var metadata = getSurahMetadata(result.surah); var button = document.createElement('button'); button.type = 'button'; button.className = 'btn btn--ghost btn--sm'; button.textContent = (metadata ? metadata.nameTransliteration : 'Sureja ' + result.surah) + ' · ' + result.surah + ':' + result.ayah + ' — ' + result.text; button.addEventListener('click', function () { appContext.navigate('quran', { params: { surah: result.surah, ayah: result.ayah } }); }); translationResults.appendChild(button); }); }
-  function readyTranslationIndex(index) { translationIndex = index; if (translationInfo) translationInfo.textContent = 'Kërkimi offline është aktiv. Burimi: QuranEnc · Hasan Nahi.'; if (translationDownload) translationDownload.hidden = true; if (translationInput) translationInput.hidden = false; }
+  function readyTranslationIndex(index) { translationIndex = index; var size = Math.round(new Blob([JSON.stringify(index.entries)]).size / 1024); var date = index.createdAt ? new Date(index.createdAt).toLocaleDateString('sq-AL') : ''; if (translationInfo) translationInfo.textContent = 'Kërkimi offline është aktiv · ' + index.entries.length + ' ajete · rreth ' + size + ' KB' + (date ? ' · ' + date : '') + '. Burimi: QuranEnc · Hasan Nahi.'; if (translationDownload) translationDownload.hidden = true; if (clearIndex) clearIndex.hidden = false; if (translationInput) translationInput.hidden = false; }
   getQuranSearchIndex().then(function (index) { if (mounted && index) readyTranslationIndex(index); }).catch(showStorageWarning);
   if (translationDownload) translationDownload.addEventListener('click', function () { var controller = new AbortController(); translationDownload.disabled = true; if (translationInfo) translationInfo.textContent = 'Po shkarkohet indeksi… 0/114 sure'; downloadQuranSearchIndex(function (done, total) { if (translationInfo) translationInfo.textContent = 'Po shkarkohet indeksi… ' + done + '/' + total + ' sure'; }, controller.signal).then(function (index) { if (mounted) readyTranslationIndex(index); }).catch(function () { if (translationInfo) translationInfo.textContent = 'Indeksi nuk u shkarkua. Provo përsëri.'; }).finally(function () { translationDownload.disabled = false; }); });
   if (translationInput) translationInput.addEventListener('input', renderTranslationResults);
+  if (clearIndex) clearIndex.addEventListener('click', function () {
+    if (!window.confirm('Ta heqim indeksin offline të përkthimit? Kërkimi offline nuk do të jetë i disponueshëm derisa ta shkarkosh sërish.')) return;
+    clearIndex.disabled = true; clearQuranSearchIndex().then(function () { translationIndex = null; if (translationResults) translationResults.replaceChildren(); if (translationInput) { translationInput.value = ''; translationInput.hidden = true; } if (translationDownload) translationDownload.hidden = false; clearIndex.hidden = true; if (translationInfo) translationInfo.textContent = 'Indeksi offline u hoq nga kjo pajisje.'; }).catch(function () { if (translationInfo) translationInfo.textContent = 'Indeksi nuk u hoq. Provo përsëri.'; }).finally(function () { clearIndex.disabled = false; });
+  });
 
   var searchInput = page.querySelector('[data-quran-surah-search]');
   var list = page.querySelector('[data-quran-surah-list]');

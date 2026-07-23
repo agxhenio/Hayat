@@ -1,6 +1,6 @@
 /** Hayat — voluntary local search index for QuranEnc Albanian translation. */
 import { QURAN_CONTENT_API } from '../config.js';
-import { getRecord, putRecord } from '../storage/database.js';
+import { getRecord, putRecord, deleteRecord } from '../storage/database.js';
 
 const KEY = 'quran-search-index-v1';
 const VERSION = 1;
@@ -31,3 +31,5 @@ export function searchQuranTranslation(index, query, limit) {
   const needle = normalize(query); if (!index || !needle || needle.length < 2) return [];
   return index.entries.filter(function (entry) { return normalize(entry.text).indexOf(needle) !== -1; }).slice(0, limit || 50);
 }
+
+export async function clearQuranSearchIndex() { await deleteRecord('meta', KEY); }

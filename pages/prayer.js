@@ -29,6 +29,7 @@ import {
   getPostPrayerDhikrSessionsForDate,
   DHIKR_SESSION_STATUSES
 } from '../js/storage/post-prayer-dhikr-progress.js';
+import { qiblaBearing, qiblaDirectionSq } from '../js/services/qibla.js';
 
 // ====================================================================
 // ICON HELPER
@@ -551,6 +552,18 @@ function buildLogDialog(options) {
       if (restoreFocus && trigger && trigger.isConnected) trigger.focus();
     }
   };
+}
+
+function buildQiblaCard(settings) {
+  var card = document.createElement('section'); card.className = 'prayer-qibla card';
+  var title = document.createElement('h2'); title.className = 'card__title'; title.textContent = 'Qibla';
+  var text = document.createElement('p'); text.className = 'card__subtitle';
+  try {
+    var bearing = qiblaBearing(settings.coordinates.latitude, settings.coordinates.longitude);
+    text.textContent = 'Nga veriu: ' + Math.round(bearing) + '° · drejt ' + qiblaDirectionSq(bearing) + '.';
+  } catch (error) { text.textContent = 'Vendndodhja nevojitet për të llogaritur drejtimin e Qibles.'; }
+  var note = document.createElement('p'); note.className = 'prayer-qibla__note'; note.textContent = 'Përdore si ndihmë orientuese; kompasit të telefonit mund t’i duhet kalibrim.';
+  card.append(title, text, note); return card;
 }
 
 function buildInfoCard(timings, result, settings) {
@@ -1324,6 +1337,7 @@ export function mount(pageElement, context, appContext) {
     // Info card
     var info = buildInfoCard(todayResult.timings, todayResult, settings);
     regions.result.appendChild(info);
+    regions.result.appendChild(buildQiblaCard(settings));
 
     // Actions
     var actions = buildActions(handleRefresh, handleChangeLocation);

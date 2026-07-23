@@ -3893,3 +3893,4 @@
 .day-planner-search{margin-top:var(--space-2)}
 .prayer-qibla{padding:var(--space-4)}.prayer-qibla__note{margin:var(--space-2) 0 0;color:var(--color-text-secondary);font-size:var(--text-sm)}
 .prayer-qibla .btn{margin-top:var(--space-2)}
+.prayer-qibla__visual{display:flex;align-items:center;justify-content:center;width:3.25rem;height:3.25rem;margin:var(--space-3) auto;border:1px solid var(--color-primary);border-radius:50%;color:var(--color-primary);animation:qibla-pulse 2.4s ease-in-out infinite}@keyframes qibla-pulse{0%,100%{transform:scale(1);opacity:.82}50%{transform:scale(1.08);opacity:1}}@media (prefers-reduced-motion:reduce){.prayer-qibla__visual{animation:none}}

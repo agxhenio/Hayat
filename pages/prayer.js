@@ -563,7 +563,14 @@ function buildQiblaCard(settings) {
     text.textContent = 'Nga veriu: ' + Math.round(bearing) + '° · drejt ' + qiblaDirectionSq(bearing) + '.';
   } catch (error) { text.textContent = 'Vendndodhja nevojitet për të llogaritur drejtimin e Qibles.'; }
   var note = document.createElement('p'); note.className = 'prayer-qibla__note'; note.textContent = 'Përdore si ndihmë orientuese; kompasit të telefonit mund t’i duhet kalibrim.';
-  card.append(title, text, note); return card;
+  var compass = document.createElement('button'); compass.type = 'button'; compass.className = 'btn btn--ghost btn--sm'; compass.textContent = 'Aktivizo kompasin';
+  var compassStatus = document.createElement('p'); compassStatus.className = 'prayer-qibla__note'; compassStatus.hidden = true;
+  compass.addEventListener('click', function () {
+    if (!window.DeviceOrientationEvent) { compassStatus.hidden = false; compassStatus.textContent = 'Kompasi nuk mbështetet nga ky shfletues.'; return; }
+    function start() { compass.disabled = true; compass.textContent = 'Kompasi aktiv'; compassStatus.hidden = false; compassStatus.textContent = 'Lëvize telefonin ngadalë për kalibrim.'; var handler = function (event) { if (!card.isConnected) { window.removeEventListener('deviceorientation', handler); return; } var heading = Number.isFinite(event.webkitCompassHeading) ? event.webkitCompassHeading : (Number.isFinite(event.alpha) ? (360 - event.alpha) % 360 : null); if (!Number.isFinite(heading)) return; try { var target = qiblaBearing(settings.coordinates.latitude, settings.coordinates.longitude); var turn = (target - heading + 360) % 360; compassStatus.textContent = 'Rrotullo telefonin ' + Math.round(turn) + '° në drejtim të akrepave të orës për Qiblen.'; } catch (error) {} }; window.addEventListener('deviceorientation', handler); }
+    if (typeof window.DeviceOrientationEvent.requestPermission === 'function') { window.DeviceOrientationEvent.requestPermission().then(function (result) { if (result === 'granted') start(); else { compassStatus.hidden = false; compassStatus.textContent = 'Leja për kompasin nuk u dha.'; } }).catch(function () { compassStatus.hidden = false; compassStatus.textContent = 'Kompasi nuk u aktivizua.'; }); } else start();
+  });
+  card.append(title, text, note, compass, compassStatus); return card;
 }
 
 function buildInfoCard(timings, result, settings) {

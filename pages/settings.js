@@ -16,6 +16,8 @@ import { APP_SOURCES, APP_PRIVACY_DISCLOSURES } from '../js/data/app-sources.js'
 import { PRAYER_LABELS_SQ } from '../js/config.js';
 import { createPersonalDataExport, personalDataExportFilename } from '../js/storage/data-export.js';
 import { restorePersonalData } from '../js/storage/data-import.js';
+import { clearStore } from '../js/storage/database.js';
+import { clearQuranSearchIndex } from '../js/services/quran-search-index.js';
 
 // ====================================================================
 // ICON HELPER
@@ -327,6 +329,17 @@ function buildDataSection(appContext) {
   return section;
 }
 
+function buildModuleClearSection() {
+  var section = document.createElement('section'); section.className = 'settings-data';
+  var title = document.createElement('h2'); title.className = 'settings-section-title'; title.textContent = 'Pastro sipas modulit';
+  var description = document.createElement('p'); description.className = 'settings-section-description'; description.textContent = 'Këto veprime prekin vetëm modulin e zgjedhur në këtë pajisje.';
+  var status = document.createElement('p'); status.className = 'settings-data__status'; status.setAttribute('role', 'status');
+  function button(label, confirmText, operation, doneText) { var button = document.createElement('button'); button.type = 'button'; button.className = 'btn btn--ghost'; button.textContent = label; button.addEventListener('click', function () { if (!window.confirm(confirmText)) return; button.disabled = true; operation().then(function () { status.textContent = doneText; }).catch(function () { status.textContent = 'Pastrimi nuk u krye. Provo përsëri.'; }).finally(function () { button.disabled = false; }); }); return button; }
+  var clearDay = button('Pastro Dita Ime', 'Të fshijmë të gjitha aktivitetet dhe përsëritjet e Dita Ime nga kjo pajisje?', function () { return Promise.all([clearStore('dayItems'), clearStore('dayItemOccurrences')]); }, 'Dita Ime u pastrua nga kjo pajisje.');
+  var clearQuran = button('Pastro të dhënat e Kuranit', 'Të fshijmë bookmark-et, pozicionet e leximit dhe indeksin offline nga kjo pajisje?', function () { return Promise.all([clearStore('quranReadingState'), clearQuranSearchIndex()]); }, 'Të dhënat personale të Kuranit u pastruan nga kjo pajisje.');
+  section.append(title, description, clearDay, clearQuran, status); return section;
+}
+
 function buildPrivacySection() {
   var section = document.createElement('section');
   section.className = 'settings-privacy';
@@ -461,6 +474,7 @@ export function render(context, appContext) {
   var prayerSettingsSection = buildPrayerSettingsSection(appContext);
   var sourcesSection = buildSourcesSection();
   var dataSection = buildDataSection(appContext);
+  var clearSection = buildModuleClearSection();
   var privacySection = buildPrivacySection();
 
   content.appendChild(appearanceGroup);
@@ -469,6 +483,7 @@ export function render(context, appContext) {
   content.appendChild(prayerSettingsSection);
   content.appendChild(sourcesSection);
   content.appendChild(dataSection);
+  content.appendChild(clearSection);
   content.appendChild(privacySection);
 
   page.appendChild(header);

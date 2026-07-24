@@ -652,21 +652,13 @@ function buildActions(onRefresh, onChangeLocation, onQibla) {
   refreshBtn.appendChild(refreshText);
   refreshBtn.addEventListener('click', onRefresh);
 
-  var changeBtn = document.createElement('button');
-  changeBtn.type = 'button';
-  changeBtn.className = 'btn btn--outline';
-  changeBtn.appendChild(createIcon('map-pin', 'icon--sm'));
-  var changeText = document.createTextNode(' Ndrysho vendndodhjen');
-  changeBtn.appendChild(changeText);
-  changeBtn.addEventListener('click', onChangeLocation);
-
   var qiblaBtn = document.createElement('button');
-  qiblaBtn.type = 'button'; qiblaBtn.className = 'btn btn--ghost';
-  qiblaBtn.appendChild(createIcon('compass', 'icon--sm')); qiblaBtn.appendChild(document.createTextNode(' Qibla'));
+  qiblaBtn.type = 'button'; qiblaBtn.className = 'btn btn--outline prayer-qibla-action';
+  var qiblaIcon = document.createElement('span'); qiblaIcon.className = 'prayer-qibla-action__icon'; qiblaIcon.appendChild(createIcon('compass', 'icon--sm'));
+  qiblaBtn.append(qiblaIcon, document.createTextNode(' Qibla'));
   qiblaBtn.addEventListener('click', onQibla);
 
   actions.appendChild(refreshBtn);
-  actions.appendChild(changeBtn);
   actions.appendChild(qiblaBtn);
 
   return actions;

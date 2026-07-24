@@ -637,42 +637,13 @@ function mountReader(page, context, appContext) {
     container.replaceChildren();
     var list = document.createElement('div');
     list.className = 'daily-dhikr-quran__verses';
-    verses.forEach(function (verse) {
-      var block = document.createElement('section');
-      block.className = 'daily-dhikr-quran__verse';
-      var arabic = document.createElement('p');
-      arabic.className = 'daily-dhikr-quran__arabic text-quran';
-      arabic.lang = 'ar';
-      arabic.dir = 'rtl';
-      arabic.textContent = verse.arabicText;
-      var transliterationEntry = getQuranTransliterationSq(verse.verseKey);
-      var transliteration = document.createElement('p');
-      transliteration.className = 'daily-dhikr-quran__transliteration';
-      transliteration.textContent = transliterationEntry
-        ? transliterationEntry.transliterationSq
-        : 'Transliterimi nuk është ende i disponueshëm për këtë ajet.';
-      if (!transliterationEntry) {
-        transliteration.classList.add('daily-dhikr-quran__transliteration--missing');
-      }
-      var translation = document.createElement('p');
-      translation.className = 'daily-dhikr-quran__translation';
-      translation.textContent = verse.translationSq;
-      var reference = document.createElement('p');
-      reference.className = 'daily-dhikr-quran__reference';
-      reference.textContent = verse.verseKey;
-      block.append(arabic, transliteration, translation, reference);
-      if (verse.footnotesSq) {
-        var details = document.createElement('details');
-        details.className = 'daily-dhikr-quran__footnotes';
-        var summary = document.createElement('summary');
-        summary.textContent = 'Shënime të përkthimit';
-        var footnotes = document.createElement('p');
-        footnotes.textContent = verse.footnotesSq;
-        details.append(summary, footnotes);
-        block.appendChild(details);
-      }
-      list.appendChild(block);
-    });
+    var arabicGroup = document.createElement('div'); arabicGroup.className = 'daily-dhikr-quran__group';
+    var transliterationGroup = document.createElement('div'); transliterationGroup.className = 'daily-dhikr-quran__group';
+    var translationGroup = document.createElement('div'); translationGroup.className = 'daily-dhikr-quran__group';
+    verses.forEach(function (verse) { var arabic = document.createElement('p'); arabic.className = 'daily-dhikr-quran__arabic text-quran'; arabic.lang = 'ar'; arabic.dir = 'rtl'; arabic.textContent = verse.arabicText; arabicGroup.appendChild(arabic); });
+    verses.forEach(function (verse) { var transliteration = document.createElement('p'); transliteration.className = 'daily-dhikr-quran__transliteration'; var value = getQuranTransliterationSq(verse.surah, verse.ayah); transliteration.textContent = value || 'Pa transliterim të validuar.'; if (!value) transliteration.classList.add('daily-dhikr-quran__transliteration--missing'); transliterationGroup.appendChild(transliteration); });
+    verses.forEach(function (verse) { var block = document.createElement('section'); block.className = 'daily-dhikr-quran__verse'; var translation = document.createElement('p'); translation.className = 'daily-dhikr-quran__translation'; translation.textContent = verse.translationSq; var reference = document.createElement('p'); reference.className = 'daily-dhikr-quran__reference'; reference.textContent = verse.verseKey; block.append(translation, reference); if (verse.footnotesSq) { var details = document.createElement('details'); details.className = 'daily-dhikr-quran__footnotes'; var summary = document.createElement('summary'); summary.textContent = 'Shënime të përkthimit'; var footnotes = document.createElement('p'); footnotes.textContent = verse.footnotesSq; details.append(summary, footnotes); block.appendChild(details); } translationGroup.appendChild(block); });
+    list.append(arabicGroup, transliterationGroup, translationGroup);
     var attribution = document.createElement('p');
     attribution.className = 'daily-dhikr-quran__attribution';
     var link = document.createElement('a');
@@ -757,6 +728,11 @@ function mountReader(page, context, appContext) {
     next.append(document.createTextNode('Tjetra '), icon('chevron-right', 'icon--sm'));
     next.addEventListener('click', function () { moveToItem(index + 1, true); });
     navigationHost.append(previous, next);
+    if (index === routine.items.length - 1) {
+      var finish = document.createElement('button'); finish.type = 'button'; finish.className = 'btn btn--primary'; finish.textContent = 'Mbarova';
+      finish.addEventListener('click', function () { var current = session.itemProgress[item.id]; if (!current.completed) { showFeedback('Përfundo numërimin e hyrjes së fundit para se ta mbyllësh rutinën.'); return; } session = updateDailyDhikrItemProgress(session, item.id, current.count); markDirty(); persistNow(); updateProgress(); renderCompletion(); if (session.status === DAILY_DHIKR_SESSION_STATUS.COMPLETED) showFeedback('Rutina u përfundua.'); });
+      navigationHost.appendChild(finish);
+    }
   }
 
   function renderCurrentItem(moveFocus) {

@@ -676,9 +676,23 @@ function buildActions(onRefresh, onChangeLocation, onQibla) {
 // RENDER
 // ====================================================================
 
+function renderQiblaScreen(page, settings) {
+  page.classList.add('qibla-screen');
+  var back = document.createElement('button'); back.type = 'button'; back.className = 'btn btn--icon btn--ghost'; back.dataset.qiblaBack = ''; back.setAttribute('aria-label', 'Kthehu te Namazi'); back.appendChild(createIcon('chevron-left'));
+  var title = document.createElement('h1'); title.className = 'qibla-screen__title'; title.dataset.routeHeading = ''; title.textContent = 'Qibla';
+  var top = document.createElement('header'); top.className = 'qibla-screen__top'; top.append(back, title);
+  var dial = document.createElement('div'); dial.className = 'qibla-dial'; dial.dataset.qiblaDial = '';
+  var needle = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); needle.setAttribute('viewBox', '-50 -50 100 100'); needle.setAttribute('class', 'qibla-dial__needle'); needle.dataset.qiblaNeedle = ''; var pointer = document.createElementNS('http://www.w3.org/2000/svg', 'path'); pointer.setAttribute('d', 'M0 -40 L9 12 L0 4 L-9 12 Z'); pointer.setAttribute('fill', 'currentColor'); needle.appendChild(pointer); dial.appendChild(needle);
+  var degree = document.createElement('strong'); degree.className = 'qibla-dial__degree'; degree.dataset.qiblaDegree = ''; dial.appendChild(degree);
+  var text = document.createElement('p'); text.className = 'qibla-screen__text'; text.dataset.qiblaText = '';
+  var enable = document.createElement('button'); enable.type = 'button'; enable.className = 'btn btn--primary'; enable.dataset.qiblaEnable = ''; enable.textContent = 'Aktivizo kompasin';
+  page.append(top, dial, text, enable);
+}
+
 export function render(context, appContext) {
   var page = document.createElement('div');
   page.className = 'route-page prayer-page';
+  if (context.params && context.params.qibla) { renderQiblaScreen(page, appContext.store.get('settings')); return page; }
 
   // Header
   var header = document.createElement('div');
@@ -728,7 +742,19 @@ export function render(context, appContext) {
 // MOUNT
 // ====================================================================
 
+function mountQiblaScreen(page, appContext) {
+  var settings = appContext.store.get('settings'); var dial = page.querySelector('[data-qibla-dial]'); var needle = page.querySelector('[data-qibla-needle]'); var degree = page.querySelector('[data-qibla-degree]'); var text = page.querySelector('[data-qibla-text]'); var enable = page.querySelector('[data-qibla-enable]');
+  page.querySelector('[data-qibla-back]').addEventListener('click', function () { appContext.navigate('prayer'); });
+  if (!settings || !settings.coordinates) { text.textContent = 'Vendndodhja nevojitet për Qiblen.'; enable.hidden = true; return function () {}; }
+  var bearing = qiblaBearing(settings.coordinates.latitude, settings.coordinates.longitude); degree.textContent = Math.round(bearing) + '°'; text.textContent = 'Drejt Qibles nga veriu · aktivizo kompasin për orientim live.';
+  var handler = null;
+  function start() { enable.hidden = true; text.textContent = 'Lëvize telefonin ngadalë për kalibrim.'; handler = function (event) { var heading = Number.isFinite(event.webkitCompassHeading) ? event.webkitCompassHeading : (Number.isFinite(event.alpha) ? (360 - event.alpha) % 360 : null); if (!Number.isFinite(heading)) return; var turn = (bearing - heading + 360) % 360; needle.setAttribute('transform', 'rotate(' + turn + ')'); text.textContent = 'Rrotullo telefonin derisa treguesi të jetë lart.'; }; window.addEventListener('deviceorientation', handler); }
+  enable.addEventListener('click', function () { if (!window.DeviceOrientationEvent) { text.textContent = 'Kompasi nuk mbështetet nga ky shfletues.'; return; } if (typeof window.DeviceOrientationEvent.requestPermission === 'function') window.DeviceOrientationEvent.requestPermission().then(function (state) { if (state === 'granted') start(); else text.textContent = 'Leja për kompasin nuk u dha.'; }).catch(function () { text.textContent = 'Kompasi nuk u aktivizua.'; }); else start(); });
+  return function () { if (handler) window.removeEventListener('deviceorientation', handler); };
+}
+
 export function mount(pageElement, context, appContext) {
+  if (pageElement.classList.contains('qibla-screen')) return mountQiblaScreen(pageElement, appContext);
   var store = appContext.store;
   var events = appContext.events;
   var settingsStorage = appContext.settingsStorage;
@@ -1342,10 +1368,9 @@ export function mount(pageElement, context, appContext) {
     // Info card
     var info = buildInfoCard(todayResult.timings, todayResult, settings);
     regions.result.appendChild(info);
-    regions.result.appendChild(buildQiblaCard(settings));
 
     // Actions
-    var actions = buildActions(handleRefresh, handleChangeLocation, function () { var qibla = regions.result.querySelector('.prayer-qibla'); if (qibla) qibla.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' }); });
+    var actions = buildActions(handleRefresh, handleChangeLocation, function () { appContext.navigate('prayer', { params: { qibla: '1' } }); });
     regions.result.appendChild(actions);
   }
 

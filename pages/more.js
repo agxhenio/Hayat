@@ -374,7 +374,7 @@ function renderDayPlanner(page, selectedDate) {
   var prayer = document.createElement('select'); prayer.className = 'input'; prayer.name = 'prayerKey'; prayer.setAttribute('aria-label', 'Namazi për planifikim'); [['', 'Pa lidhje me namaz'], ['fajr', 'Sabahu'], ['dhuhr', 'Dreka'], ['asr', 'Ikindia'], ['maghrib', 'Akshami'], ['isha', 'Jacia']].forEach(function (x) { var option = document.createElement('option'); option.value = x[0]; option.textContent = x[1]; prayer.appendChild(option); });
   var relation = document.createElement('select'); relation.className = 'input'; relation.name = 'prayerPlan'; relation.setAttribute('aria-label', 'Planifikimi ndaj namazit'); relation.disabled = true; [['before', 'Namazi para aktivitetit'], ['after', 'Namazi pas aktivitetit']].forEach(function (x) { var option = document.createElement('option'); option.value = x[0]; option.textContent = x[1]; relation.appendChild(option); }); prayerRow.append(prayer, relation);
   var actions = document.createElement('div'); actions.className = 'day-planner-form__actions'; var save = document.createElement('button'); save.type = 'submit'; save.className = 'btn btn--primary'; save.dataset.daySave = ''; save.textContent = 'Ruaj'; var cancel = document.createElement('button'); cancel.type = 'button'; cancel.className = 'btn btn--ghost'; cancel.dataset.dayCancel = ''; cancel.textContent = 'Anulo ndryshimin'; cancel.hidden = true; actions.append(save, cancel);
-  var status = document.createElement('p'); status.className = 'day-planner-status'; status.dataset.dayStatus = ''; status.setAttribute('role', 'status'); form.append(title, row, details, prayerRow, actions, status); page.appendChild(form);
+  var status = document.createElement('p'); status.className = 'day-planner-status'; status.dataset.dayStatus = ''; status.setAttribute('role', 'status'); form.append(title, row, details, prayerRow, actions, status); page.appendChild(form); var weekButton = document.createElement('button'); weekButton.type = 'button'; weekButton.className = 'btn btn--outline'; weekButton.dataset.dayWeek = ''; weekButton.textContent = 'Shiko javën'; page.appendChild(weekButton);
   var filterLabel = document.createElement('h2'); filterLabel.className = 'day-planner-heading'; filterLabel.textContent = 'Filtro planin';
   var filters = document.createElement('div'); filters.className = 'day-planner-filters'; filters.dataset.dayFilters = ''; filters.setAttribute('aria-label', 'Filtro sipas kategorisë'); [['', 'Të gjitha'], ['family', 'Familje'], ['work', 'Punë'], ['school', 'Shkollë'], ['personal', 'Personale']].forEach(function (x, index) { var button = document.createElement('button'); button.type = 'button'; button.className = 'day-planner-filter' + (index === 0 ? ' day-planner-filter--active' : ''); button.dataset.dayCategory = x[0]; button.setAttribute('aria-pressed', String(index === 0)); button.textContent = x[1]; filters.appendChild(button); });
   var filterSearch = document.createElement('input'); filterSearch.type = 'search'; filterSearch.className = 'input day-planner-search'; filterSearch.placeholder = 'Kërko në planin e ditës'; filterSearch.dataset.daySearch = ''; filterSearch.setAttribute('aria-label', 'Kërko në planin e ditës');
@@ -395,11 +395,29 @@ function paintDayItems(list, items, timings, filters) {
     var itemActions = document.createElement('div'); itemActions.className = 'day-planner-item__actions'; var edit = document.createElement('button'); edit.type = 'button'; edit.className = 'btn btn--ghost btn--sm'; edit.dataset.dayEdit = ''; edit.textContent = 'Ndrysho'; if (item.occurrenceKey) edit.hidden = true; var remove = document.createElement('button'); remove.type = 'button'; remove.className = 'btn btn--ghost btn--sm'; remove.dataset.dayDelete = ''; remove.textContent = 'Hiq'; itemActions.append(edit, remove); card.append(check, content, itemActions); list.appendChild(card); });
 }
 
+function weekStart(dateKey) {
+  var date = new Date(dateKey + 'T12:00:00');
+  var delta = (date.getDay() + 6) % 7; date.setDate(date.getDate() - delta);
+  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+}
+function addDateDays(dateKey, days) { var date = new Date(dateKey + 'T12:00:00'); date.setDate(date.getDate() + days); return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-'); }
+function renderWeekPlanner(page) {
+  page.classList.add('day-planner-page');
+  var top = document.createElement('div'); top.className = 'mburoja-page__top'; var back = document.createElement('button'); back.type = 'button'; back.className = 'btn btn--icon btn--ghost'; back.dataset.weekBack = ''; back.setAttribute('aria-label', 'Kthehu te Dita Ime'); back.appendChild(icon('chevron-left')); top.append(back, pageHeader('Java ime', 'Planifikim lokal', 'Aktivitetet reale të shtatë ditëve.')); page.appendChild(top);
+  var controls = document.createElement('div'); controls.className = 'day-planner-form__actions'; var previous = document.createElement('button'); previous.type = 'button'; previous.className = 'btn btn--ghost'; previous.dataset.weekPrevious = ''; previous.textContent = 'Java para'; var label = document.createElement('p'); label.className = 'day-planner-status'; label.dataset.weekLabel = ''; var next = document.createElement('button'); next.type = 'button'; next.className = 'btn btn--ghost'; next.dataset.weekNext = ''; next.textContent = 'Java pas'; controls.append(previous, label, next);
+  var list = document.createElement('div'); list.className = 'week-planner-list'; list.dataset.weekList = ''; page.append(controls, list);
+}
+function paintWeek(list, startKey, results, navigate) {
+  list.replaceChildren(); var names = ['Hënë', 'Martë', 'Mërkurë', 'Enjte', 'Premte', 'Shtunë', 'Diel'];
+  results.forEach(function (items, index) { var dateKey = addDateDays(startKey, index); var card = document.createElement('section'); card.className = 'week-planner-day card'; var open = document.createElement('button'); open.type = 'button'; open.className = 'week-planner-day__header'; open.textContent = names[index] + ' · ' + dateKey; open.addEventListener('click', function () { navigate('more', { params: { section: 'day', date: dateKey } }); }); card.appendChild(open); if (!items.length) { var empty = document.createElement('p'); empty.className = 'week-planner-day__empty'; empty.textContent = 'Pa aktivitete.'; card.appendChild(empty); } else { var entries = document.createElement('ul'); entries.className = 'week-planner-day__entries'; items.forEach(function (item) { var entry = document.createElement('li'); entry.textContent = (item.time ? item.time + ' · ' : '') + item.title + (item.status === 'completed' ? ' · e kryer' : ''); entries.appendChild(entry); }); card.appendChild(entries); } list.appendChild(card); });
+}
+
 export function render(context) {
   var page = document.createElement('div');
   page.className = 'route-page more-page';
   var params = context.params || {};
-  if (params.section === 'day') renderDayPlanner(page, params.date);
+  if (params.section === 'day' && params.view === 'week') renderWeekPlanner(page);
+  else if (params.section === 'day') renderDayPlanner(page, params.date);
   else if (params.section !== 'mburoja') renderHub(page);
   else if (params.chapter === undefined) renderCatalog(page);
   else {
@@ -476,7 +494,14 @@ export function mount(page, context, appContext) {
     });
   });
 
+  listen(page.querySelector('[data-week-back]'), 'click', function () { appContext.navigate('more', { params: { section: 'day' } }); });
+  var weekList = page.querySelector('[data-week-list]'); var weekLabel = page.querySelector('[data-week-label]'); var activeWeek = weekStart(localDateKey());
+  function refreshWeek() { if (!weekList) return; if (weekLabel) weekLabel.textContent = activeWeek + ' — ' + addDateDays(activeWeek, 6); Promise.all([0,1,2,3,4,5,6].map(function (offset) { return listDayItems(addDateDays(activeWeek, offset)); })).then(function (rows) { paintWeek(weekList, activeWeek, rows, appContext.navigate); }); }
+  listen(page.querySelector('[data-week-previous]'), 'click', function () { activeWeek = addDateDays(activeWeek, -7); refreshWeek(); });
+  listen(page.querySelector('[data-week-next]'), 'click', function () { activeWeek = addDateDays(activeWeek, 7); refreshWeek(); });
+  if (weekList) refreshWeek();
   listen(page.querySelector('[data-day-back]'), 'click', function () { appContext.navigate('more'); });
+  listen(page.querySelector('[data-day-week]'), 'click', function () { appContext.navigate('more', { params: { section: 'day', view: 'week' } }); });
   var dayForm = page.querySelector('[data-day-form]');
   var dayList = page.querySelector('[data-day-list]');
   var dayStatus = page.querySelector('[data-day-status]');

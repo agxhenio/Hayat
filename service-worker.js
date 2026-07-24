@@ -1,5 +1,5 @@
 /* Hayat — privacy-first app-shell cache. */
-const CACHE_NAME = 'hayat-app-shell-v19';
+const CACHE_NAME = 'hayat-app-shell-v20';
 const APP_SHELL = [
   './',
   './index.html',

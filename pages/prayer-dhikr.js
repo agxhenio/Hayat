@@ -30,6 +30,7 @@ import {
   getAyahRange,
   QuranContentError
 } from '../js/services/quran-content.js';
+import { getQuranTransliterationSq } from '../js/data/quran-transliteration-sq.js';
 
 function icon(name, sizeClass) {
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -298,34 +299,13 @@ export function mount(page, context, appContext) {
     container.replaceChildren();
     var list = document.createElement('div');
     list.className = 'post-dhikr-quran__verses';
-    verses.forEach(function (verse) {
-      var block = document.createElement('section');
-      block.className = 'post-dhikr-quran__verse';
-      var arabic = document.createElement('p');
-      arabic.className = 'post-dhikr-quran__arabic text-quran';
-      arabic.lang = 'ar';
-      arabic.dir = 'rtl';
-      arabic.textContent = verse.arabicText;
-      var translation = document.createElement('p');
-      translation.className = 'post-dhikr-quran__translation';
-      translation.textContent = verse.translationSq;
-      var reference = document.createElement('p');
-      reference.className = 'post-dhikr-quran__reference';
-      reference.textContent = verse.verseKey;
-      block.append(arabic, translation, reference);
-      if (verse.footnotesSq) {
-        var details = document.createElement('details');
-        details.className = 'post-dhikr-quran__footnotes';
-        var summary = document.createElement('summary');
-        summary.className = 'post-dhikr-quran__footnotes-summary';
-        summary.textContent = 'Shënime të përkthimit';
-        var footnotes = document.createElement('p');
-        footnotes.textContent = verse.footnotesSq;
-        details.append(summary, footnotes);
-        block.appendChild(details);
-      }
-      list.appendChild(block);
-    });
+    var arabicGroup = document.createElement('div'); arabicGroup.className = 'post-dhikr-quran__group';
+    var transliterationGroup = document.createElement('div'); transliterationGroup.className = 'post-dhikr-quran__group';
+    var translationGroup = document.createElement('div'); translationGroup.className = 'post-dhikr-quran__group';
+    verses.forEach(function (verse) { var arabic = document.createElement('p'); arabic.className = 'post-dhikr-quran__arabic text-quran'; arabic.lang = 'ar'; arabic.dir = 'rtl'; arabic.textContent = verse.arabicText; arabicGroup.appendChild(arabic); });
+    verses.forEach(function (verse) { var transliteration = document.createElement('p'); transliteration.className = 'post-dhikr-quran__transliteration'; var value = getQuranTransliterationSq(verse.surah, verse.ayah); transliteration.textContent = value || 'Pa transliterim të validuar.'; if (!value) transliteration.classList.add('post-dhikr-quran__transliteration--missing'); transliterationGroup.appendChild(transliteration); });
+    verses.forEach(function (verse) { var block = document.createElement('section'); block.className = 'post-dhikr-quran__verse'; var translation = document.createElement('p'); translation.className = 'post-dhikr-quran__translation'; translation.textContent = verse.translationSq; var reference = document.createElement('p'); reference.className = 'post-dhikr-quran__reference'; reference.textContent = verse.verseKey; block.append(translation, reference); if (verse.footnotesSq) { var details = document.createElement('details'); details.className = 'post-dhikr-quran__footnotes'; var summary = document.createElement('summary'); summary.className = 'post-dhikr-quran__footnotes-summary'; summary.textContent = 'Shënime të përkthimit'; var footnotes = document.createElement('p'); footnotes.textContent = verse.footnotesSq; details.append(summary, footnotes); block.appendChild(details); } translationGroup.appendChild(block); });
+    list.append(arabicGroup, transliterationGroup, translationGroup);
     container.appendChild(list);
     var attribution = document.createElement('p');
     attribution.className = 'post-dhikr-quran__attribution';

@@ -2,13 +2,27 @@
 import { replaceRecordsAtomically } from './database.js';
 import { validateSettings } from './settings-storage.js';
 import { DATA_EXPORT_VERSION } from './data-export.js';
+import { validatePrayerLog } from './prayer-log.js';
+import { validatePostPrayerDhikrSession } from './post-prayer-dhikr-progress.js';
+import { validateDailyDhikrSession } from './daily-dhikr-progress.js';
+import { validateDayItem, validateDayItemOccurrence } from './day-planner.js';
+import { validateQuranReadingPosition } from './quran-reading.js';
 
 const PERSONAL_STORES = Object.freeze([
   'prayerLogs', 'postPrayerDhikrSessions', 'dailyDhikrSessions',
-  'dayItems', 'quranReadingState', 'meta'
+  'dayItems', 'dayItemOccurrences', 'quranReadingState', 'meta'
 ]);
 const KEY_FIELDS = Object.freeze({ quranReadingState: 'key', meta: 'key' });
 const MAX_RECORDS_PER_STORE = 50000;
+
+const STORE_VALIDATORS = Object.freeze({
+  prayerLogs: validatePrayerLog,
+  postPrayerDhikrSessions: validatePostPrayerDhikrSession,
+  dailyDhikrSessions: validateDailyDhikrSession,
+  dayItems: validateDayItem,
+  dayItemOccurrences: validateDayItemOccurrence,
+  quranReadingState: validateQuranReadingPosition
+});
 
 function isPlainObject(value) {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return false;
@@ -29,7 +43,12 @@ export function validatePersonalDataImport(candidate) {
       const keyField = KEY_FIELDS[name] || 'id';
       return !isPlainObject(record) || typeof record[keyField] !== 'string' || !record[keyField];
     })) return null;
-    stores[name] = records;
+    const validator = STORE_VALIDATORS[name];
+    if (validator) {
+      stores[name] = records.map(validator).filter(Boolean);
+    } else {
+      stores[name] = records;
+    }
   }
   return Object.freeze({ settings: validateSettings(candidate.settings), stores: stores });
 }

@@ -7,6 +7,7 @@ const PERSONAL_STORES = Object.freeze([
   'postPrayerDhikrSessions',
   'dailyDhikrSessions',
   'dayItems',
+  'dayItemOccurrences',
   'quranReadingState',
   'meta'
 ]);

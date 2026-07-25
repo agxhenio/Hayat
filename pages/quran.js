@@ -16,6 +16,7 @@ import {
   saveHatmahPosition
 } from '../js/storage/quran-reading.js';
 import { isQuranBookmark, toggleQuranBookmark, listQuranBookmarks } from '../js/storage/quran-bookmarks.js';
+import { minshawiSurahAudioUrl, QURAN_AUDIO_SOURCE } from '../js/services/quran-audio.js';
 import { getQuranSearchIndex, downloadQuranSearchIndex, searchQuranTranslation, clearQuranSearchIndex } from '../js/services/quran-search-index.js';
 
 function icon(name, sizeClass) {
@@ -291,6 +292,9 @@ function renderReader(page, surah, ayah, metadata) {
     controls.appendChild(button);
   });
 
+  var audioControls = document.createElement('div'); audioControls.className = 'quran-reader__audio';
+  var audioButton = document.createElement('button'); audioButton.type = 'button'; audioButton.className = 'btn btn--outline btn--sm'; audioButton.dataset.quranAudio = ''; audioButton.append(icon('play', 'icon--sm'), document.createTextNode(' Dëgjo suren'));
+  var audioMeta = document.createElement('span'); audioMeta.className = 'quran-reader__audio-meta'; audioMeta.textContent = QURAN_AUDIO_SOURCE.reciter + ' · ' + QURAN_AUDIO_SOURCE.riwayah; audioControls.append(audioButton, audioMeta);
   var feedback = document.createElement('div');
   feedback.className = 'quran-reader__feedback-host';
   feedback.dataset.quranReaderFeedback = '';
@@ -302,7 +306,7 @@ function renderReader(page, surah, ayah, metadata) {
   loading.setAttribute('role', 'status');
   loading.textContent = 'Duke ngarkuar suren...';
   content.appendChild(loading);
-  reader.append(topbar, controls, feedback, content);
+  reader.append(topbar, controls, audioControls, feedback, content);
   page.appendChild(reader);
 }
 
@@ -506,7 +510,11 @@ function mountReader(page, reader, context, appContext) {
 
   function setReaderTheme(theme) {
     reader.dataset.readerTheme = theme;
-    page.querySelectorAll('[data-reader-theme-choice]').forEach(function (button) {
+    var audio = new Audio(); var audioButton = page.querySelector('[data-quran-audio]');
+  if (audioButton) audioButton.addEventListener('click', function () { if (audio.paused) { audio.src = minshawiSurahAudioUrl(surah); audio.play().then(function () { audioButton.replaceChildren(document.createTextNode('Ndalo')); }).catch(function () { showFeedback('Audio nuk u nis. Kontrollo lidhjen me internetin.', 'warning'); }); } else { audio.pause(); audioButton.replaceChildren(icon('play', 'icon--sm'), document.createTextNode(' Dëgjo suren')); } });
+  audio.addEventListener('ended', function () { if (audioButton) audioButton.replaceChildren(icon('play', 'icon--sm'), document.createTextNode(' Dëgjo suren')); });
+
+  page.querySelectorAll('[data-reader-theme-choice]').forEach(function (button) {
       var active = button.dataset.readerThemeChoice === theme;
       button.classList.toggle('btn--primary', active);
       button.classList.toggle('btn--outline', !active);
@@ -578,6 +586,7 @@ function mountReader(page, reader, context, appContext) {
     box.setAttribute('role', 'status');
     box.textContent = message;
     feedbackHost.appendChild(box);
+    audio.pause(); audio.removeAttribute('src');
     if (feedbackTimer) clearTimeout(feedbackTimer);
     feedbackTimer = setTimeout(function () {
       if (mounted) feedbackHost.replaceChildren();
@@ -757,6 +766,7 @@ function mountReader(page, reader, context, appContext) {
     flushPosition();
     mounted = false;
     controller.abort();
+    audio.pause(); audio.removeAttribute('src');
     if (feedbackTimer) clearTimeout(feedbackTimer);
     content.removeEventListener('click', surahNavigationHandler);
     content.removeEventListener('click', verseBookmarkHandler);

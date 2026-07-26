@@ -41,7 +41,7 @@ var APP = deepFreeze({
   locale: 'sq-AL',
   defaultTheme: 'dark',
   supportedThemes: ['dark', 'light'],
-  version: '0.5.0'
+  version: '0.6.0'
 });
 
 // ====================================================================

@@ -462,8 +462,7 @@ function buildLogDialog(options) {
   backdrop.appendChild(dialog);
 
   var busy = false;
-  var previousOverflow = document.body.style.overflow;
-  document.body.style.overflow = 'hidden';
+  document.body.classList.add('modal-open');
   var trigger = options.trigger;
 
   function focusables() {
@@ -547,7 +546,7 @@ function buildLogDialog(options) {
     },
     destroy: function (restoreFocus) {
       dialog.removeEventListener('keydown', keydown);
-      document.body.style.overflow = previousOverflow;
+      document.body.classList.remove('modal-open');
       backdrop.remove();
       if (restoreFocus && trigger && trigger.isConnected) trigger.focus();
     }

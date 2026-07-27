@@ -76,7 +76,7 @@ var ROUTES = deepFreeze([
   {
     id: 'dhikr',
     hash: '#/dhikr',
-    label: 'Dhikri',
+    label: 'Mburoja',
     primary: true
   },
   {

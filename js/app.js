@@ -235,7 +235,7 @@ function getIconForRoute(routeId) {
     home: 'home',
     prayer: 'mosque',
     quran: 'book-open',
-    dhikr: 'sparkles',
+    dhikr: 'shield',
     more: 'more'
   };
   return iconMap[routeId] || 'home';

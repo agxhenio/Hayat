@@ -1,19 +1,9 @@
 /**
- * 
- * Hayat — More hub and Mburoja catalog UI v1.
+ * Hayat — More hub and Day Planner UI v1.
  */
 
-import {
-  MBUROJA_CATEGORIES,
-  MBUROJA_CHAPTERS,
-  getMburojaChapter,
-  searchMburojaChapters
-} from '../js/data/mburoja-catalog.js';
-import { getMburojaContent } from '../js/data/mburoja-content.js';
 import { listDayItems, createDayItem, updateDayItem, toggleDayItem, removeDayItem } from '../js/storage/day-planner.js';
 import { getPrayerTimes } from '../js/services/prayer-times.js';
-
-var MBUROJA_PDF_URL = 'https://d1.islamhouse.com/data/sq/ih_books/single/sq_mburoja_muslimanit.pdf';
 
 function icon(name, sizeClass) {
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -95,12 +85,6 @@ function renderHub(page) {
   list.dataset.moreHub = '';
   list.append(
     hubItem({ title: 'Dita ime', subtitle: 'Detyra, takime dhe kujtesa', icon: 'calendar', action: 'day' }),
-    hubItem({
-      title: 'Mburoja',
-      subtitle: 'Dua dhe dhikër sipas situatave',
-      icon: 'shield',
-      action: 'mburoja'
-    }),
     hubItem({ title: 'Cilësimet', icon: 'settings', action: 'settings' })
   );
   content.appendChild(list);
@@ -418,13 +402,7 @@ export function render(context) {
   var params = context.params || {};
   if (params.section === 'day' && params.view === 'week') renderWeekPlanner(page);
   else if (params.section === 'day') renderDayPlanner(page, params.date);
-  else if (params.section !== 'mburoja') renderHub(page);
-  else if (params.chapter === undefined) renderCatalog(page);
-  else {
-    var chapter = getMburojaChapter(params.chapter);
-    if (chapter) renderChapter(page, chapter);
-    else renderInvalidChapter(page);
-  }
+  else renderHub(page);
   return page;
 }
 
@@ -442,13 +420,6 @@ export function mount(page, context, appContext) {
     if (!button || !hub.contains(button)) return;
     if (button.dataset.moreAction === 'day') appContext.navigate('more', { params: { section: 'day' } });
     else if (button.dataset.moreAction === 'settings') appContext.navigate('settings');
-    else if (button.dataset.moreAction === 'mburoja') {
-      appContext.navigate('more', { params: { section: 'mburoja' } });
-    }
-  });
-
-  listen(page.querySelector('[data-mburoja-back-hub]'), 'click', function () {
-    appContext.navigate('more');
   });
   listen(page.querySelector('[data-mburoja-back-catalog]'), 'click', function () {
     appContext.navigate('more', { params: { section: 'mburoja' } });

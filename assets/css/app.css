@@ -3902,4 +3902,6 @@
 .daily-dhikr-quran__surah{padding-block:var(--space-4);border-block-end:1px solid var(--color-border-subtle)}.daily-dhikr-quran__surah-title{margin:0;color:var(--color-text-secondary);font-size:var(--text-sm);font-weight:var(--font-weight-semibold)}
 .daily-dhikr-quran__group-title{margin:0;color:var(--color-primary);font-size:var(--text-xs);font-weight:var(--font-weight-semibold);letter-spacing:.06em;text-transform:uppercase}
 .post-dhikr-quran__group{display:grid;gap:var(--space-3);margin-block:var(--space-4)}.post-dhikr-quran__transliteration{margin:0;color:var(--color-text-secondary);font-style:italic;line-height:var(--leading-relaxed)}.post-dhikr-quran__transliteration--missing{font-style:normal}
+.post-dhikr-quran__surah{padding-block:var(--space-4);border-block-end:1px solid var(--color-border-subtle)}.post-dhikr-quran__surah-title{margin:0;color:var(--color-text-secondary);font-size:var(--text-sm);font-weight:var(--font-weight-semibold)}
+.post-dhikr-quran__group-title{margin:0;color:var(--color-primary);font-size:var(--text-xs);font-weight:var(--font-weight-semibold);letter-spacing:.06em;text-transform:uppercase}
 .quran-reader__audio{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) 0}.quran-reader__audio-meta{color:var(--color-text-secondary);font-size:var(--text-xs)}

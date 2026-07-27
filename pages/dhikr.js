@@ -417,8 +417,7 @@ function renderDetail(page, itemId) {
 }
 
 // ═══════════════════════════════════════════════
-// ERROR SCREEN
-// ═══════════════════════════════════════════════
+// SCREEN: DAILY DHIK ROUTINE
 
 function renderError(page, message) {
   page.classList.add('mburoja-page');
@@ -521,6 +520,8 @@ export function mount(page, context, appContext) {
       appContext.navigate('dhikr', { params: { category: btn.dataset.mburojaCategory } });
     });
   }
+
+
 
   // ─── CATEGORY MOUNT ───
   var categoryItems = page.querySelector('.mburoja-items-list');

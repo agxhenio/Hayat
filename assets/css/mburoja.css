@@ -338,6 +338,128 @@
   fill: var(--color-danger, #e74c3c);
 }
 
+/* ─── Daily Dhikr Routines Section ─── */
+.mburoja-daily-section {
+  margin-block-start: var(--space-2);
+}
+.mburoja-daily-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.mburoja-daily-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-elevated);
+  color: var(--color-text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.mburoja-daily-row:hover {
+  border-color: var(--color-primary);
+  background: var(--color-surface-interactive);
+}
+.mburoja-daily-row__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+.mburoja-daily-row__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.mburoja-daily-row__title {
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+}
+.mburoja-daily-row__desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* ─── Daily Routine Detail ─── */
+.mburoja-daily-detail__desc {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+}
+.mburoja-daily-detail__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.mburoja-daily-detail__item {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-elevated);
+}
+.mburoja-daily-detail__item-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-end: var(--space-3);
+}
+.mburoja-daily-detail__item-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2rem;
+  block-size: 2rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-bold);
+}
+.mburoja-daily-detail__item-title {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+}
+.mburoja-daily-detail__item-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.mburoja-daily-detail__item-reps {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 2rem;
+  block-size: 1.5rem;
+  padding: var(--space-1) var(--space-2);
+  margin-block-start: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-bold);
+  inline-size: fit-content;
+}
+.mburoja-detail__quran-note {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-interactive);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-style: italic;
+}
+
 /* ─── Notice ─── */
 .mburoja-notice {
   margin: 0;

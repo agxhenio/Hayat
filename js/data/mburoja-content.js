@@ -1,358 +1,3997 @@
 /**
- * Hayat — Audited Mburoja content packs 1–2.
- * Source: “Mburoja e Muslimanit”, Albanian edition, IslamHouse.
+ * Hayat — Mburoja e Muslimanit: Certified content.
+ * Source: mburoja_e_muslimanit.json (certified)
+ * PDF: https://d1.islamhouse.com/data/sq/ih_books/single/sq_mburoja_muslimanit.pdf
  */
 
-import { getMburojaChapter } from './mburoja-catalog.js';
-
-export const MBUROJA_CONTENT_VERSION = 3;
-export const MBUROJA_CONTENT_REVIEW_STATUS = 'qualified-review-required';
-
-function textItem(id, titleSq, arabic, transliterationSq, translationSq, repetitions, sourceSq) {
-  return {
-    id: id,
-    type: 'text',
-    titleSq: titleSq,
-    arabic: arabic,
-    transliterationSq: transliterationSq,
-    translationSq: translationSq,
-    repetitions: repetitions || 1,
-    sourceSq: sourceSq,
-    reviewStatus: MBUROJA_CONTENT_REVIEW_STATUS
-  };
-}
-
-function instructionItem(id, titleSq, bodySq, sourceSq) {
-  return {
-    id: id,
-    type: 'instruction',
-    titleSq: titleSq,
-    bodySq: bodySq,
-    sourceSq: sourceSq,
-    reviewStatus: MBUROJA_CONTENT_REVIEW_STATUS
-  };
-}
-
-function quranLink(id, titleSq, surah, ayahStart, ayahEnd, sourceSq) {
-  return {
-    id: id,
-    type: 'quran_link',
-    titleSq: titleSq,
-    surah: surah,
-    ayahStart: ayahStart,
-    ayahEnd: ayahEnd,
-    sourceSq: sourceSq,
-    reviewStatus: MBUROJA_CONTENT_REVIEW_STATUS
-  };
-}
-
-function chapter(number, guidanceSq, items) {
-  return { number: number, guidanceSq: guidanceSq || '', items: items };
-}
+export const MBUROJA_CONTENT_VERSION = 5;
+export const MBUROJA_CONTENT_REVIEW_STATUS = "qualified-review-required";
 
 var RAW_CHAPTERS = [
-  chapter(1, 'Këto përkujtime thuhen pas zgjimit nga gjumi.', [
-    textItem('wake-praise', 'Lavdia pas zgjimit',
-      'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا، وَإِلَيْهِ النُّشُورُ',
-      'Elḥamdu lil-lãhil-ledhĩ aḥjãnã ba’ëde mã emãtenã we ilejhin-nushũr.',
-      'Lavdia i takon Allahut, i Cili na ngjalli pasi na vdiq dhe, pasi të ringjallemi, tek Ai do të tubohemi.',
-      1, 'Buhariu dhe Muslimi · Mburoja, f. 11'),
-    textItem('wake-tahlil', 'Përkujtimi gjatë zgjimit natën',
-      'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ، رَبِّ اغْفِرْ لِي',
-      'Lã ilãhe il-lAll-llãhu waḥdehu lã sherĩke lehu, lehul mulku we lehul ḥamdu we huwe ‘alã kul-li shej’in ḳadĩr. Subḥãnall-llãhi welḥamdu lil-lãhi we lã ilãhe il-lAll-llãhu wall-llãhu ekber, we lã ḥawle we lã ḳuwwete il-lã bil-lãhil ‘alijjil ‘aḍhĩmi, rabbiġfir lĩ.',
-      'S’ka të adhuruar me të drejtë përveç Allahut, Një dhe të Pashoq. Vetëm Atij i përket sundimi dhe lavdia, dhe Ai është i Fuqishëm për çdo gjë! Allahu është i dëlirë nga të metat; lavdia i takon Allahut; s’ka të adhuruar me të drejtë përveç Tij; Allahu është më i Madhi; nuk ka lëvizje dhe fuqi veçse me Allahun, të Lartin, Madhështorin. O Zoti im, më fal!',
-      1, 'Sahih al-Bukhari · Mburoja, f. 11'),
-    textItem('wake-health', 'Falënderimi për shëndetin dhe shpirtin',
-      'الْحَمْدُ لِلَّهِ الَّذِي عَافَانِي فِي جَسَدِي، وَرَدَّ عَلَيَّ رُوحِي، وَأَذِنَ لِي بِذِكْرِهِ',
-      'Elḥamdu lil-lãhil-ledhĩ ‘ãfãnĩ fĩ xhesedĩ, we radde ‘alejje rũḥĩ, we edhine lĩ bi dhikrihi.',
-      'Lavdia i takon Allahut, i Cili më dha shëndet në trup, ma ktheu shpirtin dhe më mundësoi ta përmend Atë.',
-      1, 'Tirmidhiu · Mburoja, f. 12'),
-    quranLink('wake-ali-imran', 'Lexo ajetet e fundit të Ali Imranit', 3, 190, 200,
-      'Ali Imran 190–200 · Buhariu dhe Muslimi · Mburoja, f. 12–14')
-  ]),
-  chapter(2, '', [
-    textItem('wear-clothing', 'Kur vesh rrobën',
-      'الْحَمْدُ لِلَّهِ الَّذِي كَسَانِي هَذَا الثَّوْبَ وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ',
-      'Elḥamdu lil-lãhil-ledhĩ kesãnĩ hãdhã eth-thewbe, we razeḳanĩhi min ġajri ḥawlin minnĩ we lã ḳuwweh.',
-      'Lavdia i takon Allahut, i Cili më mundësoi të vesh këtë rrobë dhe më furnizoi me të, pa lëvizje dhe pa fuqi nga ana ime.',
-      1, 'Ebu Davudi, Tirmidhiu dhe Ibn Maxhe · Mburoja, f. 14')
-  ]),
-  chapter(3, '', [
-    textItem('new-clothing', 'Kur vesh një rrobë të re',
-      'اللَّهُمَّ لَكَ الْحَمْدُ أَنْتَ كَسَوْتَنِيهِ، أَسْأَلُكَ مِنْ خَيْرِهِ وَخَيْرِ مَا صُنِعَ لَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّهِ وَشَرِّ مَا صُنِعَ لَهُ',
-      'All-llãhumme lekel-ḥamdu Ente kesewtenĩhi, es’eluke min ḣajrihi we ḣajri mã ṣuni’a lehu, we e’ũdhu bike min sherrihi we sherri mã ṣuni’a lehu.',
-      'O Allah! Ty të takon lavdia! Ti ma dhe këtë veshje. Të kërkoj të mirën e saj dhe të mirën për të cilën është prodhuar; kërkoj të më mbrosh nga e keqja e saj dhe nga përdorimi i saj për të keq.',
-      1, 'Ebu Davudi · Mburoja, f. 14–15')
-  ]),
-  chapter(4, 'Mund të thuhet njëra prej këtyre lutjeve për personin që ka veshur rrobë të re.', [
-    textItem('clothing-for-other-one', 'Urimi për rrobën e re',
-      'تُبْلِي وَيُخْلِفُ اللَّهُ تَعَالَى',
-      'Tublĩ we juḣlifull-llãhu te’ãlã.',
-      'Allahu të dhëntë jetëgjatësi në të mirë, që kjo rrobë të vjetërohet dhe Allahu i Lartësuar ta zëvendësojë me të tjera.',
-      1, 'Ebu Davudi · Mburoja, f. 15'),
-    textItem('clothing-for-other-two', 'Urimi i dytë për rrobën e re',
-      'الْبَسْ جَدِيدًا، وَعِشْ حَمِيدًا، وَمُتْ شَهِيدًا',
-      'Ilbis xhedĩden, we ‘ish ḥamĩden, we mut shehĩden.',
-      'Veshç gjithmonë të reja, jetofsh i nderuar dhe vdeksh si dëshmor!',
-      1, 'Ibn Maxhe · Mburoja, f. 15')
-  ]),
-  chapter(5, 'Thuhet kur zhvishen rrobat.', [
-    textItem('undress-bismillah', 'Kur zhvish rrobat', 'بِسْمِ اللَّهِ', 'Bismil-lãh.',
-      'Me emrin e Allahut.', 1, 'Mburoja, f. 15')
-  ]),
-  chapter(6, 'Thuhet para hyrjes në tualet.', [
-    textItem('enter-toilet', 'Kur hyn në tualet',
-      'بِسْمِ اللَّهِ، اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ',
-      'Bismil-lãh, All-llãhumme innĩ e’ũdhu bike minel-ḣubuthi wel-ḣabãith.',
-      'Me emrin e Allahut. O Allah! Të lutem, më mbroj nga shejtanët dhe shejtanet!',
-      1, 'Buhariu dhe Muslimi · Mburoja, f. 16')
-  ]),
-  chapter(7, 'Thuhet pas daljes nga tualeti.', [
-    textItem('leave-toilet', 'Kur del nga tualeti', 'غُفْرَانَكَ', 'Ġufrãneke.',
-      'Kërkoj faljen Tënde, o Zot!', 1, 'Tirmidhiu · Mburoja, f. 16')
-  ]),
-  chapter(8, 'Thuhet para fillimit të abdesit.', [
-    textItem('before-wudu', 'Para abdesit', 'بِسْمِ اللَّهِ', 'Bismil-lãh.',
-      'Me emrin e Allahut.', 1, 'Ebu Davudi · Mburoja, f. 17')
-  ]),
-  chapter(9, 'Këto përkujtime thuhen pas përfundimit të abdesit.', [
-    textItem('after-wudu-shahadah', 'Dëshmia pas abdesit',
-      'أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ',
-      'Eshhedu en lã ilãhe il-lAll-llãhu waḥdehu lã sherĩke lehu, we eshhedu enne Muḥammeden ‘abduhu we rasũluhu.',
-      'Dëshmoj se nuk ka të adhuruar me të drejtë përveç Allahut, Një dhe të Pashoq, dhe dëshmoj se Muhamedi është rob dhe i Dërguari i Tij.',
-      1, 'Sahih Muslim · Mburoja, f. 17'),
-    textItem('after-wudu-repentance', 'Lutja për pendim dhe pastërti',
-      'اللَّهُمَّ اجْعَلْنِي مِنَ التَّوَّابِينَ، وَاجْعَلْنِي مِنَ الْمُتَطَهِّرِينَ',
-      'All-llãhummexh’alnĩ minet-tewwãbĩne, wexh’alnĩ minel-muteṭahhirĩn.',
-      'O Allah! Më bëj prej atyre që pendohen dhe më bëj prej atyre që pastrohen!',
-      1, 'Tirmidhiu · Mburoja, f. 17'),
-    textItem('after-wudu-glory', 'Lartësimi dhe kërkimi i faljes',
-      'سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ، أَسْتَغْفِرُكَ وَأَتُوبُ إِلَيْكَ',
-      'Subḥãnekall-llãhumme we biḥamdike, eshhedu en lã ilãhe il-lã Ente, estaġfiruke we etũbu ilejk.',
-      'O Allah, Ti je pa të meta dhe Ty të takon lavdia! Dëshmoj se nuk ka të adhuruar me të drejtë përveç Teje! Ty të kërkoj falje dhe tek Ti kthehem me pendim!',
-      1, 'En-Nesai · Mburoja, f. 17–18')
-  ]),
-  chapter(10, 'Këto lutje thuhen kur del nga shtëpia.', [
-    textItem('leave-home-trust', 'Mbështetja tek Allahu',
-      'بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',
-      'Bismil-lãh, tewekkeltu ‘alall-llãhi, we lã ḥawle we lã ḳuwwete il-lã bil-lãh.',
-      'Në emër të Allahut! Jam mbështetur tek Allahu! Nuk ka lëvizje dhe fuqi për asgjë veçse me ndihmën e Allahut.',
-      1, 'Ebu Davudi dhe Tirmidhiu · Mburoja, f. 18'),
-    textItem('leave-home-protection', 'Mbrojtja nga humbja dhe padrejtësia',
-      'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ أَنْ أَضِلَّ، أَوْ أُضَلَّ، أَوْ أَزِلَّ، أَوْ أُزَلَّ، أَوْ أَظْلِمَ، أَوْ أُظْلَمَ، أَوْ أَجْهَلَ، أَوْ يُجْهَلَ عَلَيَّ',
-      'All-llãhumme innĩ e’ũdhu bike en eḍil-le ew uḍal-le, ew ezil-le ew uzel-le, ew eḍhlime ew uḍhleme, ew exhhele ew juxhhele ‘alejje.',
-      'O Allah! Më ruaj që të mos humbas e të mos më çojë dikush në humbje; të mos gaboj e të mos më shtyjë kush në gabim; të mos bëj padrejtësi e të mos më bëhet padrejtësi; të mos sillem keq e të mos sillet keq askush me mua!',
-      1, 'Katër Sunenet · Mburoja, f. 18')
-  ]),
-  chapter(11, 'Pas kësaj i jepet selam familjes.', [
-    textItem('enter-home', 'Kur hyn në shtëpi',
-      'بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى اللَّهِ رَبِّنَا تَوَكَّلْنَا',
-      'Bismil-lãhi welexh’nã, we bismil-lãhi ḣaraxh’nã, we ‘alall-llãhi rabbinã tewekkelnã.',
-      'Me emrin e Allahut hyjmë në shtëpi e po me emrin e Tij dalim, dhe Allahut, Zotit tonë, iu mbështetëm.',
-      1, 'Ebu Davudi · Mburoja, f. 18–19')
-  ]),
-  chapter(12, 'Lutja që thuhet gjatë rrugës për në xhami.', [
-    textItem('going-to-mosque-light', 'Lutja e dritës',
-      'اللَّهُمَّ اجْعَلْ فِي قَلْبِي نُورًا، وَفِي لِسَانِي نُورًا، وَفِي سَمْعِي نُورًا، وَفِي بَصَرِي نُورًا، وَمِنْ فَوْقِي نُورًا، وَمِنْ تَحْتِي نُورًا، وَعَنْ يَمِينِي نُورًا، وَعَنْ شِمَالِي نُورًا، وَمِنْ أَمَامِي نُورًا، وَمِنْ خَلْفِي نُورًا، وَاجْعَلْ فِي نَفْسِي نُورًا، وَأَعْظِمْ لِي نُورًا، وَاجْعَلْ لِي نُورًا، وَاجْعَلْنِي نُورًا، اللَّهُمَّ أَعْطِنِي نُورًا، وَاجْعَلْ فِي عَصَبِي نُورًا، وَفِي لَحْمِي نُورًا، وَفِي دَمِي نُورًا، وَفِي شَعْرِي نُورًا، وَفِي بَشَرِي نُورًا، وَاجْعَلْ لِي نُورًا فِي قَبْرِي، وَنُورًا فِي عِظَامِي، وَزِدْنِي نُورًا، وَهَبْ لِي نُورًا عَلَى نُورٍ',
-      'All-llãhummexh’al fĩ ḳalbĩ nũran, we fĩ lisãnĩ nũran, we fĩ sem’ĩ nũran, we fĩ beṣarĩ nũran, we min fewḳĩ nũran, we min taḥtĩ nũran, we ‘an jemĩnĩ nũran, we ‘an shimãlĩ nũran, we min emãmĩ nũran, we min ḣalfĩ nũran, wexh’al fĩ nefsĩ nũran, we a’ëḍhim lĩ nũran, wexh’al lĩ nũran, wexh’alnĩ nũrã. All-llãhumme a’ëṭinĩ nũran, wexh’al fĩ ‘aṣabĩ nũran, we fĩ laḥmĩ nũran, we fĩ demĩ nũran, we fĩ sha’ërĩ nũran, we fĩ besherĩ nũrã. All-llãhummexh’al lĩ nũran fĩ ḳabrĩ, we nũran fĩ ‘iḍhãmĩ, we zidnĩ nũran, we heb lĩ nũran ‘alã nũr.',
-      'O Allah! Më jep dritë në zemër, në gjuhë, në dëgjim e në shikim. Më bëj dritë nga lart dhe nga poshtë, nga e djathta dhe nga e majta, nga përpara dhe nga prapa. Më bëj dritë në vetvete, ma zmadho dritën, bëj për mua dritë dhe më bëj mua dritë. Më jep dritë në trup, në gjak, në flokë e në lëkurë; ma ndriço varrin dhe kockat; ma shto dritën dhe më dhuro dritë mbi dritë!',
-      1, 'Buhariu, Muslimi dhe transmetime plotësuese · Mburoja, f. 19–20')
-  ]),
-  chapter(13, 'Në xhami hyhet me këmbën e djathtë.', [
-    textItem('enter-mosque-protection', 'Mbrojtja nga shejtani',
-      'أَعُوذُ بِاللَّهِ الْعَظِيمِ، وَبِوَجْهِهِ الْكَرِيمِ، وَسُلْطَانِهِ الْقَدِيمِ، مِنَ الشَّيْطَانِ الرَّجِيمِ',
-      'E’ũdhu bil-lãhil ‘aḍhĩm, we bi wexhhihil kerĩm, we ṣulṭãnihil ḳadĩm, minesh-shejṭãnirr-rraxhĩm.',
-      'Kërkoj nga Allahu i Madhërishëm, me Fytyrën e Tij Fisnike dhe me pushtetin e Tij të përhershëm, të më mbrojë nga shejtani i mallkuar!',
-      1, 'Ebu Davudi · Mburoja, f. 21'),
-    textItem('enter-mosque-mercy', 'Hapja e dyerve të mëshirës',
-      'بِسْمِ اللَّهِ، وَالصَّلَاةُ وَالسَّلَامُ عَلَى رَسُولِ اللَّهِ، اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ',
-      'Bismil-lãh, weṣ-ṣalãtu wes-selãmu ‘alã Rasũlil-lãh. All-llãhumme’ftaḥ lĩ ebwãbe raḥmetike.',
-      'Në emër të Allahut; salavati dhe selami qofshin për të Dërguarin e Allahut. O Allah! Më hap dyert e mëshirës Tënde!',
-      1, 'Muslimi dhe transmetime plotësuese · Mburoja, f. 21')
-  ]),
-  chapter(14, 'Nga xhamia dilet me këmbën e majtë.', [
-    textItem('leave-mosque', 'Kur del nga xhamia',
-      'بِسْمِ اللَّهِ، وَالصَّلَاةُ وَالسَّلَامُ عَلَى رَسُولِ اللَّهِ، اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ، اللَّهُمَّ اعْصِمْنِي مِنَ الشَّيْطَانِ الرَّجِيمِ',
-      'Bismil-lãh, weṣ-ṣalãtu wes-selãmu ‘alã Rasũlil-lãh. All-llãhumme innĩ es’eluke min faḍlike. All-llãhumme i’ëṣimnĩ minesh-shejṭãnirr-rraxhĩm.',
-      'Në emër të Allahut; salavati dhe selami qofshin për të Dërguarin e Allahut. O Allah! Të lutem të më japësh nga mirësitë e Tua. O Allah, më mbroj nga shejtani i mallkuar!',
-      1, 'Muslimi dhe Ibn Maxhe · Mburoja, f. 21–22')
-  ]),
-  chapter(34, 'Këto lutje thuhen për largimin e ankthit, shqetësimit dhe trishtimit.', [
-    textItem('distress-quran-heart', 'Kurani, pranverë e zemrës',
-      'اللَّهُمَّ إِنِّي عَبْدُكَ، ابْنُ عَبْدِكَ، ابْنُ أَمَتِكَ، نَاصِيَتِي بِيَدِكَ، مَاضٍ فِيَّ حُكْمُكَ، عَدْلٌ فِيَّ قَضَاؤُكَ، أَسْأَلُكَ بِكُلِّ اسْمٍ هُوَ لَكَ، سَمَّيْتَ بِهِ نَفْسَكَ، أَوْ أَنْزَلْتَهُ فِي كِتَابِكَ، أَوْ عَلَّمْتَهُ أَحَدًا مِنْ خَلْقِكَ، أَوِ اسْتَأْثَرْتَ بِهِ فِي عِلْمِ الْغَيْبِ عِنْدَكَ، أَنْ تَجْعَلَ الْقُرْآنَ رَبِيعَ قَلْبِي، وَنُورَ صَدْرِي، وَجَلَاءَ حُزْنِي، وَذَهَابَ هَمِّي',
-      'All-llãhumme, innĩ ‘abduke, ibnu ‘abdike, ibnu emetike! Nãṣijetĩ bi jedike! Mãḍin fijje ḥukmuke! ‘Adlun fijje ḳaḍãuke! Es’eluke bi kul-lismin huwe lek, semmejte bihi nefsek, ew enzeltehu fĩ kitãbike, ew ‘al-lemtehu eḥaden min ḣalḳike ew iste’therte bihi fĩ ‘ilmil ġajbi ‘indek, en texh’alel Kur’ãne rabĩ‘a ḳalbĩ, we nũra ṣadrĩ, we xhelãe ḥuznĩ, we dhehãbe hemmĩ!',
-      'O Allah, unë jam robi Yt, biri i robit Tënd, biri i robëreshës Tënde! Qenia ime është në dorën Tënde! Vendimi Yt mbi mua sigurisht që ndodh! Të drejta janë të gjitha caktimet e Tua për mua! Po të drejtohem me të gjithë emrat e Tu, me të cilët e ke emërtuar Veten, apo të cilët i ke shpallur në Librin Tënd, apo të cilët ia ke mësuar ndonjë prej krijesave të Tua, apo të cilët i ke ruajtur në dijen Tënde të fshehtë: që ta bësh Kuranin pranverë të zemrës sime, dritë të gjoksit tim, largues të trishtimit tim dhe heqës të ankthit tim!',
-      1, 'Ahmedi; Albani e vlerëson hadithin të saktë · Mburoja, f. 80–81'),
-    textItem('distress-protection', 'Mbrojtja nga shqetësimi dhe rëndimi',
-      'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ وَغَلَبَةِ الرِّجَالِ',
-      'All-llãhumme innĩ e‘ũdhu bike minel hemmi wel ḥazeni, wel ‘axhzi wel keseli, wel buḣli wel xhubni, we ḍale‘id-dejni we ġalebetirr-rrixhãl.',
-      'O Allah! Më mbroj nga shqetësimi dhe trishtimi, nga paaftësia dhe përtacia, nga koprracia dhe frika, nga rëndimi i borxhit dhe shtypja e njerëzve!',
-      1, 'Buhariu · Mburoja, f. 81')
-  ]),
-  chapter(35, 'Këto lutje thuhen në gjendje sprove dhe mundimi.', [
-    textItem('trial-great-throne', 'Zoti i Fronit madhështor',
-      'لَا إِلَهَ إِلَّا اللَّهُ الْعَظِيمُ الْحَلِيمُ، لَا إِلَهَ إِلَّا اللَّهُ رَبُّ الْعَرْشِ الْعَظِيمِ، لَا إِلَهَ إِلَّا اللَّهُ رَبُّ السَّمَاوَاتِ وَرَبُّ الْأَرْضِ وَرَبُّ الْعَرْشِ الْكَرِيمِ',
-      'Lã ilãhe il-lall-llãhu, El ‘Aḍhĩmul Ḥalĩm! Lã ilãhe il-lall-llãhu, Rabbul ‘arshil ‘aḍhĩm! Lã ilãhe il-lall-llãhu Rabbus-semawãti, we Rabbul erḍi, we Rabbul ‘arshil kerĩm!',
-      'Nuk ka të adhuruar me të drejtë veç Allahut, të Madhërishmit, Duruesit! Nuk ka të adhuruar me të drejtë veç Allahut, Zotit të Fronit madhështor! Nuk ka të adhuruar me të drejtë veç Allahut, Zotit të shtatë qiejve, Zotit të tokës, Zotit të Fronit të Nderuar!',
-      1, 'Buhariu dhe Muslimi · Mburoja, f. 82'),
-    textItem('trial-mercy', 'Në mëshirën Tënde shpresoj',
-      'اللَّهُمَّ رَحْمَتَكَ أَرْجُو، فَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ، وَأَصْلِحْ لِي شَأْنِي كُلَّهُ، لَا إِلَهَ إِلَّا أَنْتَ',
-      'All-llãhumme! Raḥmeteke erxhũ! Felã tekilnĩ ilã nefsĩ ṭarfete ‘ajnin, we aṣliḥ lĩ she’nĩ kul-lehu, lã ilãhe il-lã Ente!',
-      'O Allah! Në mëshirën Tënde shpresoj! Mos më lër të mbështetem në veten time as sa një pulitje sysh dhe m’i rregullo mua të gjitha çështjet e mia! Nuk ka të adhuruar me të drejtë veç Teje!',
-      1, 'Ebu Davudi dhe Ahmedi · Mburoja, f. 82'),
-    textItem('trial-yunus', 'Lutja e Junusit', 'لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ',
-      'Lã ilãhe il-lã Ente, Subḥãneke, innĩ kuntu mineḍh-ḍhãlimĩn!',
-      'Nuk ka të adhuruar me të drejtë veç Teje! I dëlirë je Ti nga çdo e metë! Vërtet, unë jam gjynahqar!', 1,
-      'Tirmidhiu · Mburoja, f. 82'),
-    textItem('trial-allah-my-lord', 'Allahu është Zoti im', 'اللَّهُ اللَّهُ رَبِّي لَا أُشْرِكُ بِهِ شَيْئًا',
-      'Allãhu, Allãhu Rabbĩ! Lã ushriku bihi shej’en.', 'Allahu, Allahu është Zoti im! Unë nuk shoqëroj asgjë e asnjë me Të!', 1,
-      'Ebu Davudi · Mburoja, f. 83')
-  ]),
-  chapter(36, 'Këto lutje thuhen kur përballemi me armikun ose me njeriun me pushtet.', [
-    textItem('enemy-protection', 'Mbrojtja nga e keqja e tyre', 'اللَّهُمَّ إِنَّا نَجْعَلُكَ فِي نُحُورِهِمْ، وَنَعُوذُ بِكَ مِنْ شُرُورِهِمْ',
-      'All-llãhumme innã nexh’aluke fĩ nuḥũrihim, we ne‘ũdhu bike min shurũrihim.', 'O Allah, të lutemi të na i shmangësh ata dhe të na ruash prej të këqijave të tyre.', 1,
-      'Ebu Davudi dhe Hakimi · Mburoja, f. 83'),
-    textItem('enemy-support', 'Ti je ndihmësi im', 'اللَّهُمَّ أَنْتَ عَضُدِي، وَأَنْتَ نَصِيرِي، بِكَ أَحُولُ، وَبِكَ أَصُولُ، وَبِكَ أُقَاتِلُ',
-      'All-llãhumme Ente aḍudĩ, we Ente neṣĩrĩ, bike eḥũlu, we bike eṣũlu, we bike uḳãtil.', 'O Allah! Ti je krahu im, Ti je ndihmësi im, me ndihmën Tënde arrij të shmang kurthin e armikut, të bëj mësymje shpartalluese dhe t’i luftoj armiqtë.', 1,
-      'Ebu Davudi dhe Tirmidhiu · Mburoja, f. 83'),
-    textItem('enemy-sufficient', 'Na mjafton Allahu', 'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ', 'Ḥasbunall-llãhu we ni‘ëmel Wekĩl.',
-      'Na mjafton Allahu, dhe Ai për ne është Rregulluesi më i mirë i punëve!', 1, 'Buhariu · Mburoja, f. 83–84')
-  ]),
-  chapter(37, 'Te vendi “filani, i biri i filanit” përmendet emri i personit nga i cili kërkohet mbrojtje.', [
-    textItem('ruler-protection', 'Mbrojtja nga zullumi',
-      'اللَّهُمَّ رَبَّ السَّمَاوَاتِ السَّبْعِ، وَرَبَّ الْعَرْشِ الْعَظِيمِ، كُنْ لِي جَارًا مِنْ فُلَانِ بْنِ فُلَانٍ، وَأَحْزَابِهِ مِنْ خَلَائِقِكَ، أَنْ يَفْرُطَ عَلَيَّ أَحَدٌ مِنْهُمْ أَوْ يَطْغَى، عَزَّ جَارُكَ، وَجَلَّ ثَنَاؤُكَ، وَلَا إِلَهَ إِلَّا أَنْتَ',
-      'All-llãhumme Rabbes-semãwãtis-seb‘i we Rabbel ‘arshil ‘aḍhĩm, kun lĩ xhãran min fulãn ibni fulãn, we aḥzãbihi min ḣalãiḳike, en jefruṭa ‘alejje eḥadun minhum ew jeṭġã. ‘Azze xhãruke, we xhel-le thenãuke, we lã ilãhe il-lã Ente.',
-      'O Allah! Zoti i shtatë qiejve dhe Zoti i Fronit madhështor! Më mbroj nga dëmi i filanit të birit të filanit dhe grupeve të tij prej krijesave Tua, që të mos më sulmojë ndonjëri prej tyre dhe të mos më bëjë padrejtësi! Ngadhënjyes dhe i fortë qoftë ai që të kërkon mbrojtje Ty! E lartë është lavdia Jote! Nuk ka të adhuruar me të drejtë veç Teje!', 1,
-      'Buhariu në Edebul Mufred · Mburoja, f. 84'),
-    textItem('ruler-protection-long', 'Mbrojtja e Allahut nga dëmi i tyre',
-      'اللَّهُ أَكْبَرُ، اللَّهُ أَعَزُّ مِنْ خَلْقِهِ جَمِيعًا، اللَّهُ أَعَزُّ مِمَّا أَخَافُ وَأَحْذَرُ، وَأَعُوذُ بِاللَّهِ الَّذِي لَا إِلَهَ إِلَّا هُوَ، الْمُمْسِكِ السَّمَاوَاتِ السَّبْعَ أَنْ يَقَعْنَ عَلَى الْأَرْضِ إِلَّا بِإِذْنِهِ، مِنْ شَرِّ عَبْدِكَ فُلَانٍ، وَجُنُودِهِ وَأَتْبَاعِهِ وَأَشْيَاعِهِ مِنَ الْجِنِّ وَالْإِنْسِ، اللَّهُمَّ كُنْ لِي جَارًا مِنْ شَرِّهِمْ، جَلَّ ثَنَاؤُكَ، وَعَزَّ جَارُكَ، وَتَبَارَكَ اسْمُكَ، وَلَا إِلَهَ غَيْرُكَ',
-      'All-llãhu ekber, All-llãhu e‘azzu min ḣalḳihi xhemĩ‘an, All-llãhu e‘azzu mimmã eḣãfu we aḥdheru, we e‘ũdhu bil-lãhil-ledhĩ lã ilãhe il-lã huwel mumsikus-semawãtis-seb‘i en jeḳa‘ëne ‘alel erḍi il-lã bi idhnihi, min sherri ‘abdike fulãn, we xhunũdihi we etbã‘ihi we eshjã‘ihi minel xhinni wel insi. All-llãhumme kun lĩ xhãran min sherrihim, xhel-le thenãuke we ‘azze xhãruke we tebãrekesmuke we lã ilãhe ġajruke.',
-      'Allahu është më i madhi. Allahu është më i fortë se të gjitha krijesat e Tij. Allahu është më i fuqishëm se krijesa që unë e kam frikë dhe i ruhem. Unë kërkoj mbrojtje tek Allahu, përveç të Cilit nuk ka hyjni të vërtetë, dhe i Cili i mban shtatë qiejt të mos bien në Tokë veçse me lejen e Tij; nga sherri i robit Tënd, filanit, ushtarëve, pasuesve dhe përkrahësve të tij prej xhindëve dhe njerëzve. O Allah, më mbroj nga dëmi i tyre. E lartë është Lavdia Jote! Ngadhënjyes dhe i fortë qoftë ai që të kërkon mbrojtje Ty! Emri Yt është i bekuar! Nuk ka të adhuruar të vërtetë përveç Teje!', 3,
-      'Buhariu në Edebul Mufred · Mburoja, f. 84–85')
-  ]),
-  chapter(38, '', [textItem('against-enemy', 'Lutja kundër armikut', 'اللَّهُمَّ مُنْزِلَ الْكِتَابِ، سَرِيعَ الْحِسَابِ، اهْزِمِ الْأَحْزَابَ، اللَّهُمَّ اهْزِمْهُمْ وَزَلْزِلْهُمْ',
-    'All-llãhumme munzilel kitãb, serĩ‘al ḥisãb, ihzimil aḥzãb. All-llãhumme ihzimhum we zelzilhum.', 'O Allah, o Zbritësi i Librit, o Ti që e bën shpejt llogarinë e krijesave, mposhti ushtritë! O Allah, mposhti ata dhe tronditi, që të mos kenë qëndresë.', 1, 'Muslimi · Mburoja, f. 86')]),
-  chapter(39, '', [textItem('fear-group', 'Mbrojtja prej një grupi', 'اللَّهُمَّ اكْفِنِيهِمْ بِمَا شِئْتَ', 'All-llãhumme ikfinĩhim bimã shi’te!', 'O Allah, më ruaj prej tyre me mënyrën që Ti do!', 1, 'Muslimi · Mburoja, f. 86')]),
-  chapter(40, 'Kërkohet mbrojtja e Allahut dhe hiqet vëmendja nga dyshimi.', [
-    textItem('faith-doubt-refuge', 'Kërkimi i mbrojtjes', 'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ', 'E‘ũdhu bil-lãhi minesh-shejṭãnirr-rraxhĩm.', 'I mbështetem Allahut të më mbrojë nga shejtani i mallkuar.', 1, 'Buhariu dhe Muslimi · Mburoja, f. 86'),
-    textItem('faith-doubt-belief', 'Pohimi i besimit', 'آمَنْتُ بِاللَّهِ وَرُسُلِهِ', 'Ãmentu bil-lãhi we rusulihi.', 'Besova në Allahun dhe të Dërguarit e Tij.', 1, 'Muslimi · Mburoja, f. 87'),
-    quranLink('faith-doubt-hadid', 'Lexo El-Hadid, ajeti 3', 57, 3, 3, 'El-Hadid 57:3 · Ebu Davudi · Mburoja, f. 87')
-  ]),
-  chapter(41, 'Këto lutje bëhen për shlyerjen e borxheve.', [
-    textItem('debt-halal-provision', 'Mjaftimi me hallall', 'اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ، وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ', 'All-llãhumme ikfinĩ bi ḥalãlike ‘an ḥarãmike, we eġninĩ bi faḍlike ‘am-men siwãke.', 'O Allah, më ruaj me rrizk të mjaftueshëm hallall nga harami, dhe m’i plotëso nevojat me mirësinë Tënde, që të mos kem nevojë për askënd tjetër veç Teje.', 1, 'Tirmidhiu · Mburoja, f. 87'),
-    textItem('debt-burden', 'Mbrojtja nga rëndimi i borxhit', 'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ وَغَلَبَةِ الرِّجَالِ', 'All-llãhumme innĩ e‘ũdhu bike minel hemmi wel ḥazeni, wel ‘axhzi wel keseli, wel buḣli wel xhubni, we ḍale‘id-dejni we ġalebetirr-rrixhãl!', 'O Allah! Më mbroj nga ankthi dhe dëshpërimi, nga paaftësia dhe përtacia, nga koprracia dhe frika, nga zhytja në borxhe dhe shtypja e burrave mizorë!', 1, 'Buhariu · Mburoja, f. 88')
-  ]),
-  chapter(42, 'Pas kërkimit të mbrojtjes, pështyhet lehtë tri herë në të majtë.', [textItem('prayer-whisper-refuge', 'Mbrojtja gjatë namazit dhe leximit', 'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ', 'E‘ũdhu bil-lãhi minesh-shejṭãnirr-rraxhĩm.', 'I mbështetem Allahut të më mbrojë nga shejtani i mallkuar.', 1, 'Muslimi · Mburoja, f. 88')]),
-  chapter(43, '', [textItem('difficulty-ease', 'Kur vështirësohen çështjet', 'اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا', 'All-llãhumme lã sehle il-lã mã xhe‘altehu sehlen, we Ente texh‘alul ḥazne idhã shi’te sehlã!', 'O Allah! Asgjë nuk është e lehtë përveç asaj që Ti e bën të lehtë. Ti e bën të vështirën, nëse dëshiron, të lehtë.', 1, 'Ibn Hibani · Mburoja, f. 88–89')]),
-  chapter(44, 'Pas një gjynahu: pastrohu mirë me abdes ose gusul, fal dy rekate namaz dhe kërkoji falje Allahut.', [
-    instructionItem('sin-repentance-action', 'Pendimi pas gjynahut', 'Pejgamberi ﷺ ka treguar se robi që, pasi bën një gjynah, pastrohet mirë, fal dy rekate dhe i kërkon falje Allahut, Allahu ia fal gjynahun.', 'Ebu Davudi dhe Tirmidhiu · Mburoja, f. 89')
-  ]),
-  chapter(45, 'Krahas kërkimit të mbrojtjes, burimi udhëzon thirrjen e ezanit, dhikrin ditor dhe leximin e Kuranit.', [
-    textItem('whispers-refuge', 'Kërkimi i mbrojtjes nga shejtani', 'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ', 'E‘ũdhu bil-lãhi minesh-shejṭãnirr-rraxhĩm.', 'I mbështetem Allahut të më mbrojë nga shejtani i mallkuar.', 1, 'Ebu Davudi · Mburoja, f. 89'),
-    instructionItem('whispers-practices', 'Veprime të përmendura në burim', 'Thirre ezanin; bëj dhikrin ditor; lexo Kuran. Burimi përmend veçanërisht suren El-Bekare, Ajetin Kursi, dy ajetet e fundit të El-Bekares dhe dhikret e ligjshme të mëngjesit, mbrëmjes, gjumit, shtëpisë e xhamisë.', 'Buhariu dhe Muslimi; Muslimi · Mburoja, f. 89–90')
-  ]),
-  chapter(46, '', [textItem('disliked-decree', 'Kur ndodh diçka që nuk të pëlqen', 'قَدَرُ اللَّهِ وَمَا شَاءَ فَعَلَ', 'Ḳaderull-llãhi we mã shãe fe‘al.', 'Ky qe kaderi i Allahut. Atë që deshi Ai, e bëri.', 1, 'Muslimi · Mburoja, f. 90')]),
-  chapter(69, 'Përmende emrin e Allahut para ushqimit. Nëse harrohet në fillim, përdoret formula përkatëse.', [
-    textItem('food-bismillah', 'Para ushqimit', 'بِسْمِ اللَّهِ', 'Bismil-lãh.',
-      'Me emrin e Allahut.', 1, 'Ebu Davudi · Mburoja, f. 106'),
-    textItem('food-forgot-bismillah', 'Kur harrohet në fillim',
-      'بِسْمِ اللَّهِ فِي أَوَّلِهِ وَآخِرِهِ',
-      'Bismil-lãhi fĩ ewwelihi we ãḣirihi.',
-      'Me emrin e Allahut, në fillim dhe në fund të ushqimit!',
-      1, 'Ebu Davudi · Mburoja, f. 106'),
-    textItem('food-blessing', 'Lutja për begatinë e ushqimit',
-      'اللَّهُمَّ بَارِكْ لَنَا فِيهِ، وَأَطْعِمْنَا خَيْرًا مِنْهُ',
-      'All-llãhumme bãrik lenã fĩhi, we eṭ’imnã ḣajran minhu.',
-      'O Allah! Na e begato këtë ushqim dhe na jep diçka më të mirë se ky!',
-      1, 'Tirmidhiu · Mburoja, f. 106–107'),
-    textItem('milk-blessing', 'Kur pihet qumësht',
-      'اللَّهُمَّ بَارِكْ لَنَا فِيهِ، وَزِدْنَا مِنْهُ',
-      'All-llãhumme bãrik lenã fĩhi, we zidnã minhu.',
-      'O Allah! Na e bëj të begatshëm dhe na e shto!',
-      1, 'Tirmidhiu · Mburoja, f. 107')
-  ]),
-  chapter(70, 'Këto janë dy forma falënderimi pas ushqimit.', [
-    textItem('after-food-praise', 'Falënderimi pas ushqimit',
-      'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنِي هَذَا، وَرَزَقَنِيهِ، مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ',
-      'Elḥamdu lil-lãhil-ledhĩ eṭ’amenĩ hãdhã, we razeḳanĩhi min ġajri ḥawlin minnĩ we lã ḳuwweh.',
-      'Lavdia i takon Allahut, i Cili më ushqeu dhe më furnizoi me këtë ushqim, pa asnjë manovrim nga unë dhe pa fuqi të timen!',
-      1, 'Ebu Davudi · Mburoja, f. 107'),
-    textItem('after-food-abundant-praise', 'Lavdërimi i bollshëm',
-      'الْحَمْدُ لِلَّهِ حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ، غَيْرَ مَكْفِيٍّ وَلَا مُوَدَّعٍ وَلَا مُسْتَغْنًى عَنْهُ رَبَّنَا',
-      'Elḥamdu lil-lãhi ḥamden kethĩran ṭajjiben mubãraken fĩhi, ġajra mekfijjin we lã muwedde’in, we lã musteġnen ‘anhu Rabbenã.',
-      'Lavdia i takon Allahut! Atij i bëjmë shumë lavdi të dëlira dhe të bekuara. Ne nuk do ta lëmë lavdërimin e Tij dhe gjithmonë do të kemi nevojë për Të. O Zoti ynë, pranoje lavdërimin tonë!',
-      1, 'Sahih al-Bukhari · Mburoja, f. 107–108')
-  ]),
-  chapter(95, 'Kur vendos këmbën për të hipur thuhet “Bismil-lãh”; pjesa tjetër thuhet pasi ulemi në mjet.', [
-    textItem('ride-opening', 'Fillimi i duasë së hipjes', 'بِسْمِ اللَّهِ، وَالْحَمْدُ لِلَّهِ', 'Bismil-lãh, welḥamdu lil-lãh.', 'Me emrin e Allahut! Falënderimi i takon Allahut!', 1, 'Ebu Davudi dhe Tirmidhiu · Mburoja, f. 117–118'),
-    quranLink('ride-quran', 'Lexo Ez-Zuhruf 13–14', 43, 13, 14, 'Ez-Zuhruf 43:13–14 · Mburoja, f. 117'),
-    textItem('ride-praise-forgiveness', 'Lavdërimi dhe kërkimi i faljes', 'الْحَمْدُ لِلَّهِ، الْحَمْدُ لِلَّهِ، الْحَمْدُ لِلَّهِ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، سُبْحَانَكَ اللَّهُمَّ إِنِّي ظَلَمْتُ نَفْسِي فَاغْفِرْ لِي، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ', 'Elḥamdu lil-lãh, Elḥamdu lil-lãh, Elḥamdu lil-lãh! All-llãhu Ekber, All-llãhu Ekber, All-llãhu Ekber! Subḥãnekall-llãhumme innĩ ḍhalemtu nefsĩ, feġfir lĩ, fe innehu lã jeġfirudh-dhunũbe il-lã Ente.', 'Falënderimi i takon Allahut! (tri herë.) Allahu është më i Madhi! (tri herë.) I Patëmeta je Ti, o Allah! Me të vërtetë, unë i kam bërë padrejtësi vetes, prandaj më fal, sepse askush tjetër veç Teje nuk i fal gjynahet!', 1, 'Ebu Davudi dhe Tirmidhiu · Mburoja, f. 117–118')
-  ]),
-  chapter(96, 'Pas tri tekbireve lexohet Ez-Zuhruf 13–14 dhe vazhdohet me duanë e udhëtimit.', [
-    textItem('travel-takbir', 'Tekbiri para duasë', 'اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ', 'All-llãhu Ekber, All-llãhu Ekber, All-llãhu Ekber!', 'Allahu është më i Madhi! (tri herë.)', 1, 'Muslimi · Mburoja, f. 118'),
-    quranLink('travel-quran', 'Lexo Ez-Zuhruf 13–14', 43, 13, 14, 'Ez-Zuhruf 43:13–14 · Muslimi · Mburoja, f. 118'),
-    textItem('travel-main-dua', 'Lutja e udhëtimit', 'اللَّهُمَّ إِنَّا نَسْأَلُكَ فِي سَفَرِنَا هَذَا الْبِرَّ وَالتَّقْوَى، وَمِنَ الْعَمَلِ مَا تَرْضَى، اللَّهُمَّ هَوِّنْ عَلَيْنَا سَفَرَنَا هَذَا وَاطْوِ عَنَّا بُعْدَهُ، اللَّهُمَّ أَنْتَ الصَّاحِبُ فِي السَّفَرِ، وَالْخَلِيفَةُ فِي الْأَهْلِ، اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ وَعْثَاءِ السَّفَرِ، وَكَآبَةِ الْمَنْظَرِ، وَسُوءِ الْمُنْقَلَبِ فِي الْمَالِ وَالْأَهْلِ', 'All-llãhumme innã nes’eluke fĩ seferinã hãdhã el birr-rra wet-taḳwã, we minel ‘ameli mã terḍã. All-llãhumme hewwin ‘alejnã seferenã hãdhã, weṭwi ‘annã bu‘ëdehu. All-llãhumme Enteṣ-ṣãḥibu fis-seferi, wel ḣalĩfetu fil ehli. All-llãhumme innĩ e‘ũdhu bike min wa‘ëthãis-sefer, we keãbetil menḍhar, we sũil munḳalebi fil mãli wel ehl.', 'O Allah! Në këtë udhëtim të kërkojmë mirësi, devotshmëri dhe vepra që Ti i pëlqen. Na e lehtëso udhëtimin dhe na e shkurto largësinë. Ti je Shoqëruesi në udhëtim dhe Kujdestari i familjes. Më ruaj nga vështirësitë e udhëtimit, pamja e trishtueshme dhe kthimi i keq te pasuria e familja!', 1, 'Muslimi · Mburoja, f. 118–119'),
-    textItem('travel-return-addition', 'Shtesa gjatë kthimit', 'آيِبُونَ، تَائِبُونَ، عَابِدُونَ، لِرَبِّنَا حَامِدُونَ', 'Ãjibũne, tãibũne, ‘ãbidũne, li Rabbinã ḥãmidũn!', 'Po kthehemi të penduar, adhurues dhe falënderues ndaj Zotit tonë!', 1, 'Muslimi · Mburoja, f. 119')
-  ]),
-  chapter(97, '', [textItem('enter-town', 'Kur hyjmë në një qytet ose vendbanim', 'اللَّهُمَّ رَبَّ السَّمَاوَاتِ السَّبْعِ وَمَا أَظْلَلْنَ، وَرَبَّ الْأَرَضِينَ السَّبْعِ وَمَا أَقْلَلْنَ، وَرَبَّ الشَّيَاطِينِ وَمَا أَضْلَلْنَ، وَرَبَّ الرِّيَاحِ وَمَا ذَرَيْنَ، أَسْأَلُكَ خَيْرَ هَذِهِ الْقَرْيَةِ، وَخَيْرَ أَهْلِهَا، وَخَيْرَ مَا فِيهَا، وَأَعُوذُ بِكَ مِنْ شَرِّهَا، وَشَرِّ أَهْلِهَا، وَشَرِّ مَا فِيهَا', 'All-llãhumme Rabbes-semãwãtis-seb‘i we mã aḍhlelne, we Rabbel erãḍĩnes-seb‘i we mã aḳlelne, we Rabbesh-shejãṭĩni we mã aḍlelne, we Rabberr-rrijãḥi we mã dherajne! Es’eluke ḣajra hãdhihil ḳarjeti, we ḣajra ehlihã, we ḣajra mã fĩhã, we e‘ũdhu bike min sherrihã, we sherri ehlihã, we sherri mã fĩhã.', 'O Allah, Zot i shtatë qiejve dhe asaj që kanë nën strehë, Zot i shtatë tokave dhe asaj që mbajnë, Zot i shejtanëve dhe atyre që çojnë në humbje, Zot i erërave dhe asaj që shpërndajnë! Të kërkoj të mirën e këtij vendbanimi, të banorëve dhe të gjithçkaje në të; më mbroj nga e keqja e tij, e banorëve dhe e gjithçkaje në të!', 1, 'Hakimi dhe Ibn Sunni · Mburoja, f. 119–120')]),
-  chapter(98, '', [textItem('enter-market', 'Kur hyjmë në treg', 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، يُحْيِي وَيُمِيتُ، وَهُوَ حَيٌّ لَا يَمُوتُ، بِيَدِهِ الْخَيْرُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ', 'Lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh, lehul mulku we lehul ḥamdu, juḥjĩ we jumĩt, we huwe Ḥajjun lã jemũtu, bi jedihil ḣajru, we huwe ‘alã kul-li shej’in ḳadĩr.', 'S’ka të adhuruar me të drejtë veç Allahut, Një dhe i Pashoq! Atij i takon sundimi dhe lavdia. Ai jep jetë dhe vdekje. Ai është i Gjallë, i Pavdekshëm! E gjithë e mira është në dorën e Tij dhe Ai është i Plotfuqishëm për çdo gjë!', 1, 'Tirmidhiu · Mburoja, f. 120')]),
-  chapter(99, '', [textItem('animal-stumbles', 'Kur kafsha e udhëtimit pengohet', 'بِسْمِ اللَّهِ', 'Bismil-lãh.', 'Me emrin e Allahut.', 1, 'Ebu Davudi · Mburoja, f. 121')]),
-  chapter(100, '', [textItem('traveler-farewell', 'Udhëtari kur ndahet me njerëzit', 'أَسْتَوْدِعُكُمُ اللَّهَ الَّذِي لَا تَضِيعُ وَدَائِعُهُ', 'Estewdi‘ukumull-llãhel-ledhĩ lã teḍĩ‘u wedãi‘uhu.', 'Ju lë amanet tek Allahu, të Cilit nuk i humbin amanetet.', 1, 'Ahmedi · Mburoja, f. 121')]),
-  chapter(101, '', [
-    textItem('farewell-to-traveler', 'Lutja për udhëtarin', 'أَسْتَوْدِعُ اللَّهَ دِينَكَ، وَأَمَانَتَكَ، وَخَوَاتِيمَ عَمَلِكَ', 'Estewdi‘ull-llãhe dĩneke, we emãneteke, we ḣawãtĩme ‘amelike!', 'Po i lë amanet Allahut fenë tënde, amanetin tënd dhe përfundimin e veprave të tua!', 1, 'Ahmedi · Mburoja, f. 121'),
-    textItem('traveler-provision', 'Urimi për devotshmëri dhe mirësi', 'زَوَّدَكَ اللَّهُ التَّقْوَى، وَغَفَرَ ذَنْبَكَ، وَيَسَّرَ لَكَ الْخَيْرَ حَيْثُ مَا كُنْتَ', 'Zewwedekall-llãhut-taḳwã, we ġafera dhenbeke, we jessera lekel ḣajra ḥajthu mã kunte!', 'Allahu të pajistë me devotshmëri, ta faltë gjynahun dhe ta bëftë mbarë të mirën kudo qofsh!', 1, 'Tirmidhiu · Mburoja, f. 121–122')
-  ]),
-  chapter(102, 'Gjatë udhëtimit, kur ngjitemi përpjetë thuhet tekbiri; kur zbresim tatëpjetë thuhet tesbihu.', [
-    textItem('travel-uphill', 'Kur ngjitemi përpjetë', 'اللَّهُ أَكْبَرُ', 'All-llãhu Ekber.', 'Allahu është më i Madhi.', 1, 'Buhariu · Mburoja, f. 122'),
-    textItem('travel-downhill', 'Kur zbresim tatëpjetë', 'سُبْحَانَ اللَّهِ', 'Subḥãnall-llãh.', 'I Dëlirë nga të metat është Allahu.', 1, 'Buhariu · Mburoja, f. 122')
-  ]),
-  chapter(103, '', [textItem('traveler-before-dawn', 'Dhikri pak para agimit', 'سَمَّعَ سَامِعٌ بِحَمْدِ اللَّهِ، وَحُسْنِ بَلَائِهِ عَلَيْنَا، رَبَّنَا صَاحِبْنَا، وَأَفْضِلْ عَلَيْنَا، عَائِذًا بِاللَّهِ مِنَ النَّارِ', 'Semme‘a sãmi‘un biḥamdil-lãhi we ḥusni belãihi ‘alejnã, Rabbenã ṣãḥibnã, we efḍil ‘alejnã, ‘ãidhen bil-lãhi minen-nãr.', 'Kush dëgjon lavdin që po i bëjmë Allahut dhe mirënjohjen për mirësitë e Tij, le t’ia përcjellë një tjetri! O Zoti ynë, na ruaj dhe na jep mirësi! I lutemi Allahut të na mbrojë nga Zjarri!', 1, 'Muslimi · Mburoja, f. 122–123')]),
-  chapter(104, '', [textItem('staying-place', 'Kur qëndrojmë në një vend', 'أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ', 'E‘ũdhu bi kelimãtil-lãhit-tãmmãti min sherri mã ḣaleḳ.', 'Mbrohem me fjalët e përkryera të Allahut nga sherri i gjithçkaje që Ai ka krijuar!', 1, 'Muslimi · Mburoja, f. 123')]),
-  chapter(105, 'Gjatë kthimit, mbi çdo vend të ngritur bëhen tri tekbire dhe pastaj thuhet ky dhikër.', [textItem('return-from-travel', 'Dhikri i kthimit nga udhëtimi', 'لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ، وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، آيِبُونَ، تَائِبُونَ، عَابِدُونَ، لِرَبِّنَا حَامِدُونَ، صَدَقَ اللَّهُ وَعْدَهُ، وَنَصَرَ عَبْدَهُ، وَهَزَمَ الْأَحْزَابَ وَحْدَهُ', 'Lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh, lehul mulku, we lehul ḥamdu, we huwe ‘alã kul-li shej’in ḳadĩr. Ãjibũne, tãibũne, ‘ãbidũne, li Rabbinã ḥãmidũn. Ṣadeḳall-llãhu wa‘ëdehu, we neṣara ‘abdehu, we hezemel aḥzãbe waḥdehu.', 'S’ka të adhuruar me të drejtë përveç Allahut, Një dhe i Pashoq! Atij i përket sundimi dhe lavdia, dhe Ai është i Fuqishëm për çdo gjë. Po kthehemi të penduar, adhurues e falënderues ndaj Zotit tonë. Allahu e përmbushi premtimin, e ndihmoi robin e Vet dhe i mposhti i Vetëm grupet aleate.', 1, 'Buhariu dhe Muslimi · Mburoja, f. 123–124')]),
-  chapter(106, 'Thuhet forma përkatëse sipas asaj që ka ndodhur.', [
-    textItem('joyful-news', 'Kur vjen diçka që gëzon', 'الْحَمْدُ لِلَّهِ الَّذِي بِنِعْمَتِهِ تَتِمُّ الصَّالِحَاتُ', 'Elḥamdu lil-lãhil-ledhĩ bi ni‘ëmetihi tetimmuṣ-ṣãliḥãt.', 'Lavdia i takon Allahut, me mirësinë e të Cilit plotësohen të mirat.', 1, 'Ibn Maxhe; vlerësuar i mirë · Mburoja, f. 124'),
-    textItem('unwelcome-news', 'Kur vjen diçka e padëshiruar', 'الْحَمْدُ لِلَّهِ عَلَى كُلِّ حَالٍ', 'Elḥamdu lil-lãhi ‘alã kul-li ḥãl.', 'Lavdia i takon Allahut për çfarëdolloj gjendjeje!', 1, 'Ibn Maxhe; vlerësuar i mirë · Mburoja, f. 124–125')
-  ])
-
+  {
+    number: 1,
+    categoryId: "mengjes-dhe-mbremje",
+    titleSq: "KUR ZGJOHEMI",
+    guidanceSq: "",
+    items: [
+      {
+        id: "1-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "الحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا، وَإِلَيْهِ النُّشُورُ.",
+        transliterationSq: "Elḥamdu lil-lãhil-ledhĩ aḥjãnã ba’ëde mã emãtenã we ilejhin-nushũr.",
+        translationSq: "Lavdia i takon Allahut, i Cili na ngjalli pasi na vdiq dhe si të ringjallemi tek Ai do të tubohemi.",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi"
+      },
+      {
+        id: "1-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لهُ الْمُلْكُ وَلَهُ الحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، سُبْحَانَ اللَّهِ، وَالحَمْدُ للَّهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكبَرُ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَلِيِّ الْعَظِيمِ، رَبِّ اغْفرْ لِي",
+        transliterationSq: "Lã ilãhe il-lAll-llãhu waḥdehu lã sherĩke lehu, lehul mulku we lehul ḥamdu we huwe ’alã kul-li shej’in ḳadĩr. Subḥãnall-llãhi welḥamdu lil-lãhi we lã ilãhe il-lAll-llãhu wall-llãhu ekber we lã ḥawle we lã ḳuwwete il-lã bil-lãhil ‘alijjil ‘aḍhĩmi, rabbiġfir lĩ.",
+        translationSq: "S’ka të adhuruar me të drejtë përveç Allahut, Një dhe të Pashoq. Vetëm Atij i përket sundimi dhe lavdia, dhe Ai është i Fuqishëm për çdo gjë! I Lartësuar dhe i Pastër është Allahu nga të metat! Lavdia i takon Allahut! S’ka të adhuruar me të drejtë veç Tij! Allahu është më i madhi! S’mund të bëhet asnjë lëvizje dhe nuk ka fuqi për diçka veçse me vullnetin e Allahut, të Lartit, Madhështorit! O Zoti im, më fal!",
+        repetitions: 1,
+        sourceSq: "Buhariu · Pejgamberi ﷺ ka thënë: “Kush e bën këtë dhikër, i falen gjynahet, dhe nëse bën ndonjë lutje tjetër, lutja i pranohet. Nëse merr abdes dhe fal namaz, namazi i pranohet.”"
+      },
+      {
+        id: "1-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "الْحَمْدُ لِلَّهِ الَّذِي عَافَانِي فِي جَسَدِي، وَرَدَّ عَلَيَّ رُوحِي، وَأَذِنَ لِي بِذِكْرِهِ.",
+        transliterationSq: "Elḥamdu lil-lãhil-ledhĩ ‘ãfãnĩ fĩ xhesedĩ we radde ‘alejje rũḥĩ we edhine lĩ bi dhikrihi.",
+        translationSq: "Lavdia i takon Allahut, i Cili më dha shëndet në trup, ma ktheu shpirtin dhe më mundësoi ta përmend Atë.",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu (Sahih Tirmidhi)."
+      },
+      {
+        id: "1-4",
+        type: "text",
+        titleSq: "Lutja 4",
+        arabic: "﴿إِنَّ فِي خَلْقِ السَّمَاوَاتِ وَالأَرْضِ وَاخْتِلَافِ اللَّيْلِ وَالنَّهَارِ لآيَاتٍ لِّأُوْلِي الألْبَابِ ۞ الَّذِينَ يَذْكُرُونَ اللّهَ قِيَامًا وَقُعُودًا وَعَلَىَ جُنُوبِهِمْ وَيَتَفَكَّرُونَ فِي خَلْقِ السَّمَاوَاتِ وَالأَرْضِ رَبَّنَا مَا خَلَقْتَ هَذا بَاطِلًا سُبْحَانَكَ فَقِنَا عَذَابَ النَّارِ ۞ رَبَّنَا إِنَّكَ مَن تُدْخِلِ النَّارَ فَقَدْ أَخْزَيْتَهُ وَمَا لِلظَّالِمِينَ مِنْ أَنصَارٍ ۞ رَّبَّنَا إِنَّنَا سَمِعْنَا مُنَادِيًا يُنَادِي لِلإِيمَانِ أَنْ آمِنُواْ بِرَبِّكُمْ فَآمَنَّا رَبَّنَا فَاغْفِرْ لَنَا ذُنُوبَنَا وَكَفِّرْ عَنَّا سَيِّئَاتِنَا وَتَوَفَّنَا مَعَ الأبْرَارِ ۞ رَبَّنَا وَآتِنَا مَا وَعَدتَّنَا عَلَى رُسُلِكَ وَلَا تُخْزِنَا يَوْمَ الْقِيَامَةِ إِنَّكَ لَا تُخْلِفُ الْمِيعَادَ ۞ فَاسْتَجَابَ لَهُمْ رَبُّهُمْ أَنِّي لَا أُضِيعُ عَمَلَ عَامِلٍ مِّنكُم مِّن ذَكَرٍ أَوْ أُنثَى بَعْضُكُم مِّن بَعْضٍ فَالَّذِينَ هَاجَرُواْ وَأُخْرِجُواْ مِن دِيَارِهِمْ وَأُوذُواْ فِي سَبِيلِي وَقَاتَلُواْ وَقُتِلُواْ لأُكَفِّرَنَّ عَنْهُمْ سَيِّئَاتِهِمْ وَلأُدْخِلَنَّهُمْ جَنَّاتٍ تَجْرِي مِن تَحْتِهَا الأَنْهَارُ ثَوَابًا مِّن عِندِ اللّهِ وَاللّهُ عِندَهُ حُسْنُ الثَّوَابِ ۞ لَا يَغُرَّنَّكَ تَقَلُّبُ الَّذِينَ كَفَرُواْ فِي الْبِلَادِ ۞ مَتَاعٌ قَلِيلٌ ثُمَّ مَأْوَاهُمْ جَهَنَّمُ وَبِئْسَ الْمِهَادُ ۞ لَكِنِ الَّذِينَ اتَّقَوْاْ رَبَّهُمْ لَهُمْ جَنَّاتٌ تَجْرِي مِن تَحْتِهَا الأَنْهَارُ خَالِدِينَ فِيهَا نُزُلًا مِّنْ عِندِ اللّهِ وَمَا عِندَ اللّهِ خَيْرٌ لِّلأَبْرَارِ ۞ وَإِنَّ مِنْ أَهْلِ الْكِتَابِ لَمَن يُؤْمِنُ بِاللّهِ وَمَا أُنزِلَ إِلَيْكُمْ وَمَا أُنزِلَ إِلَيْهِمْ خَاشِعِينَ لِلّهِ لَا يَشْتَرُونَ بِآيَاتِ اللّهِ ثَمَنًا قَلِيلًا أُوْلَـئِكَ لَهُمْ أَجْرُهُمْ عِندَ رَبِّهِمْ إِنَّ اللّهَ سَرِيعُ الْحِسَابِ ۞ يَا أَيُّهَا الَّذِينَ آمَنُواْ اصْبِرُواْ وَصَابِرُواْ وَرَابِطُواْ وَاتَّقُواْ اللّهَ لَعَلَّكُمْ تُفْلِحُونَ﴾",
+        transliterationSq: "",
+        translationSq: "Me të vërtetë, në krijimin e qiejve dhe të Tokës dhe në ndërrimin e natës e të ditës, ka shenja për mendarët, për ata që e përmendin Allahun duke qëndruar në këmbë, ndenjur ose shtrirë dhe që meditojnë për krijimin e qiejve dhe të Tokës (duke thënë:) “O Zoti Ynë! Ti nuk i ke krijuar kot këto – I dëlirë je Ti nga çdo e metë! Prandaj na ruaj nga ndëshkimi i Zjarrit. O Zoti Ynë, cilindo që Ti e fut në Zjarr, Ti e ke poshtëruar atë. Dhe për mohuesit nuk do të ketë kurrfarë ndihmuesi. O Zoti Ynë! Ne dëgjuam një thirrës që na ftonte në besim: “Besoni Zotin tuaj!” Dhe kështu besuam. O Zoti Ynë! Na i fal gjynahet tona, na i shlyej gabimet dhe bëna që të vdesim me të mirët! O Zoti Ynë! Na e jep shpërblimin që na ke premtuar nëpërmjet të dërguarve të Tu dhe mos na poshtëro në Ditën e Kiametit! Se Ti, me të vërtetë, nuk e shkel premtimin e dhënë!” Dhe Zoti iu përgjigj lutjes së tyre: “Unë nuk do t’ia humb mundin askujt nga ju që ka bërë vepra, qoftë mashkull apo femër. Ju jeni njëlloj (në shpërblim). Atyre që u shpërngulën, u dëbuan nga vatrat e tyre, u munduan në rrugën Time, luftuan dhe u vranë, Unë do t’ua mbuloj veprat e këqija dhe do t’i shpie në kopshte, nëpër të cilat rrjedhin lumenj, si shpërblim nga Allahu. Shpërblimi më i mirë është tek Allahu.” Ti (o Muhamed) mos u mashtro nga bredhja e jobesimtarëve nëpër botë! Kjo mirëqenie është e shkurtër; pastaj, strehimi i tyre është Xhehenemi. Eh, sa shtrat i keq është ai vend! Por, ata që i frikësohen Zotit të tyre do të kenë kopshte nëpër të cilat rrjedhin lumenj dhe ku do të banojnë përjetësisht, si dhuratë prej Allahut.) Dhe ajo që është tek Allahu, është dhurata më e mirë për besimtarët e vërtetë. Midis ithtarëve të Librit, me siguri ka të atillë që e besojnë Allahun dhe atë që ju është shpallur juve, si dhe atë që u është shpallur atyre, duke qenë të përulur para Allahut dhe pa i këmbyer shpalljet e Tij me ndonjë vlerë të paktë. Ata do të kenë shpërblimin e tyre te Zoti i tyre. Vërtet, Allahu është i shpejtë në llogari! O besimtarë! Bëhuni të durueshëm dhe nxiteni njëri-tjetrin të jeni të tillë; bëhuni të vendosur dhe vigjilentë (në vepra të mira dhe në ruajtjen e kufijve) dhe kijeni frikë Allahun, që të shpëtoni!",
+        repetitions: 1,
+        sourceSq: "Ali Imran: 190-200, Buhariu dhe Muslimi."
+      }
+    ]
+  },
+  {
+    number: 2,
+    categoryId: "mengjes-dhe-mbremje",
+    titleSq: "DHIKRI I MËNGJESIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "2-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اَلْحَمْدُ ِللهِ وَحْدَهُ، وَالصَّلاَةُ وَالسَّلاَمُ عَلَى مَنْ لاَ نَِبَّي بَعْدَهُ",
+        transliterationSq: "Elhamdu lil-ahi vahdeh, ves-salatu ves-selamu ala men la nebijje badeh.",
+        translationSq: "Falënderimi i takon vetëm All-llahut, mëshira dhe shpëtimi (i All-llahut) qofshin mbi atë pas të cilit s`ka më Pejgamber, Muhammedin (ﷺ).",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi hadithi nr:3667. Albani thotë hadith hasen “Ebu Davud” 2/698). · Transmetohet nga Enesi se Pejgamberi (ﷺ) ka thënë: \\\"Të ulem me një popull i cili e përmend All-llahun prej namazit të sabahut e deri sa të lind dielli eshtë më e dashur për mua se sa t`i liroj katër robër prej bijëve të Ismailit dhe të ulem me një popull i cili e përmend All-llahun prej namazit të ikindisë e deri sa të perëndojë dielli është më e dashur për mua se sa t`i liroj katër robër\\\"."
+      },
+      {
+        id: "2-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللّهُ لاَ إلَهَ إلاّ هُوَ الحَيُّ القَيُّومُ لاَ تَأْخُذُهُ سِنَةٌ وَلاَ نَوْمٌ لَهُ مَا فيِ السَّمَاوَاتِ وَمَا فيِ الأَرْضِ مَنْ ذَا الَّذيِ يَشْفَعُ عِنْدَهُ إِلاَّ بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلاَ يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلاَّ بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّماَوَاتِ وَالَأرْضَ وَلاَ يَؤُوْدُهُ حِفْظُهُمَا وَهُوَ العَلِيُّ العَظِيمُ",
+        transliterationSq: "All-llahu La Ilahe il-la huvel-Hajjul-Kajjumu, la te`hudhuhu sinetun ve la nevmun, lehu ma fis-semavati ve ma fil-erdi, men dhel-ledhi jeshfeّu ّindehu il-la bi idhnihi, jaّlemu ma bejne ejdihim ve ma halfehum ve la juhitune bi shej`in min ّilmihi il-la bima shae vesi'a Kursijjuhus-semavati vel-erda, ve la jeuduhu hifdhuhuma ve huvel-ّAlijjul-ّAdhim.",
+        translationSq: "All-llahu është Një, s`ka Zot tjetër përveç Atij, Ai është mbikëqyrës i përhershëm dhe i përjetshëm. Atë nuk e zë as kotja as gjumi; Gjithçka ka në qiej dhe në tokë është vetëm e Tij. Kush mund të ndërmjetësojë tek Ai, pos me lejen e Tij. Ai di të tashmen që është pranë tyre dhe të ardhmen. Nga ajo që Ai di, të tjerët dinë vetëm aq sa Ai ka dëshiruar. Kursija e Tij përfshin qiejt dhe tokën, kurse kujdesi i Tij ndaj të dyjave nuk i vjen rëndë, Ai është më i Larti, më i Madhi.",
+        repetitions: 1,
+        sourceSq: "Kuran [2:255] · Ajetul-Kursi"
+      },
+      {
+        id: "2-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ ﴿قُلْ هُوَ اللَّهُ أَحَدٌ ۞ اللَّهُ الصَّمَدُ ۞ لَمْ يَلِدْ وَلَمْ يُولَدْ ۞ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ﴾ بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ ﴿قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۞ مِن شَرِّ مَا خَلَقَ ۞ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ۞ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۞ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ﴾ بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ ﴿قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۞ مَلِكِ النَّاسِ ۞ إِلَهِ النَّاسِ ۞ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۞ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۞ مِنَ الْجِنَّةِ وَالنَّاسِ﴾",
+        transliterationSq: "Bismil-lãhirr-rraḥmãnirr-rraḥĩm. Ḳul huwall-llãhu eḥad, All-llãhuṣ-Ṣamed, lem jelid we lem jũled, we lem jekun lehũ kufuwen eḥad. Bismil-lãhirr-rraḥmãnirr-rraḥĩm. Ḳul e’ũdhu bi rabbil feleḳ, min sherri mã ḣaleḳ, we min sherri ġãsiḳin idhã weḳab, we min sherrin-neffãthãti fil ‘uḳad, we min sherri ḥãsidin idha ḥased. Bismil-lãhirr-rraḥmãnirr-rraḥĩm. Ḳul e’ũdhu bi rabbin-nãs, Melikin-nãs, Ilãhin-nãs, min sherril weswãsil ḣan-nãs, el-ledhĩ juweswisu fĩ ṣudũrin-nãs, minel xhinneti wen-nãs.",
+        translationSq: "Me emrin e Allahut, Mëshiruesit, Mëshirëbërësit! Thuaj: “Ai, Allahu është Një! Allahu është Eṣ Ṣamedu (Ai, të Cilit i drejtohen krijesat për nevojat e tyre). Ai as nuk lind, as nuk është i lindur. Dhe askush nuk është i barabartë me Atë! Me emrin e Allahut, Mëshiruesit, Mëshirëbërësit! Thuaj: “Kërkoj mbështetje te Zoti i agimit, që të më mbrojë nga sherri i gjithçkaje që Ai ka krijuar, dhe nga sherri i natës, kur bie terri, dhe nga sherri i magjistarëve, që fryjnë në nyje magjie, dhe nga sherri i smirëziut, kur vepron me smirë. Me emrin e Allahut, Mëshiruesit, Mëshirëbërësit! Thuaj: “Kërkoj mbrojtje te Zoti i njerëzve, Sundimtari i njerëzve, i Adhuruari (i vetëm me të drejtë) i njerëzve, nga sherri i shejtanit ngacmues që fshihet (kur përmendet Allahu), e që hedh të liga e dyshime në gjoksin e njerëzve, (qoftë ai shejtan) prej xhindëve apo njerëzve!",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "2-4",
+        type: "text",
+        titleSq: "Lutja 4",
+        arabic: "أصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لا شَرِيكَ لَهُ ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذَا اليَوْمِ ، وَخَيْرَ مَا بَعْدَهُ ، وَأَعُوْذُ بِكَ مِنْ شَرِّ مَا فِي هَذَا اليَوْمِ وشَرِّ مَا بَعْدَهُ، رَبِّ أَعُوْذُ بِكَ مِنَ الْكَسَلِ وسُوءِ الكِبَرِ ، رَبِّ أَعُوْذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ",
+        transliterationSq: "Aṣbaḥnã we aṣbaḥal mulku lil-lãh , welḥamdu lil-lãhi, lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh, lehul mulku, we lehul ḥamdu, we huwe ‘alã kul-li shej’in ḳadĩr. Rabbi es’eluke ḣajra mã fĩ hãdhel jewmi, we ḣajra mã ba’ëdehu , we e’ũdhu bike min sherri mã fĩ hãdhel jewmi, we sherri mã ba’ëdehu, Rabbi e’ũdhu bike minel keseli, we sũil kiber, Rabbi e’ũdhu bike min ‘adhãbin fin-nãri, we ‘adhãbin fil ḳabri.",
+        translationSq: "E arritëm mëngjesin, e gjithë pasuria i takon Allahut. Falënderimi është për Allahun, nuk ka të adhuruar me të drejtë përveç Allahut i Cili është Një dhe i Pashoq. Atij i takon sundimi dhe falënderimi, Ai është i Plotfuqishëm mbi çdo gjë. O Zot, prej Teje e kërkoj të mirën e kësaj dite dhe të ditëve tjera dhe prej Teje e kërkoj mbrojtjen nga e liga e kësaj dite dhe e ditëve tjera. O Zot, kërkoj mbrojtjen Tënde nga përtacia dhe mendjemadhësia. O Zot, më mbro nga dënimi i zjarrit dhe nga dënimi i varrit.",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "2-5",
+        type: "text",
+        titleSq: "Lutja 5",
+        arabic: "اللَّهُمَّ بِكَ أَصْبَحْنَا وَبِكَ أَمْسَينَا وَ بِكَ نَحيَا وَ بِكَ نََمُوتُ وَ إلَيكَ النُّشُورُ",
+        transliterationSq: "All-llãhumme bike aṣbaḥnã, we bike emsejnã , we bike naḥjã, we bike nemũtu, we ilejken-nushũr.",
+        translationSq: "O Zoti im, me emrin Tënd e arrijmë mëngjesin dhe me emrin Tënd e arrijmë mbrëmjen, me emrin Tënd ngjallemi dhe vdesim dhe tek Ti është kthimi.",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "2-6",
+        type: "text",
+        titleSq: "Lutja 6",
+        arabic: "اللَّهُمَّ أَنْتَ رَبِّي لا إِلَهَ إِلا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لا يَغْفِرُ الذُّنُوبَ إِلا أَنْتَ",
+        transliterationSq: "All-llãhumme Ente Rabbĩ, lã ilãhe il-lã Ente, ḣalaḳtenĩ we ene ‘abduke, we ene ‘alã ‘ahdike we wa’ëdike mesteṭa’ëtu, e’ũdhu bike min sherri mã ṣana’ëtu, ebũ’u leke bi ni’ëmetike ‘alejje, we ebũ’u bi dhenbĩ, feġfir lĩ fe innehu lã jeġfirudh-dhunũbe il-lã Ente.",
+        translationSq: "O Allah! Ti je Zoti im! Askush nuk meriton të adhurohet, përveç Teje! Ti më krijove dhe unë jam robi Yt! Unë do t’i qëndroj besnik besës dhe premtimit që të kam dhënë, sa të mundem! Kërkoj që të më mbrosh nga e keqja që vjen si pasojë e asaj që kam bërë! Të jam mirënjohës për të gjitha mirësitë që më ke bërë dhe i pranoj gjynahet e mia, prandaj më fal, sepse, në të vërtetë, gjynahet nuk i fal askush tjetër, përveç Teje!",
+        repetitions: 1,
+        sourceSq: "Buhariu 7/150 · “Kush e thotë këtë në mbrëmje duke qenë i bindur në të dhe vdes po atë natë do të jetë prej banorëve të Xhennetit, poashtu edhe në mëngjes”"
+      },
+      {
+        id: "2-7",
+        type: "text",
+        titleSq: "Lutja 7",
+        arabic: "اللَّهُمَّ إِنِّي أَصْبَحْتُ أُشْهِدُكَ ، وَأُشْهِدُ حَمَلَةَ عَرْشِكَ ، وَمَلائِكَتَكَ ، وَجَمِيعَ خَلْقِكَ ، أَنَّكَ أَنْتَ اللَّهُ لاَ إِلَهَ إِلاَّ أَنْتَ ، وَحْدَكَ لاَشَرِيكَ لَكَ ، وأَنَّ مُحَمَّداً عَبْدُكَ وَرَسُولُكَ",
+        transliterationSq: "All-llahumme inni asbahtu ush-hiduke, ve ush-hidu hamelete ّArshike ve Melaiketeke ve xhemiّa halkike, Enneke EnteAll-llahu la Ilahe il-la Ente vahdeke la sherike Lek, ve enne Muhammeden ّabduke ve resuluke (4 herë).",
+        translationSq: "O Zoti im, u gdhiva, dëshmoj për Ty dhe mbajtësit e Arshit Tënd, melaiket Tua dhe të gjitha krijesat Tua, se vërtetë Ti je All-llahu i Vetëm, s`ka të adhuruar tjetër përveç Teje, Ti je i Vetëm dhe i pashoq dhe dëshmoj se Muhammedi (ﷺ) është rob dhe i dërguar i Yt.",
+        repetitions: 1,
+        sourceSq: "Shënon Ebu Davudi dhe të tjerë. Ibn Bazi e vlerëson si të mirë senedin me të cilin e sjell Ebu Davudi. · Pejgamberi ﷺ thotë: “Kush e thotë këtë dhikër katër herë kur gdhin ose kur ngryset, Allahu e shpëton nga Zjarri”."
+      },
+      {
+        id: "2-8",
+        type: "text",
+        titleSq: "Lutja 8",
+        arabic: "اللَّهُمَّ مَا أَصْبَحَ بِي مِِنْ نِعْمَةٍٍ ، أَوْ بِأَحَدٍ مِنْ خَلْقِكَ ، فَمِنْكَ وَحْدَكَ لاَشَرِيكَ لَكَ ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ",
+        transliterationSq: "All-llahume ma asbaha bi min niْmetin ev bi ehadin min halkike, fe minke vahdeke la sherike lek, fe lekel-hamdu ve lekesh-shukru.",
+        translationSq: "O Zoti im, ajo që më është dhënë mua apo ndonjërit prej krijesave Tua nga begatitë e tëra është vetëm nga Ti që Je i pashoq; Ty të qoftë lavdërimi dhe falënderimi.",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "2-9",
+        type: "text",
+        titleSq: "Lutja 9",
+        arabic: "اللَّهُمَّ عَافِنِي فِي بَدَنِي ، اللَّهُمَّ عَافِنِي فِي سَمْعِي ، اللَّهُمَّ عَافِنِي فِي بَصَرِي ، لاَ إِلَهَ إِلاَّ أَنْتَ.اللَّهُمَّ إِنِّي أَعُوْذُ بِكَ مِنَ الْكُفْرِ ، وَالْفَقْرِ ، وأَعُوْذُ بِكَ مِنْ عَذَابِ القَبْرِ ، لاَ إِلَهَ إِلاَّ أَنْتَ",
+        transliterationSq: "All-llahume ّafini fi bedeni, All-llahume ّafini fi semْi, All-llahume ّafini fi besari, la ilahe il-la ente, All-llahume inni eّudhu bike minel-kufri vel-fakri, ve eّudhu bike min adhabil-kabr, la ilahe il-la ente (tri herë në mëngjes dhe tri herë në mbrëmje).",
+        translationSq: "O Zoti im, më jep shëndet në trupin tim, O Zoti im, më jep shëndet në të dëgjuarit tim, O Zoti im, më jep shëndet në të pamurit tim. S'ka të adhuruar tjetër përveç Teje. O Zoti im, kërkoj mbrojtjen Tënde nga kufri (mosbesimi) e varfëria dhe kërkoj mbrojtjen Tënde nga dënimi i varrit. S'ka të adhuruar tjetër përveç Teje.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi 4/324, Ahmedi 5/42 dhe Nesaiu në “Amelul-jevmi vel-lejleh” nr:22, Ibën Sunnijj nr: 69 dhe Buhariu në “El-Edeb-El-Mufred”, senedin e këtij hadithi dijetari Ibën Bazi në librin e tij “Tuhfetul-Ahjar” fq.26 e ka bërë të mirë (hasen)."
+      },
+      {
+        id: "2-10",
+        type: "text",
+        titleSq: "Lutja 10",
+        arabic: "حَسْبِيَ اللَّهُ لاَ إِلَهَ إِلاَّ هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",
+        transliterationSq: "HasbijAll-llahu la Ilahe il-la hu(ve), ّAlejhi tevekkeltu ve Huve Rabbul-`arshil-`adhim.",
+        translationSq: "Më mjafton mua All-llahu; s'ka të adhuruar tjetër përveç Tij. Tek Ai jam mbështetur dhe Ai është Zoti i Arshit të Madh.",
+        repetitions: 1,
+        sourceSq: "Ibën Sunnijj hadithi nr:71, merfu dhe Ebu Davudi mevkuf 4/321. Isnadin e këtij hadithi e kan bërë të vërtetë Shuajb dhe Abdulkadër Arnauti “Zadul-Me'ad” 2/376 · \\\"Kush e thotë këtë në mëngjes dhe në mbrëmje shtatë herë i mjafton për atë që e brengos çështja e kësaj bote dhe e ahiretit.\\\""
+      },
+      {
+        id: "2-11",
+        type: "text",
+        titleSq: "Lutja 11",
+        arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالآخِرَةِ ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي ، وَمَالِي ، اللَّهُمَّ اسْتُرْ عَوْرَاتِي ، وَآمِنْ رَوْعَاتِي ، اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ ، وَمِنْ خَلْفِي ، وَعَنْ يَمِينِي ، وَعَنْ شِمَالِي ، وَمِنْ فَوْقِي ، وَأَعُوْذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِيَ",
+        transliterationSq: "All-llãhumme innĩ es’elukel ‘afwe wel ‘ãfijete fid-dun’jã wel ãḣirah, All-llãhumme innĩ es’elukel ‘afwe wel ‘ãfijete fĩ dĩnĩ we dun’jãje we ehlĩ we mãlĩ, All-llãhummestur ‘awrãtĩ, we ãmin raw’ãtĩ. All-llãhumme iḥfeḍhnĩ min bejni jedejje, we min ḣalfĩ, we ‘an jemĩnĩ we ‘an shimãlĩ, we min fewḳĩ, we e’ũdhu bi aḍhametike en uġtãle min taḥtĩ.",
+        translationSq: "O Zoti im, kërkoj nga Ti falje dhe shpëtim në këtë botë dhe në Ahiret. Zoti im, kërkoj që të më falësh dhe të më mbrosh në fenë time dhe në jetën time, ma mbro familjen dhe pasurinë time. O Zoti im, m'i mbulo të metat e mia dhe më qetëso në momentet trishtuese.O Zot, më ruaj nga para dhe prapa, në të djathtë, në të majtë dhe nga lartë; kërkoj nga ti që të më mbrosh të mos më lëshojë toka.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi dhe Ibën Maxheh. Shih “Sahih Ibën Maxheh” 2/332."
+      },
+      {
+        id: "2-12",
+        type: "text",
+        titleSq: "Lutja 12",
+        arabic: "اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ فَاطِرَ السَّماوَاتِ وَالأَرْضِ رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ ، أَشْهَدُ أَنْ لاَ إِلَهَ إِلاَّ أَنْتَ أَعُوْذُ بِكَ مِنْ شَرِّ نَفْسِي وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِي سُوءاً أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ",
+        transliterationSq: "All-llahume ّalimel-gajbi vesh-shehadeti fatires-semavati vel-erdi, Rabbe kul-le shej`in ve melikehu, eshhedu en la Ilahe il-la ente, eّudhu bike min sherri nefsive sherrish-shejtani ve shirkihi ve en akterife ّala nefsi su`en ev exhurrehu ila muslimin.",
+        translationSq: "O Zoti im, Ti je Ai i Cili i di të fshehtat dhe të dukshmet, Krijues i qiejve dhe i tokës, Zot i çdo sendi dhe Mbizotërues i saj, dëshmoj se nuk ka të adhuruar tjetër përveç Teje; kërkoj mbrojtjen Tënde nga e keqja e vetes sime dhe nga e keqja e djallit dhe nga ajo që ai (shejtani) shpie në shirk dhe kërkoj të më mbrosh që vetvetes e as ndonjë muslimani të mos i bëj keq.",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu dhe Ebu Davudi “Sahih Et-Tirmidhi” 3/142."
+      },
+      {
+        id: "2-13",
+        type: "text",
+        titleSq: "Lutja 13",
+        arabic: "بِسْمِ اللَّهِ الَّذِي لا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الارْضِ وَلا فِي السَّمَاءِ وَهُوَ السَّمِيعُ أَلْعَلِيمُ",
+        transliterationSq: "Bismil-lahil-ledhi la jedur-ru me`a-ismihi shej`un fil-erdi ve la fis-semai ve huves-semiّul- ّalim",
+        translationSq: "Me emrin e All-llahut pranë emrit të të Cilit nuk bën dëm asgjë në tokë e as në qiell, Ai që dëgjon shumë dhe di çdo send.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi 4/323, Tirmidhiu 5/465, Ibën Maxhe dhe Ahmedi. Shih “Sahih Ibën Maxhe” 2/332), Ibën Bazi në “Tuhfetul-Ahjar” fq.39, (senedi hasen) · \\\"Kush e thotë këtë tri herë në mëngjes dhe në mbrëmje, nuk i bëhet dëm asgjë.\\\""
+      },
+      {
+        id: "2-14",
+        type: "text",
+        titleSq: "Lutja 14",
+        arabic: "رَضِيْت بِاللَّهِ رباً وبالإِسلاَمِ دِيناً وبِمُحَمَّدٍ نَِبياًّ",
+        transliterationSq: "Redijtu bil-lahi Rabben ve bil-Islami dinen, ve bi Muhammedin nebijjen.",
+        translationSq: "Jam i kënaqur që Zoti im është All-llahu, feja ime është Islami dhe Pejgamberi im Muhammedi(ﷺ).",
+        repetitions: 1,
+        sourceSq: "(Ahmedi 4/337, Nesaiu në “Amelul-jevmi vel-lejleh” nr:4, Ibën Sunnijj nr:68, Ebu Davudi 4/418 dhe Tirmidhiu 5/465. Ibën Bazi në “Tuhfetul-Ahjar” fq.39 (hadith hasen). · \\\"Kush e thotë këtë çdo mëngjes dhe mbrëmje tri herë është obligim i All-llahut që ta kënaq atë ditën e Kijametit.\\\""
+      },
+      {
+        id: "2-15",
+        type: "text",
+        titleSq: "Lutja 15",
+        arabic: "يَا حَيُّ يَا قَيُّومُ بِرحمَتِكَ أََسْتَغِيثُ أَصْلِحْ ليِ شَأْنيِ كُلَّهُ وَ لاَ تَكِلْنيِ إِلىَ نََفْسِي طَرْفَةَ عَيْنٍ",
+        transliterationSq: "Ja Hajju ja Kajjumu bi rahmetike estegithu aslih li she`ni kul-lehu ve la tekilni ila nefsi tarfete ajnin.",
+        translationSq: "O i Gjallë përgjithmonë, O Mbikëqyrës i çdo gjëje, me mëshirën Tënde kërkoj ndihmë, ma përmirëso tërë gjendjen time dhe mos më lë të mbështetem në veten time, as sa një lëvizje e syrit.",
+        repetitions: 1,
+        sourceSq: "Sahih sipas Hakim, e ka pëlqyer edhe Dhehebiu 1/545. Shih “Sahihut-tergib vet-terhib” 1/273"
+      },
+      {
+        id: "2-16",
+        type: "text",
+        titleSq: "Lutja 16",
+        arabic: "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلِّهِ رَبِّ العَالَمِينَ ، اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ هَذَا الْيَوْمِ ، فَتْحَهُ ، وَنَصْرَهُ ، وَنُورَهُ وَبَرَكَتَهُ ، وَهُدَاهُ ، وأَعُوْذُ بِكَ مِنْ شَرِّ مَا فِيهِ وَشرِّ مَا بَعْدهُ",
+        transliterationSq: "Asbahna ve asbahal-Mulku lil-lahi Rabbil-ْalemin. All-llahumme inni es`eluke hajre hadhel-jevmi fet-hahu, ve nasrehu ve nurehu, ve bereketehu, ve hudahu, ve eّudhu bike min sherri ma fihi, ve sherri ma baّdehu.",
+        translationSq: "E arritëm mëngjesin dhe e tërë pasuria i takon All-llahut, Zotit të botërave. O Zoti im, unë kërkoj mirësinë e kësaj dite, hapjen e saj, ndihmën e saj, dritën e saj, dhuntinë dhe udhëzimin e saj. Kërkoj të më mbrosh nga e keqja e saj dhe e ditëve të tjera pas saj.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi 4/322; (isnad hasen) Sh. dhe A. Arnauti. Shih “Zadul-Me'ad” 2/273."
+      },
+      {
+        id: "2-17",
+        type: "text",
+        titleSq: "Lutja 17",
+        arabic: "أَصْبَحْنَا عَلَى فِطْرَةِ الإِسْلامِ ، وَعَلَى كَلِمَةِ الإِخْلاصِ ، وَعَلَى دِينِ نَبِيِّنَا مُحَمَّدٍ وَعَلَى مِلِّةِ أَبِينَا إِبْرَاهِيمَ حَنِيفاً مُسْلِماً وَمَا كَانَ مِنَ الْمُشْرِكِينَ",
+        transliterationSq: "Asbahna ّala fitretil-Islam ve ّala kelimetil-Ihlas, ve ّala dini nebijjina Muhammedin , ve ّala mil-leti ebina Ibrahime hanifen muslimen ve ma kane minel-mushrikin.",
+        translationSq: "E arritëm mëngjesin në natyrshmërinë Islame, në fjalën e sinqertë (fjala: LA ILAHE IL-LALL-LLAH), në fenë e Pejgamberit tonë, Muhammedit dhe në popullin (fenë) e babait tonë Ibrahimit, i cili ka qenë besimdrejtë, musliman e nuk ka qenë prej mushrikëve (idhujtarëve).",
+        repetitions: 1,
+        sourceSq: "Ahmedi 3/406-407, Ibën Sunnijj në “Amelul-jevmi vel-lejleh” nr: 34 “Sahih El-Xhami'u” 4/209."
+      },
+      {
+        id: "2-18",
+        type: "text",
+        titleSq: "Lutja 18",
+        arabic: "سُبْحَانَ اللَّهِ وَبِحَمْدِه",
+        transliterationSq: "SubhanAll-llahi ve bihamdihi",
+        translationSq: "I Lartësuar qoftë All-llahu, Atij të Cilit i takon Lavdërimi.",
+        repetitions: 1,
+        sourceSq: "Muslimi 4/2071 · \\\"Kush e thotë këtë në mëngjes dhe në mbrëmje 100 herë, askush s'do të vijë Ditën e Kijametit me diç më të vlefshme se ky, përveç atij i cili ka thënë sikur ky apo më tepër.\\\""
+      },
+      {
+        id: "2-20",
+        type: "text",
+        titleSq: "Lutja 19",
+        arabic: "لا إِلَهَ إِلا اللَّهُ وَحْدَهُ لا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَليَ كُلِّ شَيْءٍ قَدِيرٌ",
+        transliterationSq: "La ilahe il-lAll-llahu vahdehu la sherike leh, lehul-Mulku ve lehul-hamdu ve huve ala kul-li shejin kadir (100 herë në mëngjes).",
+        translationSq: "S'ka të adhuruar përveç All-llahut, Një dhe i pashoq, Atij i takon sundimi dhe lavdërimi. Ai është i plotfuqishëm mbi çdo send.",
+        repetitions: 1,
+        sourceSq: "Buhariu 4/95 dhe Muslimi 4/2071 · Pejgamberi (ﷺ) ka thënë: \\\"Kush e thotë këtë 100 herë në ditë; ka shpërblimin sikur t'i ketë liruar 10 robër. Atij i shkruhen 100 të mira, i fshihen 100 mëkate (gjynahe) dhe është i mbrojtur nga djalli deri në mbrëmje, askush nuk ka vepruar më mirë se ky person, me përjashtim të atij që ka vepruar më tepër\\\""
+      },
+      {
+        id: "2-21",
+        type: "text",
+        titleSq: "Lutja 20",
+        arabic: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ عَدَدَ خَلْقِهِ وَرِضَا نَفْسِهِ وَزِنَةَ عَرْشِهِ وَمِدَادَ كَلِمَاتِهِ",
+        transliterationSq: "SubhanAll-llahi ve bihamdihi ّadede halkihi ve rida nefsihi ve zinete ّarshihi ve midade kelimatihi (tri herë në mëngjes).",
+        translationSq: "I Madhëruar qoftë All-llahu, aq sa është numri i krijesave të Tij dhe aq sa dëshiron Ai vet. Po aq sa është i bukur Arshi i Tij dhe sa ngjyra e pasosur (pafund) për t`i shkruar fjalët e Tij.",
+        repetitions: 1,
+        sourceSq: "Muslimi 4/2090."
+      },
+      {
+        id: "2-22",
+        type: "text",
+        titleSq: "Lutja 21",
+        arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا وَرِزْقًا طَيِّبًا وَعَمَلا مُتَقَبَّلاً",
+        transliterationSq: "All-llahume inni es`eluke ّilmen nafi`an ve rizkan tajjiben ve ّamelen mutekabbelen.",
+        translationSq: "O Zoti im, të lutem më jep dituri të dobishme e furnizim të mirë dhe të lutem Të m'i pranosh veprat e mia.",
+        repetitions: 1,
+        sourceSq: "Ibën Sunnijj në “Amelul-jevmi vel-lejleh” nr: 54 Ibën Maxheh nr: 925; Isnadin e këtij hadithi e kanë bërë të mirë (hasen) Sh. dhe A. Arnauti “Zadul-Me'ad” 2/375."
+      },
+      {
+        id: "2-23",
+        type: "text",
+        titleSq: "Lutja 22",
+        arabic: "أَسْتَغْفِرُ اللَّهَ وأَتُوبُ إِلَيْهِ",
+        transliterationSq: "Estagfirullahe ve etubu ilejhi.",
+        translationSq: "Kërkoj faljen e All-llahut dhe tek Ai pendohem.",
+        repetitions: 1,
+        sourceSq: "Buhariu “Fet-hul-Bari” 11/101."
+      },
+      {
+        id: "2-24",
+        type: "text",
+        titleSq: "Lutja 23",
+        arabic: "اللَّهُمّ صَلِّ وَ سلِّم على نَبِيِّنَا مُحَمَّدٍ",
+        transliterationSq: "All-llahumme sal-li ve sel-lim ّala nebijjina Muhammed (10 herë).",
+        translationSq: "O Allahu im, mëshiroje dhe përshëndete të Dërguarin tonë, Muhammedin.",
+        repetitions: 1,
+        sourceSq: ""
+      }
+    ]
+  },
+  {
+    number: 3,
+    categoryId: "mengjes-dhe-mbremje",
+    titleSq: "DHIKRI KUR BIEM NË GJUMË",
+    guidanceSq: "",
+    items: [
+      {
+        id: "3-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ ﴿قُلْ هُوَ اللَّهُ أَحَدٌ ۞ اللَّهُ الصَّمَدُ ۞ لَمْ يَلِدْ وَلَمْ يُولَدْ ۞ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ﴾ بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ ﴿قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۞ مِن شَرِّ مَا خَلَقَ ۞ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ۞ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۞ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ﴾ بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ ﴿قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۞ مَلِكِ النَّاسِ ۞ إِلَهِ النَّاسِ ۞ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۞ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۞ مِنَ الْجِنَّةِ وَالنَّاسِ﴾",
+        transliterationSq: "Bismil-lãhirr-rraḥmãnirr-rraḥĩm. Ḳul huwall-llãhu eḥad, All-llãhuṣ-Ṣamed, lem jelid we lem jũled, we lem jekun lehũ kufuwen eḥad. Bismil-lãhirr-rraḥmãnirr-rraḥĩm. Ḳul e’ũdhu bi rabbil feleḳ, min sherri mã ḣaleḳ, we min sherri ġãsiḳin idhã weḳab, we min sherrin-neffãthãti fil ‘uḳad, we min sherri ḥãsidin idha ḥased. Bismil-lãhirr-rraḥmãnirr-rraḥĩm. Ḳul e’ũdhu bi rabbin-nãs, Melikin-nãs, Ilãhin-nãs, min sherril weswãsil ḣan-nãs, el-ledhĩ juweswisu fĩ ṣudũrin-nãs, minel xhinneti wen-nãs.",
+        translationSq: "Me emrin e Allahut, Mëshiruesit, Mëshirëbërësit! Thuaj: “Ai, Allahu është Një! Allahu është Eṣ Ṣamedu (Ai, të Cilit i drejtohen krijesat për nevojat e tyre). Ai as nuk lind, as nuk është i lindur. Dhe askush nuk është i barabartë me Atë! Me emrin e Allahut, Mëshiruesit, Mëshirëbërësit! Thuaj: “Kërkoj mbështetje te Zoti i agimit, që të më mbrojë nga sherri i gjithçkaje që Ai ka krijuar, dhe nga sherri i natës, kur bie terri, dhe nga sherri i magjistarëve, që fryjnë në nyje magjie, dhe nga sherri i smirëziut, kur vepron me smirë. Me emrin e Allahut, Mëshiruesit, Mëshirëbërësit! Thuaj: “Kërkoj mbrojtje te Zoti i njerëzve, Sundimtari i njerëzve, i Adhuruari (i vetëm me të drejtë) i njerëzve, nga sherri i shejtanit ngacmues që fshihet (kur përmendet Allahu), e që hedh të liga e dyshime në gjoksin e njerëzve, (qoftë ai shejtan) prej xhindëve apo njerëzve!",
+        repetitions: 1,
+        sourceSq: "Tabarani (Sahih Tergib ve Terhib), Buhariu dhe Muslimi. · Pejgamberi ﷺ thotë: «Kush çon dhjetë herë salavatë për mua kur të gdhihet dhe dhjetë herë kur të ngryset, do të arrijë ndërmjetësimin tim Ditën e Kiametit. [Sipas renditjes që bën hadithi i mësipërm, mbledhim pëllëmbët, pastaj fryjmë në to, pas fryrjes në pëllëmbë lexojmë tri suret (Ihlas, Nas dhe Felek), e pas leximit fshijmë trupin sa të mundemi, duke filluar prej kokës, fytyrës dhe pjesës së përparme të trupit. Mbledhjen e pëllëmbëve, fryrjen në to, leximin dhe fshirjen e trupit e përsërisim tri herë]."
+      },
+      {
+        id: "3-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "﴿اللّهُ لَا إِلَـهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الأَرْضِ مَن ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاء وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالأَرْضَ وَلَا يَؤُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ﴾",
+        transliterationSq: "All-llãhu lã ilãhe il-lã huwel Ḥajjul Ḳajjũm. Lã te’ḣudhuhu sinetun we lã newm. Lehu mã fis-semãwãti we mã fil erḍ. Men dhel-ledhĩ jeshfe’u ‘indehu il-lã bi idhnihi. Ja’ëlemu mã bejne ejdĩhim we mã ḣalfehum, we lã juḥĩṭũne bi shej’in min ‘ilmihi il-lã bimã shãe. Wesi’a kursijjuhus-semãwãti wel erḍa, we lã je’ũduhu ḥifḍhuhumã we huwel ‘Alijjul ‘Aḍhĩm.",
+        translationSq: "Allahu është Ai, përveç të Cilit nuk ka të adhuruar me të drejtë, i Gjalli, i Përjetshmi, Mbajtësi i gjithçkaje! Atë nuk e kap as dremitja, as gjumi! Atij i përket gjithçka që gjendet në qiej dhe gjithçka që gjendet në Tokë. Kush mund të ndërhyjë tek Ai për ndokënd pa lejen e Tij? Ai di çdo gjë që u ka ndodhur krijesave më përpara dhe çdo gjë që do t’u ndodhë më pas, kurse ata nuk mund të përvetësojnë asgjë nga Dituria e Tij, përveçse aq sa Ai dëshiron. Kursi-u i Tij përfshin qiejt dhe Tokën dhe Ai nuk e ka të rëndë t’i ruajë ato. Ai është i Larti, Madhështori!.",
+        repetitions: 1,
+        sourceSq: "Sureja Bekare, 255. Buhariu · Pejgamberi ﷺ thotë: “Kush e lexon këtë ajet kur të shtrihet në shtrat për të fjetur, Allahu do t’i dërgojë një mbrojtës që nuk i ndahet dhe nuk do t’i afrohet shejtani derisa të gdhijë.”"
+      },
+      {
+        id: "3-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "﴿آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ وَالْمُؤْمِنُونَ كُلٌّ آمَنَ بِاللّهِ وَمَلآئِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِّن رُّسُلِهِ وَقَالُواْ سَمِعْنَا وَأَطَعْنَا غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ الْمَصِيرُ ۞ لَا يُكَلِّفُ اللّهُ نَفْسًا إِلَّا وُسْعَهَا لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا اكْتَسَبَتْ رَبَّنَا لَا تُؤَاخِذْنَا إِن نَّسِينَا أَوْ أَخْطَأْنَا رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِن قَبْلِنَا رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِ وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا أَنتَ مَوْلَانَا فَانصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ﴾",
+        transliterationSq: "Ãmenerr-rrasũlu bimã unzile ilejhi mirr-rrabbihi wel mu’minũn, kul-lun ãmene bil-lãhi we melãiketihi we kutubihi we rusulihi lã nuferr-rriḳu bejne eḥadin-mirr-rrusulih. We ḳãlũ semi’ënã we eṭa’ënã ġufrãneke rabbenã we ilejkel meṣĩr. Lã jukel-lifull-llãhu nefsen il-lã wus’ahã lehã mã kesebet we ‘alejhã mektesebet. Rabbenã lã tu’ãḣidhnã in nesĩnã ew eḣta’nã. Rabbenã we lã taḥmil ‘alejnã iṣran kemã ḥameltehũ ‘alel-ledhĩne min ḳablinã. Rabbenã we lã tuḥammilnã mã lã ṭãḳate lenã bihi, wa’ëfu ‘annã weġfir lenã werḥamnã, Ente mewlãnã fenṣurnã ‘alel ḳawmil kãfirĩn.",
+        translationSq: "I Dërguari besoi atë që iu shpall nga Zoti i tij, e po ashtu edhe besimtarët; të gjithë besuan Allahun, melekët e Tij, librat e Tij dhe të dërguarit e Tij, (duke thënë): “Nuk bëjmë dallim mes asnjërit prej të dërguarve të Tij.” Pastaj thanë: “Dëgjuam dhe u bindëm. Faljen Tënde kërkojmë, o Zoti ynë! Tek Ti është kthimi”. Allahu nuk ngarkon askënd përtej mundësive që ka; të mirën që fiton (çdokush) e ka për vete dhe të keqen që bën e ka kundra vetes. Zoti ynë! Mos na ndëshko nëse harrojmë ose gabojmë! Zoti ynë! Mos na ngarko barrë të rëndë ashtu si i ngarkove ata para nesh! Zoti ynë! Mos na ngarko me diçka që nuk mund ta mbartim! Na fal ne, na i mbulo gjynahet dhe na mëshiro! Ti je Zoti ynë, prandaj na jep fitore kundër popullit mosbesimtar!",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi. · Pejgamberi ﷺ thotë: “Këto dy ajete, do të jenë të mjaftueshme për këdo që i lexon gjatë natës”."
+      },
+      {
+        id: "3-4",
+        type: "text",
+        titleSq: "Lutja 4",
+        arabic: "بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي، وَبِكَ أَرْفَعُهُ، فَإِن أَمْسَكْتَ نَفْسِي فارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا، بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ.",
+        transliterationSq: "فَاحْفَظْهَا، بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ. Bismike rabbĩ weḍa’tu xhenbĩ, we bike erfe’uhu, fe in emsekte nefsĩ ferḥamhã, we in erseltehã faḥfeḍhhã bimã taḥfeḍhu bihi ‘ibãdekeṣ-ṣãlihĩn.",
+        translationSq: "Duke përmendur emrin Tënd, o Zoti im, u shtriva për të fjetur dhe duke përmendur emrin Tënd ngrihem nga gjumi. Nëse ma mban shpirtin (më vdes) mëshiroje atë e, nëse ma kthen shpirtin në trup, ruaje atë ashtu siç ruan robërit e Tu të mirë.",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi · Pejgamberi ﷺ thotë: “Nëse ndonjëri prej jush ngrihet nga shtrati, e pastaj kthehet në të, le ta shkundë shtrojën tre herë me cepin e rrobës, dhe le të thotë: “bismil-lãh”, sepse ai nuk e di se çfarë ka rënë në të mbasi është ngritur. Kur të shtrihet, le të thotë: “O Allah… (lutjen e lartpërmendur)”."
+      },
+      {
+        id: "3-5",
+        type: "text",
+        titleSq: "Lutja 5",
+        arabic: "اللَّهُمَّ إِنَّكَ خَلَقْتَ نَفْسِي وَأَنْتَ تَوَفَّاهَا، لَكَ مَمَاتُهَا وَمَحْياهَا، إِنْ أَحْيَيْتَهَا فَاحْفَظْهَا، وَإِنْ أَمَتَّهَا فَاغْفِرْ لَهَا. اللَّهُمَّ إِنِّي أَسْأَلُكَ العَافِيَةَ.",
+        transliterationSq: "All-llãhumme inneke ḣaleḳte nefsĩ we Ente teweffãhã, leke memãtuhã we maḥjãhã, in aḥjejtehã faḥfeḍhhã, we in emettehã feg’fir lehã, All-llãhumme innĩ es’elukel ‘ãfijeh.",
+        translationSq: "O Allah, Ti e ke krijuar shpirtin tim dhe Ti ma merr atë, në dorën Tënde është vdekja dhe jeta e tij. Nëse e le të jetojë, ruaje atë, e nëse e vdes, fale atë. O Allah, të lutem të më ruash nga çdo e keqe.",
+        repetitions: 1,
+        sourceSq: "Muslim"
+      },
+      {
+        id: "3-6",
+        type: "text",
+        titleSq: "Lutja 6",
+        arabic: "اللَّهُمَّ قِنِي عَذَابَكَ، يَوْمَ تَبْعَثُ عِبَادَكَ",
+        transliterationSq: "All-llãhumme ḳinĩ ‘adhãbeke jewme teb’athu ‘ibãdeke.",
+        translationSq: "O Allah, më mbroj prej dënimit Tënd atë Ditë, kur do të ringjallësh robërit e Tu.",
+        repetitions: 1,
+        sourceSq: "Muslim, Ebu Davudi (Sahih Tirmidhi). · Pejgamberi ﷺ kur shtrihej për të fjetur vendoste dorën e djathtë poshtë faqes së djathtë, e pastaj thoshte: … (lutjen e sipër-shënuar)."
+      },
+      {
+        id: "3-8",
+        type: "text",
+        titleSq: "Lutja 7",
+        arabic: "سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَاللَّهُ أَكْبَرُ.",
+        transliterationSq: "“Subḥãnall-llãh”,- 33 herë; “Elḥamdu lil-lãh”- 33 herë; dhe “All-llãhu Ekber”- 34 herë",
+        translationSq: ".",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi. · Pejgamberi ﷺ thotë: “Kush e thotë këtë dhikër kur shtrihet në shtrat për të fjetur është më mirë për të sesa të ketë një shërbëtor”."
+      },
+      {
+        id: "3-9",
+        type: "text",
+        titleSq: "Lutja 8",
+        arabic: "اللَّهُمَّ رَبَّ السَّمَوَاتِ السَّبْعِ وَرَبَّ الأَرْضِ، وَرَبَّ الْعَرْشِ الْعَظِيمِ، رَبَّنَا وَرَبَّ كُلِّ شَيْءٍ، فَالِقَ الْحَبِّ وَالنَّوَى، وَمُنْزِلَ التَّوْرَاةِ وَالْإِنْجِيلِ، وَالْفُرْقَانِ، أَعُوذُ بِكَ مِنْ شَرِّ كُلِّ شَيْءٍ أَنْتَ آخِذٌ بِنَاصِيَتِهِ. اللَّهُمَّ أَنْتَ الأَوَّلُ فَلَيْسَ قَبْلَكَ شَيْءٌ، وَأَنْتَ الآخِرُ فَلَيسَ بَعْدَكَ شَيْءٌ، وَأَنْتَ الظَّاهِرُ فَلَيْسَ فَوْقَكَ شَيْءٌ، وَأَنْتَ الْبَاطِنُ فَلَيْسَ دُونَكَ شَيْءٌ، اقْضِ عَنَّا الدَّيْنَ وَأَغْنِنَا مِنَ الْفَقْرِ.",
+        transliterationSq: "All-llãhumme rabbes-semãwãtis-seb’i we rabel-erḍi we rabbel ‘arshil ‘aḍhĩm, Rabbenã we rabbe kul-li shej’in, fãliḳal ḥabbi wen-newã, we munzilet-tewrãti wel inxhĩli wel furḳãn! E’ũdhu bike min sherri kul-li shej’in Ente ãḣidhun bi nãṣijetihi! All-llãhumme Entel Ewwelu fe lejse ḳableke shej’un, we Entel Ãḣiru fe lejse ba’ëdeke shej’un, we Enteḍh-Ḍhãhiru fe lejse fewḳake shej’un, we Entel Bãṭinu fe lejse dũneke shej’un, iḳḍi ‘annã ed-dejne we eġninã minel faḳri!",
+        translationSq: "O Allah, Krijuesi i shtatë qiejve dhe i tokës dhe rregulluesi i punëve të tyre, Zoti i arshit madhështor, Zoti ynë dhe Zoti i çdo gjëje, Ai i Cili bën të çahet fara dhe bërthama, Zbritësi i Teuratit, Ungjillit dhe Kuranit! Kërkoj mbrojtjen Tënde prej të keqes së çdo gjëje! Ti je i Pari (i Pafillim), e s`ka gjë para Teje, Ti je i Fundit (i Pafund) e s`ka gjë pas Teje, Ti je më i Larti, e s`ka gjë mbi Ty, Ti je më i Afërti (më pranë çdo gjëje me dijen) e s`ka gjë më pranë gjërave se Ti! Na i laj borxhet dhe na pasuro që të mos jemi nevojtarë!",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "3-10",
+        type: "text",
+        titleSq: "Lutja 9",
+        arabic: "الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا، وَكَفَانَا، وَآوَانَا، فَكَمْ مِمَّنْ لَا كَافِيَ لَهُ وَلَا مُؤْوِيَ.",
+        transliterationSq: "Elḥamdu lil-lãhil-ledhĩ eṭ’amenã we seḳãnã, we kefãnã, we ãwãnã; fe kem mimmen lã kãfije lehu we lã mu’wije.",
+        translationSq: "Lavdia i përket Allahut, i Cili na ushqeu dhe na dha për të pirë, na ruajti nga dëmi i keqbërësve, na kreu punët, na plotësoi nevojat, na dha banesë për strehim! Sa e sa njerëz ka që Allahu nuk i ka mbrojtur nga keqbërësit dhe nuk u ka dhënë banesë për strehim!",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "3-11",
+        type: "text",
+        titleSq: "Lutja 10",
+        arabic: "اللَّهُمَّ عَالِمَ الغَيْبِ وَالشَّهَادَةِ فَاطِرَ السَّمَوَاتِ وَالْأَرْضِ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي، وَمِنْ شَرِّ الشَّيْطانِ وَشِرْكِهِ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِي سُوءاً، أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ.",
+        transliterationSq: "All-llãhumme, ‘Ãlimel ġajbi wesh-shehãdeti, Fãṭiras-semãwãti wel erḍi, Rabbe kul-li shej’in we Melĩkehu, eshhedu en lã ilãhe il-lã Ente, e’ũdhu bike min sherri nefsĩ, we min sherrish-shejṭãni we shirkihi, we en eḳterife ‘alã nefsĩ sũen ew exhurr-rrahu ilã muslim.",
+        translationSq: "O Allah! Njohës i së fshehtës dhe së dukshmes, Krijues i qiejve dhe i tokës, Zot dhe Sundues i çdo gjëje! Dëshmoj se askush nuk meriton të adhurohet përveç Teje! Më mbroj nga e keqja e vetvetes, nga e keqja e shejtanit dhe thirrja e përpjekja e tij për të bërë shirk (ose: nga kurthi i tij), si dhe që të mos i bëj vetes keq e as ndonjë muslimani!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi (Sahih Tirmidhiu)."
+      },
+      {
+        id: "3-12",
+        type: "text",
+        titleSq: "Lutja 11",
+        arabic: "... ﴿ألم﴾ ﴿تَبَارَكَ الَّذي بِيَدِهِ الْمُلْكُ...﴾",
+        transliterationSq: "Elif Lam Mim..., Tebãrekeledhi bijedihil mulku...",
+        translationSq: "Lexojmë suren Sexhde dhe suren Mulk",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu dhe Nesaiu (Sahih Xhami)."
+      },
+      {
+        id: "3-13",
+        type: "text",
+        titleSq: "Lutja 12",
+        arabic: "اللَّهُمَّ أَسْلَمْتُ نَفْسِي إِلَيْكَ، وَفَوَّضْتُ أَمْرِي إِلَيْكَ، وَوَجَّهْتُ وَجْهِي إِلَيْكَ، وَأَلْجَأْتُ ظَهْرِي إِلَيْكَ، رَغْبَةً وَرَهْبَةً إِلَيْكَ، لَا مَلْجَأَ وَلَا مَنْجَا مِنْكَ إِلَّا إِلَيْكَ، آمَنْتُ بِكِتَابِكَ الَّذِي أَنْزَلْتَ، وَبِنَبِيِّكَ الَّذِي أَرْسَلْتَ.",
+        transliterationSq: "All-llãhumme eslemtu nefsĩ ilejke, we fewweḍtu emrĩ ilejke, we wexhxhehtu wexhhĩ ilejke, we elxhe’tu ḍhahrĩ ilejke, raġbeten we rahbeten ilejke, lã melxhe’e we lã menxhã minke il-lã ilejke. Ãmentu bi kitãbikel-ledhĩ enzelte, we bi nebijjikel-ledhĩ erselte.",
+        translationSq: "O Allah, unë ta dorëzoj veten time Ty, t’i besoj Ty të gjitha çështjet e mia dhe mbështetem tek Ti të më ndihmosh në të gjitha punët që janë në dobinë time, duke pasur njëkohësisht shpresë tek shpërblimi Yt dhe frikë nga dënimi Yt! Nuk ka strehë dhe shpëtim prej Teje përveçse Tek Ti! Besova në librin të cilin e ke zbritur dhe në Pejgamberin të cilin e ke dërguar.",
+        repetitions: 1,
+        sourceSq: ""
+      }
+    ]
+  },
+  {
+    number: 4,
+    categoryId: "mengjes-dhe-mbremje",
+    titleSq: "DUAJA ME RASTIN E RROTULLIMIT NATËN",
+    guidanceSq: "",
+    items: [
+      {
+        id: "4-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ غَضَبِهِ وَعِقَابِهِ، وَشَرِّ عِبَادِهِ، وَمِنْ هَمَزَاتِ الشَّياطِينِ وَأَنْ يَحْضُرُونِ.",
+        transliterationSq: "E’ũdhu bi kelimãtil-lãhit-tãmmãti, min ġaḍabihi we ‘iḳãbihi, we sherri ‘ibãdihi, we min hemezãtish-shejãṭĩn! we en jaḥḍurũn!",
+        translationSq: "Kërkoj mbrojtje me fjalët e përkryera të Allahut, prej zemërimit dhe ndëshkimit të Tij, prej sherrit të robërve të Tij, prej ngacmimeve të shejtanëve dhe nga prania e tyre!",
+        repetitions: 1,
+        sourceSq: "Hakimi (Sahih Xhami)."
+      }
+    ]
+  },
+  {
+    number: 5,
+    categoryId: "mengjes-dhe-mbremje",
+    titleSq: "NËSE FRIKËSOHEMI NË GJUMË",
+    guidanceSq: "",
+    items: [
+      {
+        id: "5-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ غَضَبِهِ وَعِقَابِهِ، وَشَرِّ عِبَادِهِ، وَمِنْ هَمَزَاتِ الشَّياطِينِ وَأَنْ يَحْضُرُونِ.",
+        transliterationSq: "E’ũdhu bi kelimãtil-lãhit-tãmmãti, min ġaḍabihi we ‘iḳãbihi, we sherri ‘ibãdihi, we min hemezãtish-shejãṭĩn! we en jaḥḍurũn!",
+        translationSq: "Kërkoj mbrojtje me fjalët e përkryera të Allahut, prej zemërimit dhe ndëshkimit të Tij, prej sherrit të robërve të Tij, prej ngacmimeve të shejtanëve dhe nga prania e tyre!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi (Sahih Tirmidhi)."
+      }
+    ]
+  },
+  {
+    number: 6,
+    categoryId: "mengjes-dhe-mbremje",
+    titleSq: "NËSE SHOHIM ËNDËRR TË KEQE",
+    guidanceSq: "",
+    items: [
+      {
+        id: "6-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ غَضَبِهِ وَعِقَابِهِ، وَشَرِّ عِبَادِهِ، وَمِنْ هَمَزَاتِ الشَّياطِينِ وَأَنْ يَحْضُرُونِ.",
+        transliterationSq: "E’ũdhu bi kelimãtil-lãhit-tãmmãti, min ġaḍabihi we ‘iḳãbihi, we sherri ‘ibãdihi, we min hemezãtish-shejãṭĩn! we en jaḥḍurũn!",
+        translationSq: "Kërkoj mbrojtje me fjalët e përkryera të Allahut, prej zemërimit dhe ndëshkimit të Tij, prej sherrit të robërve të Tij, prej ngacmimeve të shejtanëve dhe nga prania e tyre!",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      }
+    ]
+  },
+  {
+    number: 7,
+    categoryId: "mengjes-dhe-mbremje",
+    titleSq: "DHIKRI I MBRËMJES",
+    guidanceSq: "",
+    items: [
+      {
+        id: "7-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللّهُ لاَ إلَهَ إلاّ هُوَ الحَيُّ القَيُّومُ لاَ تَأْخُذُهُ سِنَةٌ وَلاَ نَوْمٌ لَهُ مَا فيِ السَّمَاوَاتِ وَمَا فيِ الأَرْضِ مَنْ ذَا الَّذيِ يَشْفَعُ عِنْدَهُ إِلاَّ بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلاَ يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلاَّ بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّماَوَاتِ وَالَأرْضَ وَلاَ يَؤُوْدُهُ حِفْظُهُمَا وَهُوَ العَلِيُّ العَظِيمُ",
+        transliterationSq: "All-llahu La Ilahe il-la huvel-Hajjul-Kajjumu, la te`hudhuhu sinetun ve la nevmun, lehu ma fis-semavati ve ma fil-erdi, men dhel-ledhi jeshfeّu ّindehu il-la bi idhnihi, jaّlemu ma bejne ejdihim ve ma halfehum ve la juhitune bi shej`in min ّilmihi il-la bima shae vesi'a Kursijjuhus-semavati vel-erda, ve la jeuduhu hifdhuhuma ve huvel-ّAlijjul-ّAdhim.",
+        translationSq: "All-llahu është Një, s`ka Zot tjetër përveç Atij, Ai është mbikëqyrës i përhershëm dhe i përjetshëm. Atë nuk e zë as kotja as gjumi; Gjithçka ka në qiej dhe në tokë është vetëm e Tij. Kush mund të ndërmjetësojë tek Ai, pos me lejen e Tij. Ai di të tashmen që është pranë tyre dhe të ardhmen. Nga ajo që Ai di, të tjerët dinë vetëm aq sa Ai ka dëshiruar. Kursija e Tij përfshin qiejt dhe tokën, kurse kujdesi i Tij ndaj të dyjave nuk i vjen rëndë, Ai është më i Larti, më i Madhi.",
+        repetitions: 1,
+        sourceSq: "Kuran [2:255] · Ajetul-Kursi"
+      },
+      {
+        id: "7-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ ﴿قُلْ هُوَ اللَّهُ أَحَدٌ ۞ اللَّهُ الصَّمَدُ ۞ لَمْ يَلِدْ وَلَمْ يُولَدْ ۞ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ﴾ بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ ﴿قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۞ مِن شَرِّ مَا خَلَقَ ۞ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ۞ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۞ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ﴾ بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ ﴿قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۞ مَلِكِ النَّاسِ ۞ إِلَهِ النَّاسِ ۞ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۞ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۞ مِنَ الْجِنَّةِ وَالنَّاسِ﴾",
+        transliterationSq: "Bismil-lãhirr-rraḥmãnirr-rraḥĩm. Ḳul huwall-llãhu eḥad, All-llãhuṣ-Ṣamed, lem jelid we lem jũled, we lem jekun lehũ kufuwen eḥad. Bismil-lãhirr-rraḥmãnirr-rraḥĩm. Ḳul e’ũdhu bi rabbil feleḳ, min sherri mã ḣaleḳ, we min sherri ġãsiḳin idhã weḳab, we min sherrin-neffãthãti fil ‘uḳad, we min sherri ḥãsidin idha ḥased. Bismil-lãhirr-rraḥmãnirr-rraḥĩm. Ḳul e’ũdhu bi rabbin-nãs, Melikin-nãs, Ilãhin-nãs, min sherril weswãsil ḣan-nãs, el-ledhĩ juweswisu fĩ ṣudũrin-nãs, minel xhinneti wen-nãs.",
+        translationSq: "Me emrin e Allahut, Mëshiruesit, Mëshirëbërësit! Thuaj: “Ai, Allahu është Një! Allahu është Eṣ Ṣamedu (Ai, të Cilit i drejtohen krijesat për nevojat e tyre). Ai as nuk lind, as nuk është i lindur. Dhe askush nuk është i barabartë me Atë! Me emrin e Allahut, Mëshiruesit, Mëshirëbërësit! Thuaj: “Kërkoj mbështetje te Zoti i agimit, që të më mbrojë nga sherri i gjithçkaje që Ai ka krijuar, dhe nga sherri i natës, kur bie terri, dhe nga sherri i magjistarëve, që fryjnë në nyje magjie, dhe nga sherri i smirëziut, kur vepron me smirë. Me emrin e Allahut, Mëshiruesit, Mëshirëbërësit! Thuaj: “Kërkoj mbrojtje te Zoti i njerëzve, Sundimtari i njerëzve, i Adhuruari (i vetëm me të drejtë) i njerëzve, nga sherri i shejtanit ngacmues që fshihet (kur përmendet Allahu), e që hedh të liga e dyshime në gjoksin e njerëzve, (qoftë ai shejtan) prej xhindëve apo njerëzve!",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "7-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "‎أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، رَبِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذِهِ اللَّيْلَةِ وَخَيْرَ مَا بَعْدَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذِهِ اللَّيْلَةِ وَشَرِّ مَا بَعْدَهَا، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ، وَسُوءِ الْكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ، وَعَذَابٍ فِي الْقَبْرِ",
+        transliterationSq: "Emsejna ue emsel mulku lilahi uel hamdu lilahi, la ilahe ila Allahu vahdehu la sherike lehu, lehul mulku ue lehul hamdu ue huve ala kuli shejin kadir. Rabi es eluke hajra ma fi hadhihil lejleti ue hajra ma ba’deha ue eudhubike min sherri ma fi hadhihil lejleti ue sherri ma ba’deha. Rabi eudhu bike minel keseli ue suil kiberi, Rabi eudhu bike min adhabin fin nari ue adhabin fil kabri.",
+        translationSq: "E arritëm mbrëmjen, e gjithë pasuria i takon Allahut. Falënderimi është për Allahun, nuk ka të adhuruar me të drejtë përveç Allahut i Cili është Një dhe i Pashoq. Atij i takon sundimi dhe falënderimi, Ai është i Plotfuqishëm mbi çdo gjë. O Zot, prej Teje e kërkoj të mirën e kësaj nate dhe të netëve tjera dhe prej Teje e kërkoj mbrojtjen nga e liga e kësaj nate dhe e netëve tjera. O Zot, kërkoj mbrojtjen Tënde nga përtacia dhe mendjemadhësia. O Zot, më mbro nga dënimi i zjarrit dhe nga dënimi i varrit.",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "7-4",
+        type: "text",
+        titleSq: "Lutja 4",
+        arabic: "اللَّهُمَّ بِكَ أَمْسَيْنَا وَبِكَ أَصْبَحْنَا، وَبِكَ نَحْيَا وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ",
+        transliterationSq: "Allahume bike emsejna ue bike asbahna ue bike nahja ue bike nemutu ue ilejken nushur.",
+        translationSq: "O Zoti im, me emrin Tënd e arrijmë mbrëmjen dhe me emrin Tënd e arrijmë mëngjesin, me emrin Tënd ngjallemi dhe vdesim dhe tek Ti është kthimi.",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "7-5",
+        type: "text",
+        titleSq: "Lutja 5",
+        arabic: "اللَّهُمَّ أَنْتَ رَبِّي لا إِلَهَ إِلا أَنْتَ خَلَقْتَنِي وَأَنَا عَبْدُكَ وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لا يَغْفِرُ الذُّنُوبَ إِلا أَنْتَ",
+        transliterationSq: "Allahume ente Rabi la ilahe ila ente, halekteni ue ene abduke ue ene ala ahdike ue va’dike mesteta’tu. Eudhu bike min sherri ma sana’tu, ebu u leke bi ni’metike aleje ue ebu u bi dhenbi, fagfir li fe inehu la jagfiru dhunube ila ente.",
+        translationSq: "O Allah, ti je Zoti im, nuk ka të adhuruar me të drejtë përveç Teje. Ti më ke krijuar dhe unë jam robi Yt, do të qëndroj besnik ndaj marrëveshjes dhe premtimit Tënd, sa të kem mundësi. Kërkoj mbrojtjen Tënde nga e keqja që kam vepruar. Jam mirënjohës ndaj dhuntive Tua, i pranoj mëkatet e mia, andaj më fal, ngase mëkatet nuk i fal askush tjetër përveç Teje.",
+        repetitions: 1,
+        sourceSq: "Buhariu 7/150 · “Kush e thotë këtë në mbrëmje duke qenë i bindur në të dhe vdes po atë natë do të jetë prej banorëve të Xhennetit, poashtu edhe në mëngjes”"
+      },
+      {
+        id: "7-6",
+        type: "text",
+        titleSq: "Lutja 6",
+        arabic: "اللَّهُمَّ إِنِّي أَمْسَيْتُ أُشْهِدُكَ ، وَأُشْهِدُ حَمَلَةَ عَرْشِكَ ، وَمَلائِكَتَكَ ، وَجَمِيعَ خَلْقِكَ ، أَنَّكَ أَنْتَ اللَّهُ لاَ إِلَهَ إِلاَّ أَنْتَ ، وَحْدَكَ لاَشَرِيكَ لَكَ ، وأَنَّ مُحَمَّداً عَبْدُكَ وَرَسُولُكَ",
+        transliterationSq: "All-llahumme inni emsejtu ush-hiduke, ve ush-hidu hamelete ّArshike ve Melaiketeke ve xhemiّa halkike, Enneke EnteAll-llahu la Ilahe il-la Ente vahdeke la sherike Lek, ve enne Muhammeden ّabduke ve resuluke (4 herë).",
+        translationSq: "O Zoti im, e arrita mbrëmjen, dëshmoj për Ty dhe mbajtësit e Arshit Tënd, melaiket Tua dhe të gjitha krijesat Tua, se vërtetë Ti je All-llahu i Vetëm, s`ka të adhuruar tjetër përveç Teje, Ti je i Vetëm dhe i pashoq dhe dëshmoj se Muhammedi (ﷺ) është rob dhe i dërguar i Yt.",
+        repetitions: 1,
+        sourceSq: "Shënon Ebu Davudi dhe të tjerë. Ibn Bazi e vlerëson si të mirë senedin me të cilin e sjell Ebu Davudi. · Pejgamberi ﷺ thotë: “Kush e thotë këtë dhikër katër herë kur gdhin ose kur ngryset, Allahu e shpëton nga Zjarri”."
+      },
+      {
+        id: "7-7",
+        type: "text",
+        titleSq: "Lutja 7",
+        arabic: "اللَّهُمَّ مَا أَمْسَى بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ.",
+        transliterationSq: "All-llãhumme mã emsa bĩ min ni’ëmetin ew bi eḥadin min ḣalḳike, fe minke waḥdeke lã sherĩke leke, fe lekel-ḥamdu, we lekesh-shukru.",
+        translationSq: "O Allah! Çdo mirësi (qoftë dynjaje a ahireti) me të cilën unë kam arritur mbrëmjen ose me të cilën e ka arritur mbrëmjen ndonjë krijesë Jotja, është vetëm prej Teje! I Pashoq je Ti! Ty të takon e gjithë lavdia dhe Ty të takon mirënjohja!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi dhe të tjerë. · Pejgamberi ﷺ ka thënë: “Kush e e thotë këtë kur të gdhijë, ai e ka shlyer detyrimin e mirënjohjes për atë ditë. Dhe kushdo që bën një dhikër të tillë edhe kur ngryset, ai e ka shlyer detyrimin e mirënjohjes për atë natë.”"
+      },
+      {
+        id: "7-8",
+        type: "text",
+        titleSq: "Lutja 8",
+        arabic: "اللَّهُمَّ عَافِنِي فِي بَدَنِي ، اللَّهُمَّ عَافِنِي فِي سَمْعِي ، اللَّهُمَّ عَافِنِي فِي بَصَرِي ، لاَ إِلَهَ إِلاَّ أَنْتَ.اللَّهُمَّ إِنِّي أَعُوْذُ بِكَ مِنَ الْكُفْرِ ، وَالْفَقْرِ ، وأَعُوْذُ بِكَ مِنْ عَذَابِ القَبْرِ ، لاَ إِلَهَ إِلاَّ أَنْتَ",
+        transliterationSq: "All-llahume ّafini fi bedeni, All-llahume ّafini fi semْi, All-llahume ّafini fi besari, la ilahe il-la ente, All-llahume inni eّudhu bike minel-kufri vel-fakri, ve eّudhu bike min adhabil-kabr, la ilahe il-la ente (tri herë në mëngjes dhe tri herë në mbrëmje).",
+        translationSq: "O Zoti im, më jep shëndet në trupin tim, O Zoti im, më jep shëndet në të dëgjuarit tim, O Zoti im, më jep shëndet në të pamurit tim. S'ka të adhuruar tjetër përveç Teje. O Zoti im, kërkoj mbrojtjen Tënde nga kufri (mosbesimi) e varfëria dhe kërkoj mbrojtjen Tënde nga dënimi i varrit. S'ka të adhuruar tjetër përveç Teje.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi 4/324, Ahmedi 5/42 dhe Nesaiu në “Amelul-jevmi vel-lejleh” nr:22, Ibën Sunnijj nr: 69 dhe Buhariu në “El-Edeb-El-Mufred”, senedin e këtij hadithi dijetari Ibën Bazi në librin e tij “Tuhfetul-Ahjar” fq.26 e ka bërë të mirë (hasen)."
+      },
+      {
+        id: "7-9",
+        type: "text",
+        titleSq: "Lutja 9",
+        arabic: "حَسْبِيَ اللَّهُ لاَ إِلَهَ إِلاَّ هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",
+        transliterationSq: "HasbijAll-llahu la Ilahe il-la hu(ve), ّAlejhi tevekkeltu ve Huve Rabbul-`arshil-`adhim.",
+        translationSq: "Më mjafton mua All-llahu; s'ka të adhuruar tjetër përveç Tij. Tek Ai jam mbështetur dhe Ai është Zoti i Arshit të Madh.",
+        repetitions: 1,
+        sourceSq: "Ibën Sunnijj hadithi nr:71, merfu dhe Ebu Davudi mevkuf 4/321. Isnadin e këtij hadithi e kan bërë të vërtetë Shuajb dhe Abdulkadër Arnauti “Zadul-Me'ad” 2/376 · \\\"Kush e thotë këtë në mëngjes dhe në mbrëmje shtatë herë i mjafton për atë që e brengos çështja e kësaj bote dhe e ahiretit.\\\""
+      },
+      {
+        id: "7-10",
+        type: "text",
+        titleSq: "Lutja 10",
+        arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالآخِرَةِ ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْلِي ، وَمَالِي ، اللَّهُمَّ اسْتُرْ عَوْرَاتِي ، وَآمِنْ رَوْعَاتِي ، اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ ، وَمِنْ خَلْفِي ، وَعَنْ يَمِينِي ، وَعَنْ شِمَالِي ، وَمِنْ فَوْقِي ، وَأَعُوْذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِيَ",
+        transliterationSq: "All-llãhumme innĩ es’elukel ‘afwe wel ‘ãfijete fid-dun’jã wel ãḣirah, All-llãhumme innĩ es’elukel ‘afwe wel ‘ãfijete fĩ dĩnĩ we dun’jãje we ehlĩ we mãlĩ, All-llãhummestur ‘awrãtĩ, we ãmin raw’ãtĩ. All-llãhumme iḥfeḍhnĩ min bejni jedejje, we min ḣalfĩ, we ‘an jemĩnĩ we ‘an shimãlĩ, we min fewḳĩ, we e’ũdhu bi aḍhametike en uġtãle min taḥtĩ.",
+        translationSq: "O Zoti im, kërkoj nga Ti falje dhe shpëtim në këtë botë dhe në Ahiret. Zoti im, kërkoj që të më falësh dhe të më mbrosh në fenë time dhe në jetën time, ma mbro familjen dhe pasurinë time. O Zoti im, m'i mbulo të metat e mia dhe më qetëso në momentet trishtuese.O Zot, më ruaj nga para dhe prapa, në të djathtë, në të majtë dhe nga lartë; kërkoj nga ti që të më mbrosh të mos më lëshojë toka.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi dhe Ibën Maxheh. Shih “Sahih Ibën Maxheh” 2/332."
+      },
+      {
+        id: "7-11",
+        type: "text",
+        titleSq: "Lutja 11",
+        arabic: "اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ فَاطِرَ السَّماوَاتِ وَالأَرْضِ رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ ، أَشْهَدُ أَنْ لاَ إِلَهَ إِلاَّ أَنْتَ أَعُوْذُ بِكَ مِنْ شَرِّ نَفْسِي وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِي سُوءاً أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ",
+        transliterationSq: "All-llahume ّalimel-gajbi vesh-shehadeti fatires-semavati vel-erdi, Rabbe kul-le shej`in ve melikehu, eshhedu en la Ilahe il-la ente, eّudhu bike min sherri nefsive sherrish-shejtani ve shirkihi ve en akterife ّala nefsi su`en ev exhurrehu ila muslimin.",
+        translationSq: "O Zoti im, Ti je Ai i Cili i di të fshehtat dhe të dukshmet, Krijues i qiejve dhe i tokës, Zot i çdo sendi dhe Mbizotërues i saj, dëshmoj se nuk ka të adhuruar tjetër përveç Teje; kërkoj mbrojtjen Tënde nga e keqja e vetes sime dhe nga e keqja e djallit dhe nga ajo që ai (shejtani) shpie në shirk dhe kërkoj të më mbrosh që vetvetes e as ndonjë muslimani të mos i bëj keq.",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu dhe Ebu Davudi “Sahih Et-Tirmidhi” 3/142."
+      },
+      {
+        id: "7-12",
+        type: "text",
+        titleSq: "Lutja 12",
+        arabic: "بِسْمِ اللَّهِ الَّذِي لا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الارْضِ وَلا فِي السَّمَاءِ وَهُوَ السَّمِيعُ أَلْعَلِيمُ",
+        transliterationSq: "Bismil-lahil-ledhi la jedur-ru me`a-ismihi shej`un fil-erdi ve la fis-semai ve huves-semiّul- ّalim",
+        translationSq: "Me emrin e All-llahut pranë emrit të të Cilit nuk bën dëm asgjë në tokë e as në qiell, Ai që dëgjon shumë dhe di çdo send.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi 4/323, Tirmidhiu 5/465, Ibën Maxhe dhe Ahmedi. Shih “Sahih Ibën Maxhe” 2/332), Ibën Bazi në “Tuhfetul-Ahjar” fq.39, (senedi hasen) · \\\"Kush e thotë këtë tri herë në mëngjes dhe në mbrëmje, nuk i bëhet dëm asgjë.\\\""
+      },
+      {
+        id: "7-13",
+        type: "text",
+        titleSq: "Lutja 13",
+        arabic: "رَضِيْت بِاللَّهِ رباً وبالإِسلاَمِ دِيناً وبِمُحَمَّدٍ نَِبياًّ",
+        transliterationSq: "Redijtu bil-lahi Rabben ve bil-Islami dinen, ve bi Muhammedin nebijjen.",
+        translationSq: "Jam i kënaqur që Zoti im është All-llahu, feja ime është Islami dhe Pejgamberi im Muhammedi(ﷺ).",
+        repetitions: 1,
+        sourceSq: "(Ahmedi 4/337, Nesaiu në “Amelul-jevmi vel-lejleh” nr:4, Ibën Sunnijj nr:68, Ebu Davudi 4/418 dhe Tirmidhiu 5/465. Ibën Bazi në “Tuhfetul-Ahjar” fq.39 (hadith hasen). · \\\"Kush e thotë këtë çdo mëngjes dhe mbrëmje tri herë është obligim i All-llahut që ta kënaq atë ditën e Kijametit.\\\""
+      },
+      {
+        id: "7-14",
+        type: "text",
+        titleSq: "Lutja 14",
+        arabic: "يَا حَيُّ يَا قَيُّومُ بِرحمَتِكَ أََسْتَغِيثُ أَصْلِحْ ليِ شَأْنيِ كُلَّهُ وَ لاَ تَكِلْنيِ إِلىَ نََفْسِي طَرْفَةَ عَيْنٍ",
+        transliterationSq: "Ja Hajju ja Kajjumu bi rahmetike estegithu aslih li she`ni kul-lehu ve la tekilni ila nefsi tarfete ajnin.",
+        translationSq: "O i Gjallë përgjithmonë, O Mbikëqyrës i çdo gjëje, me mëshirën Tënde kërkoj ndihmë, ma përmirëso tërë gjendjen time dhe mos më lë të mbështetem në veten time, as sa një lëvizje e syrit.",
+        repetitions: 1,
+        sourceSq: "Sahih sipas Hakim, e ka pëlqyer edhe Dhehebiu 1/545. Shih “Sahihut-tergib vet-terhib” 1/273"
+      },
+      {
+        id: "7-15",
+        type: "text",
+        titleSq: "Lutja 15",
+        arabic: "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلِّهِ رَبِّ العَالَمِينَ ، اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ هَذِهِ اللَّيْلَةِ ، فَتْحَهَا ، وَنَصْرَهَا ، وَنُورَهَا وَبَرَكَتَهَا ، وَهُدَاهَا ، وأَعُوْذُ بِكَ مِنْ شَرِّ مَا فِيهَا وَشرِّ مَا بَعْدهَا",
+        transliterationSq: "Emsejna we emsel-Mulku lil-lahi Rabbil-ْalemin. All-llahumme inni es`eluke hajre hadhihil-lejleti fet-haha, ve nasreha ve nureha, ve bereketeha, ve hudaha, ve eّudhu bike min sherri ma fiha, ve sherri ma baّdeha.",
+        translationSq: "E arritëm mbrëmjen dhe e tërë pasuria i takon All-llahut, Zotit të botërave. O Zoti im, unë kërkoj mirësinë e kësaj nate, hapjen e saj, ndihmën e saj, dritën e saj, dhuntinë dhe udhëzimin e saj. Kërkoj të më mbrosh nga e keqja e saj dhe e netëve të tjera pas saj.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi 4/322; (isnad hasen) Sh. dhe A. Arnauti. Shih “Zadul-Me'ad” 2/273."
+      },
+      {
+        id: "7-16",
+        type: "text",
+        titleSq: "Lutja 16",
+        arabic: "أَمْسَيْنَا عَلَى فِطْرَةِ الإِسْلامِ ، وَعَلَى كَلِمَةِ الإِخْلاصِ ، وَعَلَى دِينِ نَبِيِّنَا مُحَمَّدٍ وَعَلَى مِلِّةِ أَبِينَا إِبْرَاهِيمَ حَنِيفاً مُسْلِماً وَمَا كَانَ مِنَ الْمُشْرِكِينَ",
+        transliterationSq: "Emsejna ّala fitretil-Islam ve ّala kelimetil-Ihlas, ve ّala dini nebijjina Muhammedin , ve ّala mil-leti ebina Ibrahime hanifen muslimen ve ma kane minel-mushrikin.",
+        translationSq: "E arritëm mbrëmjen në natyrshmërinë Islame, në fjalën e sinqertë (fjala: LA ILAHE IL-LALL-LLAH), në fenë e Pejgamberit tonë, Muhammedit dhe në popullin (fenë) e babait tonë Ibrahimit, i cili ka qenë besimdrejtë, musliman e nuk ka qenë prej mushrikëve (idhujtarëve).",
+        repetitions: 1,
+        sourceSq: "Ahmedi 3/406-407, Ibën Sunnijj në “Amelul-jevmi vel-lejleh” nr: 34 “Sahih El-Xhami'u” 4/209."
+      },
+      {
+        id: "7-17",
+        type: "text",
+        titleSq: "Lutja 17",
+        arabic: "سُبْحَانَ اللَّهِ وَبِحَمْدِه",
+        transliterationSq: "SubhanAll-llahi ve bihamdihi",
+        translationSq: "I Lartësuar qoftë All-llahu, Atij të Cilit i takon Lavdërimi.",
+        repetitions: 1,
+        sourceSq: "Muslimi 4/2071 · \\\"Kush e thotë këtë në mëngjes dhe në mbrëmje 100 herë, askush s'do të vijë Ditën e Kijametit me diç më të vlefshme se ky, përveç atij i cili ka thënë sikur ky apo më tepër.\\\""
+      },
+      {
+        id: "7-18",
+        type: "text",
+        titleSq: "Lutja 18",
+        arabic: "لا إِلَهَ إِلا اللَّهُ وَحْدَهُ لا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرَ",
+        transliterationSq: "La Ilahe il-lAll-llahu vahdehu la sherike leh, lehul-mulku ve lehul-hamdu ve huve ala kul-li shejin kadir. (10 herë, ose një herë kur përton).",
+        translationSq: "S'ka të adhuruar përveç All-llahut, Një dhe i pashoq, Atij i takon sundimi dhe Lavdërimi. Ai është i plotfuqishëm mbi çdo send (10 herë, ose një herë kur përton).",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi 4/319, Ibën Maxheh dhe Ahmedi 4/60, “Sahih Et-tergib vet-terhib” 1/270 dhe “Sahih Ebu Davud” 3/957, “Sahih Ibën Maxheh” 2/331 dhe “Zadul-Me'ad” 2/377."
+      },
+      {
+        id: "7-19",
+        type: "text",
+        titleSq: "Lutja 19",
+        arabic: "أَعُوْذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ",
+        transliterationSq: "E’ũdhu bi kelimãtil-lãhit-tãmmãti min sherri mã ḣaleḳa!",
+        translationSq: "Kërkoj mbrojtje me fjalët e përsosura të Allahut prej së keqes së çdo gjëje që Ai ka krijuar!",
+        repetitions: 1,
+        sourceSq: "Ahmedi (Sahih Tirmidhi dhe Tuhfetul Ahjar). · Pejgamberi ﷺ thotë: “Kush e thotë këtë lutje tri herë kur ngryset, atë nuk do ta dëmtojë kafshë helmuese (gjarpër ose akrep) atë natë."
+      },
+      {
+        id: "7-20",
+        type: "text",
+        titleSq: "Lutja 20",
+        arabic: "اللَّهُمّ صَلِّ وَ سلِّم على نَبِيِّنَا مُحَمَّدٍ",
+        transliterationSq: "All-llahumme sal-li ve sel-lim ّala nebijjina Muhammed (10 herë).",
+        translationSq: "O Allahu im, mëshiroje dhe përshëndete të Dërguarin tonë, Muhammedin.",
+        repetitions: 1,
+        sourceSq: ""
+      }
+    ]
+  },
+  {
+    number: 8,
+    categoryId: "shtepia-dhe-familja",
+    titleSq: "DUAJA KUR TË VESHIM RROBAT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "8-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "الْحَمْدُ للَّهِ الَّذِي كَسَانِي هَذَا الثَّوْبَ وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ.",
+        transliterationSq: "Elḥamdu lil-lãhil-ledhĩ kesãnĩ hãdhã (eth-thewbe) we razeḳanĩhi min ġajri ḥawlin minnĩ we lã ḳuwweh.",
+        translationSq: "Lavdia i takon Allahut, i Cili më mundësoi të vesh këtë rrobë dhe më furnizoi me të, pa lëvizje dhe pa fuqi nga ana ime.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi, Tirmidhiu dhe Ibn Maxhe. Albani e vlerëson si hadith të mirë."
+      }
+    ]
+  },
+  {
+    number: 9,
+    categoryId: "shtepia-dhe-familja",
+    titleSq: "DUAJA KUR TË VESHIM RROBA TË REJA",
+    guidanceSq: "",
+    items: [
+      {
+        id: "9-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ لَكَ الْحَمْدُ أَنْتَ كَسَوْتَنِيهِ، أَسْأَلُكَ مِنْ خَيْرِهِ وَخَيْرِ مَا صُنِعَ لَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّهِ وَشَرِّ مَا صُنِعَ لَهُ.",
+        transliterationSq: "All-llãhumme lekel-ḥamdu Ente kesewtenĩhi, es’eluke min ḣajrihi we ḣajri ma ṣuni’a lehu, we e’ũdhu bike min sherrihi we sherri mã ṣuni’a lehu.",
+        translationSq: "O Allah! Ty të takon lavdia! Ti më bëre rrizk këtë veshje. Të kërkoj të ma bësh të dobishme dhe të më mundësosh përdorimin e saj në të mirën për të cilën është prodhuar! Kërkoj të më mbrosh nga sherri i saj dhe nga përdorimi i saj për gjynahe!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi (Muhtesar Shemail)."
+      }
+    ]
+  },
+  {
+    number: 10,
+    categoryId: "shtepia-dhe-familja",
+    titleSq: "DUAJA PËR TJETRIN KUR VESH RROBA TË REJA",
+    guidanceSq: "",
+    items: [
+      {
+        id: "10-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "تُبْلِي وَيُخْلِفُ اللَّهُ تَعَالَى.",
+        transliterationSq: "Tublĩ we juḣlifull-llãhu te’ãlã.",
+        translationSq: "Allahu të dhëntë jetëgjatësi në të mirë), që kjo rrobë të vjetërohet dhe të ta zëvendësojë Allahu i Lartësuar me të tjera.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi (Sahih Ebu Davud)."
+      },
+      {
+        id: "10-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اِلْبِسْ جَدِيدًا وَعِشْ حَمِيدًا وَمُتْ شَهِيدًا.",
+        transliterationSq: "Ilbis xhedĩden, we ‘ish ḥamĩden, we mut shehĩden.",
+        translationSq: "Veshç gjithmonë të reja, jetofsh i nderuar dhe vdeksh si dëshmor!",
+        repetitions: 1,
+        sourceSq: "Ibn Maxhe (Sahih Ibn Maxhe)."
+      }
+    ]
+  },
+  {
+    number: 11,
+    categoryId: "shtepia-dhe-familja",
+    titleSq: "KUR E ZHVESHIM RROBËN",
+    guidanceSq: "",
+    items: [
+      {
+        id: "11-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بِسْمِ اللَّهِ.",
+        transliterationSq: "Bismil-lãh.",
+        translationSq: "Me emrin e Allahut.",
+        repetitions: 1,
+        sourceSq: ""
+      }
+    ]
+  },
+  {
+    number: 12,
+    categoryId: "shtepia-dhe-familja",
+    titleSq: "PARA SE TË HYJMË NË TUALET",
+    guidanceSq: "",
+    items: [
+      {
+        id: "12-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بِسْمِ اللَّهِ، اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبْثِ وَالْخَبائِثِ.",
+        transliterationSq: "Bismil-lãh, All-llãhumme innĩ e’ũdhu bike minel-ḣubuthi wel-ḣabãith.",
+        translationSq: "Me emrin e Allahut. O Allah! Të lutem më mbroj nga shejtanët dhe shejtanet!",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      }
+    ]
+  },
+  {
+    number: 13,
+    categoryId: "shtepia-dhe-familja",
+    titleSq: "PASI TË DALIM NË TUALET",
+    guidanceSq: "",
+    items: [
+      {
+        id: "13-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "غُفْرَانَكَ.",
+        transliterationSq: "Ġufrãneke",
+        translationSq: "Kërkoj faljen Tënde, o Zot!",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu (Sahih Sunen Ebi Davud)."
+      }
+    ]
+  },
+  {
+    number: 14,
+    categoryId: "shtepia-dhe-familja",
+    titleSq: "KUR TË DALIM NGA SHTËPIA",
+    guidanceSq: "",
+    items: [
+      {
+        id: "14-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ.",
+        transliterationSq: "Bismil-lãh, tewekkeltu ‘alall-llãhi we lã ḥawle we lã ḳuwwete il-lã bil-lãh.",
+        translationSq: "Në emër të Allahut! Jam mbështetur tek Allahu! S’mund të bëhet asnjë lëvizje dhe s’ka fuqi për asgjë veçse me ndihmën e Allahut.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi dhe Tirmidhiu (Sahih Tirmidhi)."
+      },
+      {
+        id: "14-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ أَنْ أَضِلَّ، أَوْ أُضَلَّ، أَوْ أَزِلَّ، أَوْ أُزَلَّ، أَوْ أَظْلِمَ، أَوْ أُظْلَمَ، أَوْ أَجْهَلَ، أَوْ يُجْهَلَ عَلَيَّ.",
+        transliterationSq: "All-llãhumme innĩ e’ũdhu bike en eḍil-le ew uḍal-le, ew ezil-le ew uzel-le, ew eḍhlime ew uḍhleme, ew exhhele ew juxhhele ‘alejje.",
+        translationSq: "O Allah! Më ruaj që të mos bie në humbje dhe të mos më çojë ndokush në humbje; që të mos gabohem dhe të mos më gabojë kush; që të mos dëmtoj ndokënd dhe të mos më dëmtojë kush; që të mos sillem keq me askënd dhe të mos sillet keq askush me mua!",
+        repetitions: 1,
+        sourceSq: "Katër sunenet (Sahih Tirmidhi)."
+      }
+    ]
+  },
+  {
+    number: 15,
+    categoryId: "shtepia-dhe-familja",
+    titleSq: "KUR TË HYJMË NË SHTËPI",
+    guidanceSq: "",
+    items: [
+      {
+        id: "15-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بِسْمِ اللَّهِ وَلَجْنَا، وَبِسْمِ اللَّهِ خَرَجْنَا، وَعَلَى اللَّهِ رَبِّنَا تَوَكَّلْنَا.",
+        transliterationSq: "Bismil-lãhi welexh’nã, we bismil-lãhi ḣaraxh’nã we ‘alall-llãhi rabbinã tewekkelnã.",
+        translationSq: "Pejgamberi ﷺ thotë: “Kur burri hyn në shtëpi, le të thotë: Me emrin e Allahut hyjmë në shtëpi e po me emrin e Tij dalim, dhe Allahut, Zotit tonë, iu mbështetëm!”. Pastaj le t’i japë selam familjes së vet.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi. Sipas Ibn Bazit senedi është i mirë. Muslimi · Por kur hyjmë në shtëpi, themi: «Bismilah», sepse në një hadith tjetër të saktë, Pejgamberi ﷺ thotë: “Kur njeriu hyn në shtëpinë e vet dhe përmend Allahun teksa hyn dhe kur fillon ushqimin, shejtani u thotë vëllezërve, ndihmësave dhe shokëve të tij po prej shejtanëve: ‘Këtë natë nuk keni as vend për të ndenjur dhe as darkë!»"
+      }
+    ]
+  },
+  {
+    number: 16,
+    categoryId: "shtepia-dhe-familja",
+    titleSq: "DUAJA PËR LARGIMIN E SHEJTANIT DHE VESVESEVE TË TIJ",
+    guidanceSq: "",
+    items: [
+      {
+        id: "16-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أَعُوذُ بِاللَّهِ مِنَ الشَّيطَانِ الرَّجِيمِ.",
+        transliterationSq: "E’ũdhu bil-lãhi minesh-shejṭãnirr-rraxhĩm.",
+        translationSq: "T’i lutemi Allahut të na mbrojë nga shejtani, duke thënë: Të thërrasim ezanin. Të bëjmë dhikrin ditor dhe të lexojmë Kuran.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi (Sahih Tirmidhi). Shih dhe ajetet 98-99 të sures El-Mu’minun. Buhariu dhe Muslimi. · Pejgamberi ﷺ thotë: “Mos i bëni shtëpitë tuaja varreza, sepse shejtani largohet nga ajo shtëpi, ku lexohet sureja El-Bekare”. (Muslimi). Nga gjërat që e largojnë shejtanin është edhe dhikri i mëngjesit dhe i mbrëmjes; dhikri para gjumit dhe kur ngrihesh prej tij; dhikri i hyrjes në shtëpi dhe daljes prej saj; dhikri i hyrjes në xhami dhe daljes prej saj; por edhe dhikret e tjera të ligjshme, si: leximi i Kuranit, leximi i Ajetit Kursi, leximi i dy ajeteve të fundit të sures el Bekare. Po ashtu, ai që thotë “Lã ilãhe il-lallãhu waḥdehû lã sherîke lehu, lehul mulku we lehul ḥamdu we huwe ‘alã kul-li shej’in ḳadĩr” (njëqind herë) është i mbrojtur nga shejtani gjatë gjithë ditës. Po kështu, ezani e largon shejtanin."
+      }
+    ]
+  },
+  {
+    number: 17,
+    categoryId: "shtepia-dhe-familja",
+    titleSq: "DUAJA PËR TË POSAMARTUARIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "17-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بَارَكَ اللَّهُ لَكَ، وَبَارَكَ عَلَيْكَ، وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ.",
+        transliterationSq: "Bãrakall-llãhu leke we bãrake ‘alejke we xheme’a bejnekumã fĩ ḣajr!",
+        translationSq: "Allahu të begatoftë me këtë grua, të dhëntë bollëk për ta mbajtur e ushqyer, dhe ju bashkoftë të dy në të mirë!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi (Sahih Tirmidhi)."
+      }
+    ]
+  },
+  {
+    number: 18,
+    categoryId: "shtepia-dhe-familja",
+    titleSq: "DUAJA PARA MARRDHËNIEVE INTIME",
+    guidanceSq: "",
+    items: [
+      {
+        id: "18-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بِسْمِ اللَّـهِ، اللَّهُمَّ جَنِّـبْنَا الشَّيْطَانَ، وَجَنِّبِ الشَّيْطَانَ مَا رَزَقْتَنَا.",
+        transliterationSq: "Bismil-lãh! All-llãhumme xhennibnã esh-shejṭãne, we xhennibish- shejṭãne mã razeḳtena.",
+        translationSq: "Me emrin e Allahut, o Allah! Largoje shejtanin nga ne dhe largoje edhe nga fëmija që Ti na e bën rrizk!",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      }
+    ]
+  },
+  {
+    number: 19,
+    categoryId: "shtepia-dhe-familja",
+    titleSq: "DUAJA E ATIJ QË FRIKËSOHET SE MOS PO MERR MËSYSH DIKË",
+    guidanceSq: "",
+    items: [
+      {
+        id: "19-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ thotë: “Kur ndonjëri prej jush sheh tek vëllai i tij, ose vetvetja, ose pasuria e tij, diçka që i pëlqen, le të bëjë lutje për bereqet (اللَّهُمَّ بَارِك عَلَيْهِ) – “All-llãhumme barik ‘alejhi!” (O Allah, begatoje atë dhe shtoja të mirat!) – pasi mësyshi është hak.",
+        repetitions: 1,
+        sourceSq: "Ahmedi, Ibn Maxhe dhe Maliku (Sahih Ibn Maxhe)."
+      }
+    ]
+  },
+  {
+    number: 20,
+    categoryId: "shtepia-dhe-familja",
+    titleSq: "ÇFARË THUHET PËR LARGIMIN E KURTHEVE TË SHEJTANIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "20-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أَعُوذُ بكَلِمَاتِ اللَّهِ التَّامَّاتِ الَّتِي لَا يُجَاوِزُهُنَّ بَرٌّ وَلَا فَاجِرٌ: مِنْ شَرِّ مَا خَلَقَ، وَبَرَأَ وَذَرَأَ، وَمِنْ شَرِّ مَا يَنْزِلُ مِنَ السَّمَاءِ، وَمِنْ شَرِّ مَا يَعْرُجُ فيهَا، وَمِنْ شَرِّ مَا ذَرَأَ فِي الْأَرْضِ، وَمِنْ شَرِّ مَا يَخْرُجُ مِنْهَا، وَمِنْ شَرِّ فِتَنِ اللَّيْلِ وَالنَّهَارِ، وَمِنْ شَرِّ كُلِّ طَارِقٍ إِلَّا طَارِقًا يَطْرُقُ بِخَيْرٍ يَا رَحْمَنُ.",
+        transliterationSq: "E’ũdhu bi kelimãtil-lãhit-tãmmãtil-letĩ lã juxhãwizuhunne berrun, we lã fãxhirun min sherri mã ḣaleḳa, we berae, we dherae, we min sherri mã jenzilu mines-semãi, we min sherri mã ja’ëruxhu fĩhã, we min sherri mã dherae fil erḍi, we min sherri mã jeḣruxhu minhã, we min sherri fitenil-lejli wen-nehãri, we min sherri kul-li ṭãriḳin, il-lã ṭãriḳan jeṭruḳu bi ḣajrin, jã Rahmãn.",
+        translationSq: "Kërkoj mbrojtje me fjalët e përsosura të Allahut, të cilat nuk i kalojnë dot as të mirët as të këqijtë, nga sherri i gjithçkaje që Ai ka krijuar, nga sherri i gjithçkaje që zbret nga qielli (dënimeve), nga sherri i gjithçkaje që ngjitet në të (punëve të këqija që sjellin dënim), nga sherri i çdo krijese mbi sipërfaqen e tokës, nga sherri i çdo gjëje që del prej nëntoke, nga sherri i sprovave të natës dhe të ditës, nga sherri i çdo ndodhie, përveç një ndodhie që vjen me të mirë, o Mëshirues!",
+        repetitions: 1,
+        sourceSq: "Ahmedi dhe Ibn Sunni."
+      }
+    ]
+  },
+  {
+    number: 21,
+    categoryId: "shtepia-dhe-familja",
+    titleSq: "DISA PUNË TË MIRA DHE RREGULLA TË PËRGJITHSHME",
+    guidanceSq: "",
+    items: [
+      {
+        id: "21-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ ka thënë: “Kur të fillojë të erret, mbajini fëmijët të mos dalin nga shtëpia, sepse shejtanët (xhindët) përhapen në këtë kohë. Më pas, kur të kalojë njëfarë kohe prej natës, lërini të dalin. Mbyllini dyert, duke përmendur emrin e Allahut (Bismilãh), sepse shejtani nuk mund të hapë një derë të mbyllur. Lidhini grykat e calikëve, duke përmendur emrin e Allahut. Mbulojini enët, duke përmendur emrin e Allahut, qoftë edhe duke vendosur për së gjeri mbi enë diçka (si shkop etj.). Fikni kandilët (qirinjtë etj.).",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      }
+    ]
+  },
+  {
+    number: 22,
+    categoryId: "udhetim",
+    titleSq: "DUAJA GJATË HIPJES NË MJETIN E UDHËTIMIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "22-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بِسْمِ اللَّهِ، وَالْحَمْدُ للَّهِ، ﴿سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَـمُنْقَلِبُونَ﴾، الْحَمْدُ لِلَّهِ، الْحَمْدُ لِلَّهِ، الْحَمْدُ لِلَّهِ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، سُبْحَانَكَ اللَّهُمَّ إِنِّي ظَلَمْتُ نَفْسِي فَاغْفِرْ لِي؛ فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ.",
+        transliterationSq: "“Bismil-lãh” welḥamdu lil-lãh. “Subḥãnel-ledhĩ seḣ-ḣara lenã hãdhã, we mã kunna lehũ muḳrinĩn, we innã ilã Rabbinã le munḳalibũn”. Elḥamdu lil-lãh, Elḥamdu lil-lãh, Elḥamdu lil-lãh! All-llãhu Ekber, All-llãhu Ekber, All-llãhu Ekber! Subḥãnekall-llãhumme innĩ ḍhalemtu nefsĩ, feġfir lĩ, fe innehu lã jeġfirudh-dhunũbe il-lã Ente.",
+        translationSq: "Me emrin e Allahut! Falënderimi i takon Allahut! I Dëlirë nga të metat është Ai që na dha mundësi ta përdorim këtë (kafshë a mjet), se ne nuk do të mund ta kishim atë nën pushtet, dhe ne me siguri pas vdekjes do të kthehemi te Zoti ynë! Falënderimi i takon Allahut! Falënderimi i takon Allahut! Falënderimi i takon Allahut! Allahu është më i madhi! Allahu është më i madhi! Allahu është më i Madhi! I Patëmeta je Ti o Allah! Me të vërtetë, unë i kam bërë padrejtësi vetes duke bërë gjynahe, prandaj m’i fal gjynahet, se askush tjetër veç Teje nuk mund t’i falë ato!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi dhe Tirmidhiu. (Sahih Tirmidhi)."
+      }
+    ]
+  },
+  {
+    number: 23,
+    categoryId: "udhetim",
+    titleSq: "DUAJA E UDHËTIMIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "23-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، ﴿سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَـمُنْقَلِبُونَ﴾. اللَّهُــــمَّ إِنَّــــــا نَسْــــــــــــأَلُكَ فِي سَـــــــفَـــــــرِنَا هَـــــــــذَا البِـــــرَّ وَالتَّــــقْوَى، وَمِــنَ الْعَــــمَلِ مَــا تَرْضَى، اللَّهُــــمَّ هَــــوِّنْ عَلَيْــــنَا سَــفَرَنَا هَذَا وَاطْوِ عَنَّا بُعْدَهُ، اللَّهُــــمَّ أَنْتَ الصَّــــاحِبُ فِي السَّـــــفَرِ، وَالْخَليفَةُ فِي الْأَهْلِ، اللَّهُــمَّ إِنِّي أَعُوذُ بِكَ مِنْ وَعْـــــثَاءِ السَّـــفَرِ، وَكَآبَةِ الْمَنْــــظَرِ، وَسُوءِ الْمُنْـــقَلَبِ فِي الْمَالِ وَالْأَهْلِ.",
+        transliterationSq: "All-llãhu Ekber, All-llãhu Ekber, All-llãhu Ekber! Subḥãnel-ledhĩ seḣ-ḣara lenã hãdhã, we mã kunnã lehũ muḳrinĩn, we inna ilã Rabbinã le munḳalibũn. All-llãhumme innã nes’eluke fĩ seferinã hãdhã el birr-rra wet-taḳwã, we minel ‘ameli mã terḍã, All-llãhumme hewwin ‘alejnã seferanã hãdhã, weṭwi ‘annã bu’ëdehu, All-llãhumme Enteṣ-ṣãḥibu fis-seferi, wel ḣalĩfetu fil ehli, All-llãhumme innĩ e’ũdhu bike min wa’ëthãis-sefer, we keãbetil menḍhar, we sũil munḳalebi fil mãli wel ehl.",
+        translationSq: "Allahu është më i Madhi! Allahu është më i Madhi! Allahu është më i Madhi! “I Pastër nga të metat është Ai që na dha mundësi ta përdorim këtë (kafshë a mjet), se ne nuk do të mund ta kishim atë në përdorim, dhe ne me siguri pas vdekjes do të kthehemi te Zoti ynë!”. O Allah! Ne të lutemi që, në këtë udhëtim, të na mundësosh të bëjmë vepra të mira, të ruhemi nga gjynahet dhe të bëjmë ato punë të cilat Ti i pëlqen! O Allah! Na e lehtëso udhëtimin dhe na e mundëso ta përshkojmë shpejt dhe pa vështirësi distancën e largët! O Allah! Ti je Shoqëruesi (Ruajtësi dhe Ndihmuesi) ynë në udhëtim dhe Ai që kujdeset për familjet tona. O Allah, më ruaj nga vështirësitë e udhëtimit, nga pamja e gjendja e trishtueshme dhe nga kthimi hidhërues për gjendjen e pasurisë dhe të familjes!). Edhe kur kthehesh, thuhen të njëjtat fjalë, duke shtuar: آيبُونَ، تَائِبُونَ، عَابِدُونَ، لِرَبِّنَا حَامِدُونَ. Ãjibũne, tãibũne, ‘ãbidũne li rabbinã ḥãmidũn! Po kthehemi nga udhëtimi të penduar për gjynahet, adhurues, dhe falënderues ndaj Zotit tonë!",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      }
+    ]
+  },
+  {
+    number: 24,
+    categoryId: "udhetim",
+    titleSq: "DUAJA E HYRJES NË NDONJË FSHAT APO QYTET",
+    guidanceSq: "",
+    items: [
+      {
+        id: "24-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ رَبَّ السَّمَوَاتِ السَّبْعِ وَمَا أَظْلَلْنَ، وَرَبَّ الأَرَضِينَ السَّبْعِ وَمَا أَقْلَلْنَ، وَرَبَّ الشَّياطِينِ وَمَا أَضْلَلْنَ، وَرَبَّ الرِّيَاحِ وَمَا ذَرَيْنَ، أَسْأَلُكَ خَيْرَ هَذِهِ الْقَرْيَةِ، وَخَيْرَ أَهْلِهَا، وَخَيْرَ مَا فِيهَا، وَأَعُوذُ بِكَ مِنْ شَرِّهَا، وَشَرِّ أَهْلِهَا، وَشَرِّ مَا فِيهَا.",
+        transliterationSq: "All-llãhumme Rabbes-semãwãtis-seb’i we mã aḍhlelne we rabbel erãḍĩnes-seb’i we mã aḳlelne, we Rabbesh-shejãṭĩni we mã aḍlelne, we Rabberr-rrijãḥi we mã dherajne! Es’eluke ḣajra hãdhihil ḳarjeti we ḣajra ehlihã we ḣajra mã fĩhã, we e’ũdhu bike min sherrihã we sherri ehlihã we sherri mã fĩhã.",
+        translationSq: "O Allah, Zot i shtatë qiejve dhe gjithçkaje që qiejtë kanë nën strehë! Zot i shtatë tokave dhe gjithçkaje që ato mbajnë! Zot i shejtanëve dhe atyre që ata i kanë çuar në humbje! Zot i erës dhe asaj që ato shpërndajnë! Të lutem të më japësh të mirën e këtij vendbanimi, të mirën që vjen nga banorët e tij, të mirën e gjithçkaje që gjendet në të! Të kërkoj të më mbrosh nga dëmi i këtij vendbanimi, dëmi i banorëve të tij dhe dëmi i gjithçkaje në të!",
+        repetitions: 1,
+        sourceSq: "Hakimi dhe Ibn Sunni."
+      }
+    ]
+  },
+  {
+    number: 25,
+    categoryId: "udhetim",
+    titleSq: "DUAJA E HYRJES NË TREG",
+    guidanceSq: "",
+    items: [
+      {
+        id: "25-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "لَا إلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيْكَ لَهُ، لَهُ الـمُلْكُ وَلَهُ الْـحَمْدُ، يُحْيِي وَيُمِيتُ، وَهُوَ حَيٌّ لَا يَمُوتُ، بِيَدِهِ الْخَيْرُ، وَهُوَ عَلَى كُلِّ شَيءٍ قَدِيرٌ.",
+        transliterationSq: "Lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh, lehul mulku we lehul ḥamdu, juḥjĩ we jumĩt, we huwe Ḥajjun lã jemũtu, bi jedihil ḣajru, we huwe ‘alã kul-li shej’in ḳadĩr.",
+        translationSq: "S’ka të adhuruar me të drejtë veç Allahut, Një dhe i Pashoq! Atij i takon sundimi dhe lavdia. Ai jep jetë dhe jep vdekje! Ai është i Gjallë, i Pavdekshëm! E gjithë e mira është në dorë të Tij. Dhe Ai është i Plotfuqishëm për çdo gjë!",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu (Sahih Tirmidhi)."
+      }
+    ]
+  },
+  {
+    number: 26,
+    categoryId: "udhetim",
+    titleSq: "DUAJA KUR TË PENGOHET MJETI I UDHËTIMIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "26-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بِسْمِ اللَّـهِ.",
+        transliterationSq: "Bismil-lãh.",
+        translationSq: "Me emrin e Allahut.",
+        repetitions: 1,
+        sourceSq: "Ebu Davud (Sahih Ebu Davud)."
+      }
+    ]
+  },
+  {
+    number: 27,
+    categoryId: "udhetim",
+    titleSq: "DUAJA E UDHËTARIT PËR ATË QË NUK UDHËTON",
+    guidanceSq: "",
+    items: [
+      {
+        id: "27-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أَسْتَوْدِعُكُمُ اللهَ، الَّذِي لَا تَضِيعُ وَدَائِعُهُ.",
+        transliterationSq: "Estewdi’ukumull-llãhe el-ledhĩ lã teḍĩ’u wedãi’uhu.",
+        translationSq: "Ju lë amanet tek Allahu, të Cilit nuk i humbin amanetet.",
+        repetitions: 1,
+        sourceSq: "Ahmedi (Sahih Ibn Maxhe)."
+      }
+    ]
+  },
+  {
+    number: 28,
+    categoryId: "udhetim",
+    titleSq: "DUAJA E ATIJ QË NUK UDHËTON PËR UDHËTARIN",
+    guidanceSq: "",
+    items: [
+      {
+        id: "28-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أَسْتَوْدِعُ اللَّهَ دِينَكَ، وَأَمَانَتَكَ، وَخَوَاتِيمَ عَمَلِكَ.",
+        transliterationSq: "Estewdi’ull-llãhe dĩneke we emãnetek, we ḣawãtĩme ‘amelike!",
+        translationSq: "Po i lë amanet Allahut fenë tënde, amanetin tënd dhe përfundimin e veprave të tua!",
+        repetitions: 1,
+        sourceSq: "Ahmedi (Sahih Tirmidhi)."
+      },
+      {
+        id: "28-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "زَوَّدَكَ اللهُ التَّقْوَى، وَغَفَرَ ذَنْبَكَ، وَ يَسَّرَ لَكَ الـخَيْرَ حَيْثُ مَا كُنْتَ.",
+        transliterationSq: "Zewwedekall-llãhut-taḳwã, we ġafera dhenbeke, we jessera lekel ḣajra ḥajthu mã kunte!",
+        translationSq: "Allahu të pajistë me devotshmëri! Allahu të faltë gjynahun! Allahu ta bëftë mbarë të mirën, kudo qofsh!",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu (Sahih Tirmidhi)."
+      }
+    ]
+  },
+  {
+    number: 29,
+    categoryId: "udhetim",
+    titleSq: "TEKBIRI DHE TESBIHU GJATË UDHËTIMIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "29-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Xhabiri (Allahu qoftë i kënaqur me të) tregon se kur ngjiteshin përpjetë, thonin (اللَّهُ أَكْبَرُ) All-llãhu Ekber, kurse kur zbrisnin tatëpjetë, thonin (سُبْحَانَ اللَّهِ) ‘Subḥãnall-llãh’.",
+        repetitions: 1,
+        sourceSq: "Buhariu"
+      }
+    ]
+  },
+  {
+    number: 30,
+    categoryId: "udhetim",
+    titleSq: "DUAJA E UDHËTARIT PARA AGIMIT TË MËNGJESIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "30-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "سَمِعَ سَامِعٌ بِـحَمْدِ اللَّـهِ، وَحُسْنِ بَلائِهِ عَلَيْنَا، رَبَّنَا صَاحِبْنَا، وَأَفْضِلْ عَلَيْنَا عَائِذًا بِاللـهِ مِنَ النَّارِ.",
+        transliterationSq: "Semmia sãmi’un biḥamdil-lãhi we ḥusni belãihi ‘alejnã, Rabbenã ṣãḥibnã we efḍil ‘alejnã ‘ãidhen bil-lãhi minen-nãr.",
+        translationSq: "Kush dëgjon lavdin që po i bëjmë Allahut për begatitë dhe mirënjohjen që po i shprehim Atij për mirësitë, le t’ia përcjellë një tjetri! O Zoti ynë! Na ruaj dhe na jep mirësi! I lutemi Allahut të na mbrojë nga Zjarri!",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      }
+    ]
+  },
+  {
+    number: 31,
+    categoryId: "udhetim",
+    titleSq: "DUAJA KUR TË NDALEMI NË NDONJË VEND, QOFTË NË UDHËTIM APO JO",
+    guidanceSq: "",
+    items: [
+      {
+        id: "31-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ.",
+        transliterationSq: "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ.",
+        translationSq: "Mbrohem me fjalët e përkryera të Allahut nga sherri i gjithçkaje që Ai ka krijuar!",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      }
+    ]
+  },
+  {
+    number: 32,
+    categoryId: "udhetim",
+    titleSq: "DUAJA E KTHIMIT NGA UDHËTIMI",
+    guidanceSq: "",
+    items: [
+      {
+        id: "32-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ، وَلَهُ الْحَمْدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، آيِبُونَ، تَائِبُونَ، عَابِدُونَ، لِرَبِّنا حَامِدُونَ، صَدَقَ اللَّهُ وَعْدَهُ، وَنَصَرَ عَبْدَهُ، وَهَزَمَ الْأَحْزابَ وَحْدَهُ.",
+        transliterationSq: "Lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh, lehul mulku, we lehul ḥamdu, we huwe ‘alã kul-li shej’in ḳadĩr, ãjibũne, tãibũne, ‘ãbidũne, li Rabbinã ḥãmidũn. Sadeḳall-llãhu wa’ëdehu, we neṣara ‘abdehu, we hezemel aḥzãbe waḥdehu.",
+        translationSq: "Kur kthehej nga udhëtimi i luftës ose haxhit, Profeti ﷺ bënte tri tekbir-e mbi çdo vend të ngritur të tokës, e pastaj thoshte: S’ka të adhuruar me të drejtë përveç Allahut, Një dhe i Pashoq! Vetëm Atij i përket sundimi dhe lavdia. Ai është i Fuqishëm për çdo gjë! Po kthehemi nga udhëtimi të penduar për gjynahet, adhurues dhe falënderues ndaj Zotit tonë! Allahu e përmbushi premtimin e Vet (me ngadhënjimin e fesë), e ndihmoi robin e Vet për fitoren kundër qafirëve dhe i mposhti i Vetëm grupet aleate (në luftën e Hendekut, pa bërë luftë muslimanët).",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi. · Profeti ﷺ e bënte këtë dhikër kur kthehej nga ndonjë betejë ose nga haxhi."
+      }
+    ]
+  },
+  {
+    number: 33,
+    categoryId: "ushqim-dhe-pije",
+    titleSq: "DUAJA E AGJËRUESIT KUR BËN IFTAR",
+    guidanceSq: "",
+    items: [
+      {
+        id: "33-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "ذَهَبَ الظَّمَأُ وَابْتَلَّتِ العُرُوقُ، وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ.",
+        transliterationSq: "Dhehebeḍh-ḍhameu webtel-letil ‘urũḳu we thebetel exhru in-shã-All-llãh.",
+        translationSq: "Shkoi etja, arriti uji në damarët e gjakut dhe u arrit shpërblimi, në dashtë Allahu!",
+        repetitions: 1,
+        sourceSq: "Ebu Davud (Sahih Xhami)."
+      },
+      {
+        id: "33-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ بِرَحْمَتِكَ الَّتِي وَسِعَتْ كُلَّ شَيْءٍ أَنْ تَغْفِرَ لِي.",
+        transliterationSq: "All-llãhumme innĩ es’eluke bi raḥmetikel-letĩ wesi’at kul-le shej’in en teġfira lĩ.",
+        translationSq: "O Allah, të lutem me mëshirën Tënde e cila ka përfshirë çdo gjë, që të më falësh.",
+        repetitions: 1,
+        sourceSq: "Ibn Maxhe. Këtë lutje e bënte Abdullah Ibn Amri  kur çelte iftarin. Ibn Haxheri në ‘tahrixhul edhkar’ e quan transmetim të mirë."
+      }
+    ]
+  },
+  {
+    number: 34,
+    categoryId: "ushqim-dhe-pije",
+    titleSq: "DUAJA PARA USHQIMIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "34-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بِسْمِ اللَّـهِ.",
+        transliterationSq: "Bismil-lãh.",
+        translationSq: "Me emrin e Allahut",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "34-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "بِسْمِ اللَّهِ فِي أَوَّلِهِ وَآخِرِهِ.",
+        transliterationSq: "Bismil-lãhi, fĩ ewwelihi we ãḣirihi!",
+        translationSq: "Nëse ndonjëri harron të përmendë emrin e Allahut në fillim të ushqimit, le të thotë: Me emrin e Allahut, në fillim dhe në fund të ushqimit!",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "34-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "اللَّهُمَّ بَارِكْ لَنَا فِيهِ وَأَطْعِمْنَا خَيْرًا مِنْهُ.",
+        transliterationSq: "All-llãhumme bãrik lenã fĩhi we eṭ’imnã ḣajran minhu!",
+        translationSq: "O Allah! Na e begato këtë ushqim dhe na jep diçka më të mirë se ky!",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "34-4",
+        type: "text",
+        titleSq: "Lutja 4",
+        arabic: "اللَّهُمَّ بَارِكْ لَـنَا فِيْهِ، وَزِدْنَا مِنْهُ",
+        transliterationSq: "All-llãhumme bãrik lenã fĩhi we zidnã minhu!",
+        translationSq: "O Allah! Na e bëj të begatshëm dhe na e shto!",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu (Sahih Tirmidhi)"
+      }
+    ]
+  },
+  {
+    number: 35,
+    categoryId: "ushqim-dhe-pije",
+    titleSq: "DUAJA PAS USHQIMIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "35-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنِي هَذَا، وَرَزَقَنِيهِ، مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ.",
+        transliterationSq: "Elḥamdu lil-lãhil-ledhĩ eṭ’amenĩ hãdhã we razeḳanĩhi min ġajri ḥawlin minnĩ we lã ḳuwweh!",
+        translationSq: "Lavdia i takon Allahut, i Cili më ushqeu dhe më furnizoi me këtë ushqim, pa asnjë manovrim nga unë dhe pa aspak fuqi të timen!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi (Sahih Tirmidhi)."
+      },
+      {
+        id: "35-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "الْحَمْدُ لِلَّهِ حَمْدًا كَثِيرًا طَيِّبًا مُبَارَكًا فِيهِ، غَيْرَ [مَكْفِيٍّ وَلَا] مُوَدَّعٍ، وَلَا مُسْتَغْنًى عَنْهُ رَبَّنَا.",
+        transliterationSq: "Elḥamdu lil-lãhi ḥamden kethĩran ṭajjiben mubãraken fĩhi, ġajra mekfijjin we lã muwedde’in, we lã musteġnen ‘anhu Rabbenã.",
+        translationSq: "Lavdia i takon Allahut! Atij i bëjmë shumë lavdi të dëlira (pa syfaqësi) dhe të bekuara (të vazhdueshme)! Këto lavdi nuk mjaftojnë për t’i bërë lavdi si duhet Allahut, por megjithëkëtë ne nuk kemi për t’i lënë ato. Ne do të kemi nevojë për t’i bërë lavdi Allahut në vazhdimësi e në çdo gjendje. O Zoti ynë, pranoje lavdërimin tonë.",
+        repetitions: 1,
+        sourceSq: "Buhariu"
+      }
+    ]
+  },
+  {
+    number: 36,
+    categoryId: "ushqim-dhe-pije",
+    titleSq: "DUAJA E MYSAFIRIT PËR NIKOÇIRIN",
+    guidanceSq: "",
+    items: [
+      {
+        id: "36-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ بَارِكْ لَهُمْ فِيمَا رَزَقْتَهُم، وَاغْفِرْ لَهُمْ وَارْحَمْهُمْ.",
+        transliterationSq: "All-llãhumme bãrik lehum fĩ-mã razeḳtehum weġfir lehum, werḥamhum.",
+        translationSq: "O Allah! Bëje të begatshëm rrizkun (furnizimin) që u ke dhënë, fali dhe mëshiroji.",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      }
+    ]
+  },
+  {
+    number: 37,
+    categoryId: "ushqim-dhe-pije",
+    titleSq: "DUAJA PËR ATË QË TË JEP USHQIM APO UJË",
+    guidanceSq: "",
+    items: [
+      {
+        id: "37-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ أَطْعِمْ مَنْ أَطْعَمَنِي، وَاسْقِ مَنْ سَقَانِي.",
+        transliterationSq: "All-llãhumme eṭ’im men eṭ’amenĩ, wesḳi men seḳãnĩ.",
+        translationSq: "O Allah! Ushqeje atë që më jep ushqim dhe jepi të pijë atij që më jep mua të pi.",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      }
+    ]
+  },
+  {
+    number: 38,
+    categoryId: "ushqim-dhe-pije",
+    titleSq: "DUAJA KUR BËJMË IFTAR TEK NDONJË FAMILJE",
+    guidanceSq: "",
+    items: [
+      {
+        id: "38-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أَفْطَرَ عِنْدَكُمُ الصَّائِمُونَ، وَأَكَلَ طَعَامَكُمُ الْأَبْرَارُ، وَصَلَّتْ عَلَيْكُمُ الْمَلَائِكَةُ.",
+        transliterationSq: "Efṭara ‘indekumuṣ-ṣãimũne we ekele ṭa’ãmekumul ebrãru, we ṣal-let ‘alejkumul melãikeh.",
+        translationSq: "Bëfshin iftar te ju agjëruesit, ushqimin tuaj e ngrënshin njerëzit e mirë dhe për ju bëfshin lutje melekët.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi (Sahih Ebi Davud) dhe Nesaiu në «amelul jeumi uel-lejli»."
+      }
+    ]
+  },
+  {
+    number: 39,
+    categoryId: "ushqim-dhe-pije",
+    titleSq: "DUAJA E AGJËRUESIT KUR I OFROHET USHQIMI DHE NUK HA",
+    guidanceSq: "",
+    items: [
+      {
+        id: "39-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ thotë: “Kur ndonjëri ftohet (për të ngrënë ushqim), le t’i përgjigjet ftesës. Nëse është agjërues, le të bëjë lutje për atë që ka shtruar ushqimin, e nëse nuk është agjërues, le të hajë ushqim”.",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      }
+    ]
+  },
+  {
+    number: 40,
+    categoryId: "gezim-dhe-shqetesim",
+    titleSq: "LUTJET NË RASTE TË BRENGOSJES DHE PIKËLLIMIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "40-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ إِنِّي عَبْدُكَ، ابْنُ عَبْدِكَ، ابْنُ أَمَتِكَ، نَاصِيَتِي بِيَدِكَ، مَاضٍ فِيَّ حُكْمُكَ، عَدْلٌ فِيَّ قَضَاؤُكَ، أَسْأَلُكَ بِكُــــلِّ اسْمٍ هُوَ لَكَ، سَمَّيْتَ بِهِ نَفْسَكَ، أَوْ أَنْزَلْتَهُ فِي كِتَابِكَ، أَوْ عَلَّمْتَهُ أَحَدًا مِنْ خَلْقِكَ، أَوِ اسْتَأْثَرْتَ بِهِ فِي عِلْمِ الغَيْبِ عِنْدَكَ، أَنْ تَجْعَلَ القُرْآنَ رَبِيعَ قَلْبِي، وَنُورَ صَدْرِي، وَجَلَاءَ حُزْنِي، وَذَهَابَ هَمِّي.",
+        transliterationSq: "All-llãhumme, innĩ ’abduke, ibnu ’abdike, ibnu emetike! Nãṣijetĩ bi jedike! Mãḍin fijje ḥukmuke! ’Adlun fijje ḳaḍãuke! Es’eluke bi kul-lismin huwe lek, semmejte bihi nefsek, ew enzeltehu fĩ kitãbike, ew ‘al-lemtehu eḥaden min ḣalḳike ew iste’therte bihi fĩ ‘ilmil ġajbi ‘indek, en texh’alel Kur’ãne rabĩ’a ḳalbĩ, we nũra ṣadrĩ, we xhelãe ḥuznĩ, we dhehãbe hemmĩ!",
+        translationSq: "O Allah, unë jam robi Yt, biri i robit Tënd, biri i robëreshës Tënde! Qenia ime është në dorën Tënde! Vendimi Yt mbi mua sigurisht që ndodh! Të drejta janë të gjitha caktimet e Tua për mua! Po të drejtohem me të gjithë emrat e Tu, me të cilët e ke emërtuar Veten, apo të cilët i ke shpallur në Librin Tënd, apo të cilët ia ke mësuar ndonjë prej krijesave të Tua, apo të cilët i ke ruajtur në dijen Tënde të fshehtë: që ta bësh Kuranin pranverë të zemrës sime, dritë të gjoksit tim, largues të trishtimit tim dhe heqës të ankthit tim!",
+        repetitions: 1,
+        sourceSq: "Ahmedi. Albani thotë se hadithi është i saktë."
+      },
+      {
+        id: "40-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ وَغَلَبَةِ الرِّجَالِ.",
+        transliterationSq: "All-llãhumme innĩ e’ũdhu bike minel hemmi wel ḥazeni, wel ‘axhzi wel keseli, wel buḣli wel xhubni, we ḍale’id-dejni we ġalebetirr-rrixhãl.",
+        translationSq: "O Allah! Më mbroj nga shqetësimi dhe trishtimi, nga paaftësia dhe përtacia, nga koprracia dhe frika, nga rëndimi i borxhit dhe shtypja e njerëzve!",
+        repetitions: 1,
+        sourceSq: "Buhariu. Profeti ﷺ e thoshte shpesh këtë lutje."
+      }
+    ]
+  },
+  {
+    number: 41,
+    categoryId: "gezim-dhe-shqetesim",
+    titleSq: "KUR KEMI VËSHTIRËSI",
+    guidanceSq: "",
+    items: [
+      {
+        id: "41-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "لَا إِلَهَ إِلَّا اللَّهُ الْعَظِيمُ الْحَلِيمُ، لَا إِلَهَ إِلَّا اللَّهُ رَبُّ الْعَرْشِ الْعَظِيمِ، لَا إِلَهَ إِلَّا اللَّهُ رَبُّ السَّمَوَاتِ وَرَبُّ الْأَرْضِ وَرَبُّ الْعَرْشِ الْكَرِيمِ.",
+        transliterationSq: "Lã ilãhe il-lall-llãhu, El ‘Aḍhĩmul Ḥalĩm! Lã ilãhe il-lall-llãhu, Rabbul ‘arshil ‘aḍhĩm! Lã ilãhe il-lall-llãhu Rabbus-semawãti, we Rabbul erḍi, we Rabbul ‘arshil kerĩm!",
+        translationSq: "Nuk ka të adhuruar me të drejtë veç Allahut, të Madhërishmit, Duruesit! Nuk ka të adhuruar me të drejtë veç Allahut, Zotit të Fronit madhështor! Nuk ka të adhuruar me të drejtë veç Allahut, Zotit të shtatë qiejve, Zotit të tokës, Zotit të Fronit të Nderuar!",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      },
+      {
+        id: "41-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ رَحْمَتَكَ أَرْجُو، فَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ، وَأَصْلِحْ لِي شَأْنِي كُلَّهُ، لَا إِلَهَ إِلَّا أَنْتَ.",
+        transliterationSq: "All-llãhumme! Raḥmeteke erxhũ! Felã tekilnĩ ilã nefsĩ ṭarfete ‘ajnin, we aṣliḥ lĩ she’nĩ kul-lehu, Lã ilãhe il-lã Ente!",
+        translationSq: "O Allah! Në mëshirën Tënde shpresoj! Mos më lër të mbështetem në veten time as sa një pulitje sysh dhe m’i rregullo mua të gjitha çështjet e mia! Nuk ka të adhuruar me të drejtë veç Teje!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi dhe Ahmedi (Sahih Ebu Davud)."
+      },
+      {
+        id: "41-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظّالِمِينَ.",
+        transliterationSq: "Lã il-lãhe il-lã Ente, Subḥãneke, Innĩ kuntu mineḍh-ḍhãlimĩn!",
+        translationSq: "Nuk ka të adhuruar me të drejtë veç Teje! I dëlirë je Ti nga çdo e metë! Vërtet, unë jam gjynahqar!",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu (Sahih Tirmidhi)."
+      },
+      {
+        id: "41-4",
+        type: "text",
+        titleSq: "Lutja 4",
+        arabic: "اللَّهُ اللَّهُ رَبِّي لَا أُشْرِكُ بِهِ شَيْئًا.",
+        transliterationSq: "Allãhu, Allãhu Rabbĩ! Lã ushriku bihi shej’en.",
+        translationSq: "Allahu, Allahu është Zoti im! Unë nuk shoqëroj asgjë e asnjë me Të!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi (Sahih Ibn Maxhe)."
+      }
+    ]
+  },
+  {
+    number: 42,
+    categoryId: "gezim-dhe-shqetesim",
+    titleSq: "KUR TAKOHEMI ME ARMIKUN OSE NJERËZIT ME POZITË",
+    guidanceSq: "",
+    items: [
+      {
+        id: "42-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ إِنَّا نَجْعَلُكَ فِي نُحُورِهِم، وَنَعُوذُ بِكَ مِنْ شُرُورِهِمْ.",
+        transliterationSq: "All-llãhumme innã nexh’aluke fĩ nuḥũrihim, we ne’ũdhu bike min shurũrihim.",
+        translationSq: "O Allah, të lutemi të na i shmangësh ata dhe të na ruash prej të këqijave të tyre.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi dhe Hakimi."
+      },
+      {
+        id: "42-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ أَنْتَ عَضُدِي، وَأَنْتَ نَصِيرِي، بِكَ أَحُولُ وَبِكَ أَصُولُ، وَبِكَ أُقاتِلُ.",
+        transliterationSq: "All-llãhumme Ente aḍudĩ, we Ente neṣĩrĩ, bike eḥũlu, we bike eṣũlu, we bike uḳãtil.",
+        translationSq: "O Allah! Ti je krahu im, Ti je ndihmësi im, me ndihmën Tënde arrij të shmang kurthin e armikut, të bëj mësymje shpartalluese dhe t’i luftoj armiqtë.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi dhe Tirmidhiu (Sahih Tirmidhi)."
+      },
+      {
+        id: "42-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ.",
+        transliterationSq: "Ḥasbunall-llãhu we ni’ëmel Wekĩl.",
+        translationSq: "Na mjafton Allahu, dhe Ai për ne është Rregulluesi më i mirë i punëve!",
+        repetitions: 1,
+        sourceSq: "Buhariu"
+      }
+    ]
+  },
+  {
+    number: 43,
+    categoryId: "gezim-dhe-shqetesim",
+    titleSq: "KUR KEMI FRIKË NGA DËMI I PUSHTETARIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "43-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ ربَّ السَّمَوَاتِ السَّبْعِ، وَرَبَّ الْعَرْشِ الْعَظِيمِ، كُنْ لِي جَارًا مِنْ فُلَانِ بْنِ فُلَانٍ، وَأَحْزَابِهِ مِنْ خَلَائِقِكَ، أَنْ يَفْرُطَ عَلَيَّ أَحَدٌ مِنْهُمْ أَوْ يَطْغَى، عَزَّ جَارُكَ، وَجَلَّ ثَنَاؤُكَ، وَلَا إِلَهَ إِلَّا أَنْتَ.",
+        transliterationSq: "All-llãhumme Rabbes-semãwãtis-seb’i we Rabbel ‘arshil ‘aḍhĩm, kun lĩ xhãran min, – fulãn ibni fulãn ,– we aḥzãbihi min ḣalãiḳike, en jefruṭa ‘alejje eḥadun minhum ew jeṭġã. ‘Azze xhãruke, we xhel-le thenãuke, we lã ilãhe il-lã Ente.",
+        translationSq: "O Allah! Zoti i shtatë qiejve dhe Zoti i Fronit madhështor! Më mbroj nga dëmi i filanit të birit të filanit (përmend emrin e tij) dhe grupeve të tij prej krijesave Tua, që të mos më sulmojë ndonjëri prej tyre dhe të mos më bëjë padrejtësi! Ngadhënjyes dhe i fortë qoftë ai që të kërkon mbrojtje Ty! E lartë është lavdia Jote! Nuk ka të adhuruar me të drejtë veç Teje!.",
+        repetitions: 1,
+        sourceSq: "Buhariu në «Edebul Mufred» (Sahih Edebul Mufred)."
+      },
+      {
+        id: "43-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُ أَكْبَرُ، اللَّهُ أَعَزُّ مِنْ خَلْقِهِ جَمِيعًا، اللَّهُ أَعَزُّ مِمَّا أَخَافُ وَأَحْذَرُ، وَأَعُوذُ بِاللَّهِ الَّذِي لَا إِلَهَ إِلَّا هُوَ الْمُمْسِكُ السَّمَاوَاتِ السَّبْعَ أَنْ يَقَعْنَ عَلَى الْأَرْضِ إِلَّا بِإِذْنِهِ مِنْ شَرِّ عَبْدِكَ فُلَانٍ وَجُنُودِهِ وَأَتْبَاعِهِ وَأَشْيَاعِهِ مِنَ الْجِنِّ وَالْإِنْسِ، اللَّهُمَّ كُنْ لِي جَارًا مِنْ شَرِّهِمْ جَلَّ ثَنَاؤُكَ، وَعَزَّ جَارُكَ وَتَبَارَكَ اسْمُكَ وَلَا إِلَهَ غَيْرُكَ.",
+        transliterationSq: "All-llãhu ekber, All-llãhu e’azzu min ḣalḳihi xhemĩ’an, All-llãhu e’azzu mimmã eḣãfu we aḥdheru, we e’ũdhu bil-lãhil-ledhĩ lã ilãhe il-lã huwel mumsikus-semawãtis-seb’i en jeḳa’ëne ‘alel erḍi il-lã bi idhnihi, min sherri ‘abdike fulãn, we xhunũdihi we etbã’ihi we eshjã’ihi minel xhinni wel insi. All-llãhumme kun lĩ xhãran min sherrihim, xhel-le thenãuke we ‘azze xhãruke we tebãrekesmuke we lã ilãhe ġajruke. (Këtë e themi tri herë).",
+        translationSq: "Allahu është më i madhi. Allahu është më i fortë se të gjitha krijesat e Tij. Allahu është më i fuqishëm se krijesa që unë e kam frikë dhe i ruhem. Unë kërkoj mbrojtje tek Allahu, përveç të Cilit nuk ka hyjni të vërtetë, dhe i Cili e mban qiellin të mos bjerë në Tokë e të shkatërrojë ata që gjenden mbi të; kjo ndodh vetëm me lejen e Tij (kur të bëhet Kiameti). (Pra, të lutem më mbroj) nga sherri i robit Tënd, filanit (përmend emrin e tij), ushtarët e tij, pasuesit e tij prej xhindëve dhe njerëzve. O Allah, më mbroj nga dëmi i tyre. E lartë është Lavdia Jote! Ngadhënjyes dhe i fortë qoftë ai që të kërkon mbrojtje Ty! Emri Yt është i bekuar! Nuk ka të adhuruar të vërtetë përveç Teje!",
+        repetitions: 1,
+        sourceSq: "Buhariu në «Edebul Mufred» (Sahih Edebul Mufred)."
+      }
+    ]
+  },
+  {
+    number: 44,
+    categoryId: "gezim-dhe-shqetesim",
+    titleSq: "DUAJA KUNDËR ARMIKUT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "44-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ مُنْزِلَ الْكِتَابِ، سَرِيعَ الْحِسَابِ، اهْزِمِ الأَحْزَابَ، اللَّهُمَّ اهزِمْهُمْ وَزَلْزِلْهُمْ.",
+        transliterationSq: "All-llãhumme munzilel kitãb, serĩ’al ḥisãb, ihzimil aḥzãb. All-llãhumme ihzimhum we zelzilhum.",
+        translationSq: "O Allah, o Zbritësi i Librit, o Ti që e bën shpejt llogarinë e krijesave, mposhti ushtritë! O Allah, mposhti ata dhe tronditi me gjëra të mundimshme, që të mos kenë qëndresë.",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      }
+    ]
+  },
+  {
+    number: 45,
+    categoryId: "gezim-dhe-shqetesim",
+    titleSq: "KUR KEMI FRIKË NGA NJË GRUP I NJERËZVE",
+    guidanceSq: "",
+    items: [
+      {
+        id: "45-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ اكْفِنِيْهِمْ بِمَا شِئْتَ.",
+        transliterationSq: "All-llãhumme ikfinĩhim bimã shi’te!",
+        translationSq: "O Allah, më ruaj prej tyre me mënyrën që Ti do!",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      }
+    ]
+  },
+  {
+    number: 46,
+    categoryId: "gezim-dhe-shqetesim",
+    titleSq: "ÇFARË DUHET TË THOTË AI QË E KAPLON DYSHIMI NË BESIM",
+    guidanceSq: "",
+    items: [
+      {
+        id: "46-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أَعُوذُ بِاللَّهِ مِنَ الشَّيطَانِ الرَّجِيمِ",
+        transliterationSq: "E’ũdhu bil-lãhi minesh-shejṭãnirr-rraxhĩm",
+        translationSq: "I mbështetem Allahut të më mbrojë nga shejtani i mallkuar",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi"
+      },
+      {
+        id: "46-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "آمَنْتُ بِاللَّهِ وَرُسُلِهِ",
+        transliterationSq: "Ãmentu bil-lãhi we rusulihi",
+        translationSq: "Besova në Allahun dhe të Dërguarit e Tij",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "46-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "﴿هُوَ الْأَوَّلُ وَالْآخِرُ وَالظَّاهِرُ وَالْبَاطِنُ وَهُوَ بِكُلِّ شَيْءٍ عَلِيمٌ﴾",
+        transliterationSq: "Huwel Ewwelu wel Ãḣiru weḍh-Ḍhãhiru wel Bãṭinu, we huwe bi kul-li shej’in ’Alĩm.",
+        translationSq: "Të lexojmë fjalën e Allahut: \"Ai është i Pari (s’ka asgjë para Tij, Ai është i Pafillim) dhe i Mbrami (s’ka asgjë mbas Tij, Ai është i Pambarim), më i Larti (s’ka asgjë mbi Të) dhe më i afërti (asgjë nuk është më afër, e më pranë gjërave se Ai me dijen e Tij). Ai është i Dijshëm për çdo gjë.\"",
+        repetitions: 1,
+        sourceSq: "Buhariu"
+      }
+    ]
+  },
+  {
+    number: 47,
+    categoryId: "gezim-dhe-shqetesim",
+    titleSq: "DUAJA E ATIJ QË ËSHTË NGARKUAR ME BORXHE",
+    guidanceSq: "",
+    items: [
+      {
+        id: "47-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ، وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ.",
+        transliterationSq: "All-llãhumme ikfinĩ bi ḥalãlike ‘an ḥarãmike, we eġninĩ bi faḍlike ‘am-men siwãke.",
+        translationSq: "O Allah, më ruaj me rrizk (furnizim) të mjaftueshëm hallall nga harami, dhe m’i plotëso nevojat me mirësinë Tënde, që të mos kem nevojë për askënd tjetër veç Teje.",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu (Sahih Tirmidhi)."
+      },
+      {
+        id: "47-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحَزَنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ وَغَلَبَةِ الرِّجَالِ.",
+        transliterationSq: "All-llãhumme innĩ e’ũdhu bike minel hemmi wel ḥazeni, wel ‘axh’zi wel keseli, wel buḣli, wel xhubni, we ḍale’id-dejni we ġalebetirr-rrixhãl!",
+        translationSq: "O Allah! Më mbroj nga ankthi dhe dëshpërimi, nga paaftësia dhe përtacia, nga koprracia dhe frika, nga zhytja në borxhe dhe shtypja e burrave mizorë!",
+        repetitions: 1,
+        sourceSq: "Buhariu"
+      }
+    ]
+  },
+  {
+    number: 48,
+    categoryId: "gezim-dhe-shqetesim",
+    titleSq: "DUAJA ME RASTIN E FATKEQËSISË",
+    guidanceSq: "",
+    items: [
+      {
+        id: "48-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ، اللَّهُمَّ أْجُرْنِي فِي مُصِيبَتِي، وَأَخْلِفْ لِي خَيْرًا مِنْهَا.",
+        transliterationSq: "Innã lil-lãhi we innã ilejhi rãxhi’ũn, All-llãhumme’xhurnĩ fĩ muṣĩbetĩ we aḣlif lĩ ḣajran minhã!",
+        translationSq: "Ne jemi të Allahut dhe, pa dyshim, tek Ai do të kthehemi! O Allah! Më shpërble mua për fatkeqësinë time, dhe ma zëvendëso atë me diçka më të mirë se ajo.",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      }
+    ]
+  },
+  {
+    number: 49,
+    categoryId: "gezim-dhe-shqetesim",
+    titleSq: "DUAJA E FRIKËS NGA SHIRKU",
+    guidanceSq: "",
+    items: [
+      {
+        id: "49-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ أَنْ أُشْرِكَ بِكَ وَأَنَا أَعْلَمُ، وَأَسْتَغْفِرُكَ لِمَا لَا أَعْلَمُ.",
+        transliterationSq: "All-llãhumme innĩ e’ũdhu bike en ushrike bike, we ene a’ëlemu we estaġfiruke limã lã a’ëlemu!",
+        translationSq: "O Allah! Unë kërkoj të më ruash nga shirku që unë e di dhe të kërkoj falje Ty për atë që unë nuk e di!",
+        repetitions: 1,
+        sourceSq: "Ahmedi (Sahih Tergib dhe Terhib)."
+      }
+    ]
+  },
+  {
+    number: 50,
+    categoryId: "gezim-dhe-shqetesim",
+    titleSq: "DUAJA E URREJTJES TË PARASHIKIMIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "50-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ لَا طَيْرَ إِلَّا طَيْرُكَ، وَلَا خَيْرَ إِلَّا خَيْرُكَ، وَلَا إِلَهَ غَيْرُكَ.",
+        transliterationSq: "All-llãhumme lã ṭajra il-lã ṭajruke, we lã ḣajra il-lã ḣajruke, we lã ilãhe ġajruke!",
+        translationSq: "O Allah! Nuk ndodh veçse ajo e keqe e caktuar nga Ti! E mira është vetëm në dorën Tënde dhe vjen vetëm prej Teje! S’ka të adhuruar me të drejtë përveç Teje!",
+        repetitions: 1,
+        sourceSq: "Ahmedi dhe Ibn Sunni. Albani thotë se hadithi është i saktë."
+      }
+    ]
+  },
+  {
+    number: 51,
+    categoryId: "gezim-dhe-shqetesim",
+    titleSq: "KUR TË MARRIM LAJM TË MIRË OSE TË KEQ",
+    guidanceSq: "",
+    items: [
+      {
+        id: "51-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "الـحَمْدُ للـهِ الَّذِي بِنِعْمَتهِ تَتِمُّ الصَّالِـحَاتُ.",
+        transliterationSq: "Elḥamdu lil-lãhil-ledhĩ bi ni’ëmetihi tetimmuṣ-ṣãliḥãt.",
+        translationSq: "Kur i vinte diçka që e gëzonte, Profeti ﷺ thoshte: Lavdia i takon Allahut, me mirësinë e të Cilit plotësohen të mirat. E kur i vinte diçka e padëshiruar, thoshte:",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "51-3",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "الـحَمْدُ للـهِ عَلَى كُلِّ حَالٍ.",
+        transliterationSq: "Elḥamdu lil-lãhi ‘alã kul-li ḥãl.",
+        translationSq: "Kur i vinte diçka që e gëzonte, Profeti ﷺ thoshte: Lavdia i takon Allahut për çfarëdolloj gjendjeje!",
+        repetitions: 1,
+        sourceSq: "Ibn Sunni në «‘Amelul jeumi uel lejleti» dhe Hakimi (Sahih Xhami)."
+      }
+    ]
+  },
+  {
+    number: 52,
+    categoryId: "gezim-dhe-shqetesim",
+    titleSq: "KUR DËGJOJMË NDONJË LAJM TË ÇUDITSHËM DHE TË GËZUESHËM",
+    guidanceSq: "",
+    items: [
+      {
+        id: "52-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "سُبْحَانَ اللَّهِ.",
+        transliterationSq: "Subḥãnall-llãh!",
+        translationSq: "I Dëlirë nga të metat është Allahu!",
+        repetitions: 1,
+        sourceSq: "Buhariu (3284), (5864) dhe Muslimi (2388)."
+      },
+      {
+        id: "52-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُ أَكْبَرُ",
+        transliterationSq: "All-llãhu ekber.",
+        translationSq: "Allahu është më i Madhi!",
+        repetitions: 1,
+        sourceSq: "Buhariu (89), (364), (5864), Tirmidhiu (2180) dhe Ahmedi (21950)."
+      }
+    ]
+  },
+  {
+    number: 53,
+    categoryId: "gezim-dhe-shqetesim",
+    titleSq: "KUR TË MARRIM NDONJË LAJM TË MIRË",
+    guidanceSq: "",
+    items: [
+      {
+        id: "53-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ, kur i vinte diçka që e gëzonte, binte në sexhde për Allahun e Lartmadhërishëm, si falënderim për Të.",
+        repetitions: 1,
+        sourceSq: "Katër sunenet përveç Nesaiut (Sahih Ibn Maxhe dhe Irvaul Galil)."
+      }
+    ]
+  },
+  {
+    number: 54,
+    categoryId: "gezim-dhe-shqetesim",
+    titleSq: "KUR FRIKËSOHEMI",
+    guidanceSq: "",
+    items: [
+      {
+        id: "54-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "لَا إِلَهَ إِلَّا اللَّهُ.",
+        transliterationSq: "Lã ilãhe il-lall-llãh.",
+        translationSq: "S’ka të adhuruar me të drejtë veç Allahut.",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      }
+    ]
+  },
+  {
+    number: 55,
+    categoryId: "namazi",
+    titleSq: "KUR FILLOJMË ABDESIN",
+    guidanceSq: "",
+    items: [
+      {
+        id: "55-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بِسْمِ اللَّهِ.",
+        transliterationSq: "Bismil-lãh.",
+        translationSq: "Me emrin e Allahut.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi (Irvaul Galil)."
+      }
+    ]
+  },
+  {
+    number: 56,
+    categoryId: "namazi",
+    titleSq: "KUR MBAROJMË ABDESIN",
+    guidanceSq: "",
+    items: [
+      {
+        id: "56-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ.",
+        transliterationSq: "Eshhedu en lã ilãhe il-lAll-llãhu waḥdehu lã sherĩke lehu, we eshhedu enne Muḥammeden ‘abduhu we rasũluhu.",
+        translationSq: "Dëshmoj se nuk ka të adhuruar me të drejtë përveç Allahut Një, i Vetëm dhe i Pashoq, dhe dëshmoj se Muhamedi është rob dhe i Dërguari i Tij.",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "56-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ اجْعَلنِي مِنَ التَّوَّابِينَ وَاجْعَلْنِي مِنَ الْمُتَطَهِّرِينَ.",
+        transliterationSq: "All-llãhummexh’alnĩ minet-tewwãbĩne wexh’alnĩ minel muteṭahhirĩn.",
+        translationSq: "O Allah! Më bëj prej atyre që pendohen dhe më bëj prej atyre që pastrohen!",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu (Sahih Tirmidhi)."
+      },
+      {
+        id: "56-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "سُبْحانَكَ اللَّهُمَّ وَبِحَمْدِكَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ، أَسْتَغْفِرُكَ وَأَتوبُ إِلَيْكَ.",
+        transliterationSq: "Subḥãnekall-llãhumme we biḥamdike, eshhedu en lã ilãhe il-lã Ente, estaġfiruke we etũbu ilejk!",
+        translationSq: "O Allah, Ti je pa të meta. Lartësoj lavdinë Tënde! Dëshmoj se nuk ka të adhuruar me të drejtë përveç Teje! Ty të kërkoj falje për gjynahet dhe te Ti kthehem me pendim!",
+        repetitions: 1,
+        sourceSq: "Nesaiu në «Amelul jeumi uel-lejli» (Irvaul Galil)."
+      }
+    ]
+  },
+  {
+    number: 57,
+    categoryId: "namazi",
+    titleSq: "GJATË RRUGËS PËR NË XHAMI",
+    guidanceSq: "",
+    items: [
+      {
+        id: "57-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ اجْعَلْ فِي قَلْبِي نُوراً، وَفِي لِسَانِي نُوراً، وَفِي سَمْعِي نُوراً، وَفِي بَصَرِي نُوراً، وَمِنْ فَوْقِي نُوراً، وَمِنْ تَحْتِي نُوراً، وَعَنْ يَمِينِي نُوراً، وَعَنْ شِمَالِي نُوراً، وَمِنْ أَمَامِي نُوراً، وَمِنْ خَلْفِي نُوراً، وَاجْعَلْ فِي نَفْسِي نُوراً، وَأَعْظِمْ لِي نُوراً، وَعَظِّم لِي نُوراً، وَاجْعَلْ لِي نُوراً، وَاجْعَلْنِي نُوراً، اللَّهُمَّ أَعْطِنِي نُوراً، وَاجْعَلْ فِي عَصَبِي نُوراً، وَفِي لَحْمِي نُوراً، وَفِي دَمِي نُوراً، وَفِي شَعْرِي نُوراً، وَفِي بَشَرِي نُوراً. اللَّهُمَّ اجْعَلْ لِي نُورًا فِي قَبْرِي... وَنُورًا فِي عِظَامِي، وَزِدْنِي نُوراً، وَزِدْنِي نُوراً، وَزِدْنِي نُوراً، وَهَبْ لِي نُورًا عَلَى نُورٍ.",
+        transliterationSq: "All-llãhummexh’al fĩ ḳalbĩ nũran, we fĩ lisãnĩ nũran, we fĩ sem’ĩ nũran, we fĩ beṣarĩ nũran, we min fewḳĩ nũran, we min taḥtĩ nũran, we ‘an jemĩnĩ nũran we ‘an shimãlĩ nũran, we min emãmĩ nũran, we min ḣalfĩ nũran, wexh’al fĩ nefsĩ nũran, we a’ëḍhim lĩ nũran, we aḍh-ḍhim lĩ nũran, wexh’al lĩ nũran, wexh’alnĩ nũrã. All-llãhumme a’ëṭinĩ nũran, wexh’al fĩ ‘aṣabĩ nũran, we fĩ laḥmĩ nũran, we fĩ demĩ nũran, we fĩ sha’ërĩ nũran, we fĩ besherĩ nũrã. All-llãhummexh’al lĩ nũran fĩ ḳabrĩ.. we nũran fĩ ‘iḍhãmĩ, we zidnĩ nũran. We zidnĩ nũran, we zidnĩ nũran. we heb lĩ nũran ‘alã nũr.",
+        translationSq: "O Allah! Më jep dritë në zemër, në gjuhë, në dëgjim e në shikim. Më bëj dritë nga lart dhe nga poshtë, nga e djathta dhe nga e majta ime! Më bëj dritë nga përpara dhe nga prapa! Më bëj dritë në vetveten time! O Allah! Ma zmadho dritën! Bëj për mua dritë dhe më bëj mua dritë! O Allah më jep mua dritë dhe, bëj dritë në gilcat e mi, në mishin tim, në gjakun tim, në flokët e mia dhe në lëkurën time. “O Allah ma ndriço varrin… dhe m’i ndriço kockat.” “Ma shto dritën, ma shto dritën, ma shto dritën” , “dhe më dhuro dritë mbi dritë!”.",
+        repetitions: 1,
+        sourceSq: "Buhariu në Edebul Mufred (Sahih Edeb Mufred)]."
+      }
+    ]
+  },
+  {
+    number: 58,
+    categoryId: "namazi",
+    titleSq: "KUR TË HYJMË NË XHAMI",
+    guidanceSq: "",
+    items: [
+      {
+        id: "58-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أَعُوذُ بِاللَّهِ العَظِيمِ، وَبِوَجْهِهِ الكَرِيمِ، وَسُلْطَانِهِ القَدِيمِ، مِنَ الشَّيْطَانِ الرَّجِيمِ.",
+        transliterationSq: "E’ũdhu bil-lãhil ‘aḍhĩm, we bi wexhhihil kerĩm, we ṣulṭãnihil ḳadĩm, minesh-shejṭãnirr-rraxhĩm.",
+        translationSq: "Kërkoj nga Allahu i Madhërishëm, me Fytyrën e Tij Fisnike dhe me fuqinë e pushtetin e Tij të përhershëm, të më mbrojë nga shejtani i mallkuar!",
+        repetitions: 1,
+        sourceSq: "Shënojnë Hakimi dhe Bejhakiu. Albani thotë se hadithi është i mirë. Ebu Davudi (Sahih Xhami). · Enesi  tregon: “Nga suneti është që kur të hysh në xhami, të fusësh përpara këmbën e djathtë, ndërsa kur të dalësh nga xhamia, të nxjerrësh përpara këmbën e majtë”"
+      },
+      {
+        id: "58-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "بِسْمِ اللَّهِ، وَالصَّلَاةُ، وَالسَّلَامُ عَلَى رَسُولِ اللَّهِ، اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ.",
+        transliterationSq: "Bismil-lãh, weṣ-ṣalãtu wes-selãmu ‘alã Rasũlil-lãh. All-llãhumme’ftaḥ lĩ ebwãbe raḥmetike!",
+        translationSq: "Në emër të Allahut, salavati dhe selami i Allahut qofshin për të Dërguarin e Allahut . O Allah! Më hap dyert e mëshirës Tënde!",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      }
+    ]
+  },
+  {
+    number: 59,
+    categoryId: "namazi",
+    titleSq: "KUR TË DALIM NGA XHAMIA",
+    guidanceSq: "",
+    items: [
+      {
+        id: "59-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بِسْمِ اللَّهِ وَالصّلَاةُ وَالسَّلَامُ عَلَى رَسُولِ اللَّهِ، اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِك، اللَّهُمَّ اعْصِمْنِي مِنَ الشَّيْطَانِ الرَّجِيمِ.",
+        transliterationSq: "Bismil-lãh, weṣ-ṣalãtu wes-selãmu ‘alã Rasũlil-lãh. All-llãhumme innĩ es’eluke min faḍlike, All-llãhumme i’ëṣimnĩ minesh-shejṭãnirr-rraxhĩm.",
+        translationSq: "Nga xhamia dalim me këmbën e majtë, duke thënë: Në emër të Allahut, salavati dhe selami i Allahut qofshin mbi Muhamedin. ‘O Allah! Të lutem të më japësh nga mirësitë e Tua!’ O Allah, më mbroj nga shejtani i mallkuar!).",
+        repetitions: 1,
+        sourceSq: ""
+      }
+    ]
+  },
+  {
+    number: 60,
+    categoryId: "namazi",
+    titleSq: "DUAJA E EZANIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "60-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
+        transliterationSq: "Lã ḥawle we lã ḳuwwete il-lã bil-lãh.",
+        translationSq: "1. Kur thirret ezani, përsërisim fjalët që thotë muezini, me përjashtim të shprehjeve hajje ‘aleṣ-ṣalãh, hajje ‘alel felãḥ (Eja në namaz, eja në shpëtim)’, pasi në vend të tyre themi: S’mund të bëhet asnjë lëvizje dhe nuk ka fuqi për asgjë veçse me ndihmën e Allahut.",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi"
+      },
+      {
+        id: "60-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "وَأَنَا أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ وَأَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ، رَضِيتُ بِاللَّهِ رَبًّا، وَبِمُحَمَّدٍ رَسُولًا، وَبِالْإِسْلَامِ دِينًا",
+        transliterationSq: "We ene eshhedu en lã ilãhe il-lall-llãhu waḥdehu lã sherĩke lehu, we enne Muḥammeden ‘abduhu we rasũluhu. Raḍĩtu bil-lãhi Rabben, we bi Muḥammedin rasũlen, we bil Islãmi dĩnen",
+        translationSq: "2. Menjëherë pasi muezini thotë dy shprehjet e dëshmisë “Eshhedu en lã ilãhe il-lall-llãh, eshhedu enne Muḥammeden Rasũlull-llãh”, themi: Edhe unë dëshmoj se nuk ka të adhuruar me të drejtë përveç Allahut, Një dhe i Pashoq, dhe se Muhamedi është rob dhe i Dërguari i Allahut. Jam i kënaqur me Allahun si Zot, me Muhamedin si të Dërguar dhe me Islamin si fe",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "60-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: ".",
+        transliterationSq: "",
+        translationSq: "Mbasi përsërisim shprehjet e ezanit pas muezinit bëjmë salavatë për Pejgamberin alejhi selam.",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "60-4",
+        type: "text",
+        titleSq: "Lutja 4",
+        arabic: "اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ، وَالصَّلَاةِ الْقَائِمَةِ، آتِ مُحَمَّدًا الوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَامًا مَحمُودًا الَّذِي وَعَدْتَهُ، [إِنَّكَ لَا تُخْلِفُ الْمِيعَادَ]",
+        transliterationSq: "All-llãhumme rabbe hãdhihid-da’ëwetit-tãmmeh, weṣ-ṣalãtil ḳãimeh, ãti Muḥammedenil wesĩlete wel faḍĩlete, web’athhu meḳãmen maḥmũden el-ledhĩ we’adtehu [inneke lã tuḣliful-mĩ’ãd].",
+        translationSq: "Pas salavatit themi: O Allah! Zoti i kësaj thirrjeje të përkryer e të pandryshueshme dhe i namazit që do të falet! Jepi Muhamedit Uesile-n (pozitën më të lartë në Xhenet) dhe Fadile-n (gradën e epërsisë ndaj të tëra krijesave) dhe ngrije atë në vendin e lavdishëm (ndërmjetësimin e madh në Ditën e Gjykimit). [Vërtet, Ti nuk e shkel premtimin!]",
+        repetitions: 1,
+        sourceSq: "Buhariu · Shtojcën në kllapat katrore e shënon vetëm Bejhakiu. Për këtë shtojcë Ibn Bazi në «Tuhfetul Ahjar» thotë se ka sened të mirë."
+      },
+      {
+        id: "60-5",
+        type: "text",
+        titleSq: "Lutja 5",
+        arabic: ".",
+        transliterationSq: "",
+        translationSq: "Të bëjmë lutje për vetveten ndërmjet ezanit dhe ikametit, pasi lutja në këtë kohë pranohet.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi, Tirmidhiu dhe Ahmedi (Irvaul Galil)."
+      }
+    ]
+  },
+  {
+    number: 61,
+    categoryId: "namazi",
+    titleSq: "DUAJA NË FILLIM TË NAMAZIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "61-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ بَاعِدْ بَيْنِي وَبَيْنَ خَطَايَايَ كَمَا بَاعَدْتَ بَيْنَ الْمَشْرِقِ وَالْمَغْرِبِ، اللَّهُمَّ نَقِّنِي مِنْ خَطَايَايَ كَمَا يُنَقَّى الثَّوْبُ الْأَبْيَضُ مِنَ الدَّنَسِ، اللَّهُمَّ اغْسِلْني مِنْ خَطَايَايَ، بِالثَّلْجِ وَالْماءِ وَالْبَرَدِ.",
+        transliterationSq: "All-llãhumme bã’id bejnĩ we bejne ḣaṭãjãje kemã bã’adte bejnel meshriḳi wel maġrib! All-llãhumme neḳḳinĩ min ḣaṭãjãje kemã juneḳḳath-thewbul ebjeḍu mined-denes! All-llãhummeġsilnĩ min ḣaṭãjãje bith-thelxhi wel mãi wel berad.",
+        translationSq: "O Allah, largomë prej gjynaheve, ashtu siç ke larguar lindjen prej perëndimit! O Allah, pastromë prej gjynaheve, ashtu siç pastrohen rrobat e bardha prej ndyrësisë! O Allah, pastromë prej gjynaheve me borë, ujë dhe breshër!",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      },
+      {
+        id: "61-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "سُبْحانَكَ اللَّهُمَّ وَبِحَمْدِكَ، وَتَبارَكَ اسْمُكَ، وَتَعَالَى جَدُّكَ، وَلَا إِلَهَ غَيْرُكَ.",
+        transliterationSq: "Subḥãnekall-llãhumme we bihamdike we tebãrakesmuke, we te’ãlã xhedduke, we lã ilãhe ġajruke.",
+        translationSq: "O Allah! Ti je pa të meta. Ty të bëj lavdi! Emri Yt është i bekuar, Madhëria jote është e Lartësuar, dhe askush pos Teje s’ka të drejtë të adhurohet!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi (Sahih Tirmidhi)."
+      },
+      {
+        id: "61-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "وَجَّهْتُ وَجْهِيَ لِلَّذِي فَطَرَ السَّمَوَاتِ وَالأَرْضَ حَنِيفًا وَمَا أَنَا مِنَ الْمُشْرِكِينَ، إِنَّ صَلَاتِي، وَنُسُكِي، وَمَحْيَايَ، وَمَمَاتِي لِلَّهِ رَبِّ الْعَالَمِينَ، لَا شَرِيكَ لَهُ وَبِذَلِكَ أُمِرْتُ وَأَنَا مِنَ الْمُسْلِمِينَ. اللَّهُمَّ أَنْتَ الْمَلِكُ لَا إِلَهَ إِلَّا أَنْتَ، أَنْتَ رَبِّي وَأَنَا عَبْدُكَ، ظَلَمْتُ نَفْسِي وَاعْتَرَفْتُ بِذَنْبِي فَاغْفِرْ لِي ذُنُوبي جَمِيعًا إِنَّهُ لَا يَغْفِرُ الذُّنوبَ إِلَّا أَنْتَ. وَاهْدِنِي لِأَحْسَنِ الأَخْلاقِ لَا يَهْدِي لِأَحْسَنِها إِلَّا أَنْتَ، وَاصْرِفْ عَنِّي سَيِّئَهَا، لَا يَصْرِفُ عَنِّي سَيِّئَهَا إِلَّا أَنْتَ، لَبَّيْكَ وَسَعْدَيْكَ، وَالخَيْرُ كُلُّهُ بِيَـــــدَيْكَ، وَالشَّرُّ لَيْسَ إِلَيْـــــــــــكَ، أَنَـا بِكَ وَإِلَيْكَ، تَبارَكْتَ وَتَعَالَيْتَ، أَسْتَغْفِرُكَ وَأَتُوبُ إِلَيْكَ.",
+        transliterationSq: "Wexhxhehtu wexhhije lil-ledhĩ feṭaras-semãwãti wel erḍa ḥanĩfen we mã ene minel mushrikĩne. Inne ṣalãtĩ we nusukĩ we maḥjãje we memãtĩ lil-lãhi Rabbil ‘ãlemin, lã sherĩke lehu, we bi dhãlike umirtu we ene minel muslimĩn. All-llãhumme Entel Meliku lã ilãhe il-lã Ente. Ente Rabbĩ we ene ‘abduke. Ḍhalemtu nefsĩ we’ëteraftu bi dhenbĩ feġfir lĩ dhunũbĩ xhemĩ’an innehu lã jaġfirudh-dhunũbe il-lã Ente! Wehdinĩ li aḥsenil aḣlãḳi, lã jehdĩ li aḥsenihã il-lã Ente, weṣrif ‘annĩ sejjiehã lã jeṣrifu ‘annĩ sejjiehã il-lã Ente! Lebbejke we sa’ëdejke wel ḣajru kul-luhu bi jedejke wesh-sherru lejse ilejke. Ene bike we ilejke, tebãrakte we te’ãlejte. Estaġfiruke we etũbu ilejke.",
+        translationSq: "Kam kthyer fytyrën drejt Krijuesit të qiejve dhe të tokës i dëlirë nga idhujtaria, e unë nuk jam prej idhujtarëve! Vërtet, namazi im, kurbani im, jeta ime dhe vdekja ime janë për Allahun, Zotin e Botëve, i Cili nuk ka shok. Me këtë jam urdhëruar dhe unë jam prej muslimanëve. O Allah, Ti je Sunduesi! Askush nuk ka të drejtë të adhurohet pos Teje! Ti je Zoti im dhe unë jam robi Yt! Unë i kam bërë dëm vetes dhe i kam pranuar gjynahet e mia. Prandaj, m’i fal të gjitha gjynahet e mia, sepse askush tjetër nuk i fal gjynahet veç Teje! Më udhëzo në sjelljen më të mirë, në të cilën nuk mund të udhëzojë askush veç Teje, dhe më ruaj nga sjellja e keqe, nga e cila nuk mund të më ruajë askush veç Teje! Vazhdimisht kam për të respektuar urdhërat e Tu dhe pareshtur do të përkrah e do të pasoj fenë Tënde! E gjithë e mira është në duart e Tua, ndërsa e keqja nuk të përket Ty! Unë të mbështetem vetëm Ty, të përkas vetëm Ty dhe vetëm Ti më jep mbarësi! Ti je i Bekuar dhe i Lartësuar! Kërkoj faljen Tënde dhe pendohem para Teje!",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "61-4",
+        type: "text",
+        titleSq: "Lutja 4",
+        arabic: "اللَّهُمَّ رَبَّ جِبْرَائِيلَ، وَمِيْكَائِيلَ، وَإِسْرَافِيلَ، فاطِرَ السَّمَوَاتِ وَالأَرْضِ، عَالِمَ الغَـــيْبِ وَالشَّــــهَادَةِ أَنْتَ تَحْكُمُ بَيْنَ عِبَادِكَ فِيمَا كَانُوا فِيهِ يَخْتَلِفُونَ. اهْدِنِي لِمَا اخْتُلِفَ فِيهِ مِنَ الْحَقِّ بِإِذْنِكَ إِنَّكَ تَهْدِي مَنْ تَشَاءُ إِلَى صِرَاطٍ مُسْتَقيمٍ.",
+        transliterationSq: "All-llãhumme Rabbe Xhibrãĩle we Mĩkãĩle we Isrãfĩle, Fãtiras-semãwãti wel erḍi, ‘ãlimel ġajbi wesh-shehãdeti, Ente taḥkumu bejne ‘ibãdike fĩmã kãnũ fĩhi jaḣtelifũn. Ihdinĩ limeḣtulife fĩhi minel ḥaḳḳi bi idhnike! Inneke tehdĩ men teshãu ilã ṣirãṭin musteḳĩm.",
+        translationSq: "O Allah! Zot i Xhibrilit, Mikailit dhe Israfilit! Krijues i qiejve dhe i tokës! Njohës i së fshehtës dhe i së dukshmes! Ti je Ai që do të gjykosh mes robërve të Tu për çështjet që ata nuk pajtoheshin! Më udhëzo me Mëshirën Tënde, në të vërtetën, në çështjet ku njerëzit janë në kundërshtim, sepse, vërtet Ti e udhëzon kë të duash në Rrugën e Drejtë!",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "61-5",
+        type: "text",
+        titleSq: "Lutja 5",
+        arabic: "اللَّهُ أَكْبَرُ كَبِيرَاً، اللَّهُ أَكْبَرُ كَبِيراً، اللَّهُ أَكْبَرُ كَبِيراً، وَالْحَمْدُ لِلَّهِ كَثيراً، وَالْحَمْدُ لِلَّهِ كَثيراً، وَالْحَمْدُ لِلَّهِ كَثيراً، وَسُبْحَانَ اللَّهِ بُكْرَةً وَأَصِيلًا (ثلاثا)، أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ: مِنْ نَفْخِهِ، وَنَفْثِهِ، وَهَمْزِهِ.",
+        transliterationSq: "Allãhu ekberu kebĩrã, Allãhu ekberu kebĩrã, Allãhu ekberu kebĩrã, welḥamdu lil-lãhi kethĩrã, welḥamdu lil-lãhi kethĩrã, welḥamdu lil-lãhi kethĩrã, we Subḥãnall-llãhi bukraten we aṣĩlã, we Subḥãnall-llãhi bukraten we aṣĩlã, we Subḥãnall-llãhi bukraten we aṣĩlã. E’ũdhu bil-lãhi minesh-shejṭãni: min nefḣihi, we nefthihi we hemzihi!",
+        translationSq: "Allahu është më i Madhi, (kështu shprehem duke madhëruar më të Madhin)! Lavdia i takon Allahut, (kështu them duke i bërë lavdi të shumtë Allahut)! Allahu është i Dëlirë nga të metat, (kështu lartësoj Allahun) çdo mëngjes e çdo pasdite! I lutem Allahut të më ruajë nga shejtani i mallkuar; nga arroganca, vargjet poetike të këqija dhe epilepsia, të cilat nxiten ose shkaktohen prej tij!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi, Ibn Maxhe dhe Ahmedi (Sahih kelim tajjib)."
+      },
+      {
+        id: "61-6",
+        type: "text",
+        titleSq: "Lutja 6",
+        arabic: "اللَّهُمَّ لَكَ الْحَمْدُ، أَنْتَ نُورُ السَّمَوَاتِ وَالأَرْضِ وَمَنْ فِيهِنَّ، وَلَكَ الْحَمْدُ أَنْتَ قَيِّمُ السَّمَوَاتِ وَالأَرْضِ وَمَنْ فِيهِنَّ، وَلَكَ الْحَمْدُ أَنْتَ رَبُّ السَّمَواتِ وَالأَرْضِ وَمَنْ فِيهِنَّ، وَلَكَ الْحَمْدُ لَكَ مُلْكُ السَّمَوَاتِ وَالأَرْضِ وَمَنْ فِيهِنَّ، وَلَكَ الْحَمْدُ أَنْتَ مَلِكُ السَّمَوَاتِ وَالأَرْضِ، وَلَكَ الْحَمْدُ، أَنْتَ الْحَقُّ، وَوَعْدُكَ الْحَقُّ، وَقَوْلُكَ الْحَقُّ، وَلِقاؤُكَ الْحَقُّ، وَالْجَنَّةُ حَقٌّ، وَالنَّارُ حَقٌّ، وَالنَّبِيُّونَ حَقٌّ، وَمحَمَّدٌ (صلى الله عليه و سلم) حَقٌّ، وَالسّاعَةُ حَقٌّ، اللَّهُمَّ لَكَ أَسْلَمتُ، وَعَلَيْكَ تَوَكَّلْتُ، وَبِكَ آمَنْتُ، وَإِلَيْكَ أَنَبْتُ، وَبِكَ خاصَمْتُ، وَإِلَيْكَ حاكَمْتُ. فَاغْفِرْ لِي مَا قَدَّمْتُ، وَمَا أَخَّرْتُ، وَمَا أَسْرَرْتُ، وَمَا أَعْلَنْتُ، وَمَا أَنْتَ أَعْلَمُ بِهِ مِنِّي، أَنْتَ المُقَدِّمُ، وَأَنْتَ المُؤَخِّرُ لَا إِلَهَ إِلَّا أَنْتَ، أَنْتَ إِلَهِي لَا إِلَهَ إِلَّا أَنْتَ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ.",
+        transliterationSq: "All-llãhumme lekel-ḥamdu Ente Nũrus-semãwãti wel erḍi we men fĩhinne, we lekel-ḥamdu Ente ḳajjimus-semãwãti wel erḍi, we men fĩhinne, we lekel-ḥamdu Ente Rabus-semãwãti wel erḍi, we men fĩhinne, we lekel-ḥamdu leke mulkus-semãwãti wel erḍi, we men fĩhinne, we lekel-ḥamdu Ente melikus-semãwãti wel erḍi, we lekel-ḥamdu Entel ḥaḳḳu, we wa’ëdukel ḥaḳḳu we ḳawlukel ḥaḳḳu, we liḳãukel ḥaḳḳu, wel xhennetu ḥaḳḳun, wen-nãru ḥaḳḳun, wen-nebijjũne ḥaḳḳun, we Muḥammedun (ṣal-lallãhu ‘alejhi we sel-leme) ḥaḳḳun, wes-sã’atu ḥaḳḳun. All-llãhumme leke eslemtu, we ‘alejke tewekkeltu, we bike ãmentu, we ilejke enebtu, we bike ḣãṣamtu we ilejke ḥãkemtu. Feġfir lĩ mã ḳaddemtu we mã aḣḣartu, we mã esrartu we mã a’ëlentu, we mã Ente a’ëlemu bihi minnĩ. Entel Muḳaddimu we Entel Mueḣḣiru, lã ilãhe il-lã Ent. Ente Ilãhĩ, lã Ilãhe il-lã Ente, we lã ḥawle we lã ḳuwwete il-lã bil-lãh.",
+        translationSq: "O Allah, Ty të takon lavdia! Ti je ndriçuesi i qiejve dhe i tokës e çfarë ka mes tyre! Ty të takon lavdia! Ti je mbajtësi i qiejve dhe i Tokës e çfarë ka mes tyre! Ty të takon lavdia! Ti je Zoti i qiejve dhe i Tokës e çfarë ka mes tyre! Ty të takon lavdia! Ty të përket sundimi i qiejve dhe i Tokës e çfarë ka mes tyre! Ty të takon lavdia! Ti je Sunduesi i qiejve dhe i Tokës! Ty të takon lavdia! Ti je i Vërteti. Premtimi Yt është realitet, fjala Jote është e vërtetë, takimi me ty është i vërtetë, Xheneti është realitet, Zjarri është realitet, nebijjin-ët (profetët) janë vërtet lajmëtarë nga Allahu për njerëzit, Muhamedi ﷺ është vërtet i Dërguari i Allahut, Dita e Gjykimit është realitet! O Allah, Ty të jam dorëzuar, tek Ti jam mbështetur, tek Ti kam besuar, i jam kthyer adhurimit ndaj Teje, me fuqinë dhe argumentet që më ke dhënë Ti u kundërvihem atyre që të mohojnë Ty dhe nuk i pranojnë të vërtetat që vijnë prej Teje. Ty të drejtohem për të gjykuar mes meje dhe mes atyre që s’e pranojnë të vërtetën! M’i fal gjynahet e mëparshme dhe të tashmet, ato që kam fshehur e ato që kam bërë haptazi, por edhe ato që Ti i di më mirë se unë. Ti ngre e afron kë të duash, duke ia bërë mbarë të bëjë ibadete dhe, me urtësinë Tënde, largon kë të duash, duke mos e ndihmuar për diçka të tillë! Nuk ka të adhuruar me të drejtë veç Teje! Ti je Zoti im e s`ka Zot tjetër veç Teje! S’mund të bëhet asnjë lëvizje dhe s’ka fuqi ndryshe, veçse me vullnetin e Allahut.",
+        repetitions: 1,
+        sourceSq: "Buhariu në disa vende në «Sahih» dhe Muslimi, por varianti që sjell Muslimi është më i shkurtër. Këtë lutje Profeti ﷺ e thoshte kur niste namazin e natës."
+      }
+    ]
+  },
+  {
+    number: 62,
+    categoryId: "namazi",
+    titleSq: "DUATË NË RUKU",
+    guidanceSq: "",
+    items: [
+      {
+        id: "62-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "سُبْحانَ رَبِّيَ الْعَظِيمِ.",
+        transliterationSq: "Subḥãne rabbijel ‘aḍhĩm (tri herë).",
+        translationSq: "I Dëlirë nga të metat është Zoti im, i Madhërishmi!",
+        repetitions: 1,
+        sourceSq: "Katër sunenet dhe Ahmedi (Sahih Tirmidhi)."
+      },
+      {
+        id: "62-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "سُبْحَانَكَ اللَّهُمَّ رَبَّنَا وَبِحَمْدِكَ اللَّهُمَّ اغْفِرْ لـِي.",
+        transliterationSq: "Subḥãnekall-llãhumme rabbenã we biḥamdike. All-llãhumeġfir lĩ.",
+        translationSq: "O Allah, Zoti ynë, Ti je i dëlirë nga të metat. Lartësoj lavdinë Tënde. O Allah, më fal!",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      },
+      {
+        id: "62-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "سُبُّوُحٌ، قُدُّوسٌ، رَبُّ المَلَائِكَةِ وَالرُّوحِ.",
+        transliterationSq: "Subbũḥun Ḳuddũsun Rabbul melãiketi werr-rrũḥ.",
+        translationSq: "(I Dëlirë nga të gjitha mangësitë, i Shenjtë, Zot i melekëve dhe i Xhibrilit.",
+        repetitions: 1,
+        sourceSq: "Muslimi dhe Ebu Davudi"
+      },
+      {
+        id: "62-4",
+        type: "text",
+        titleSq: "Lutja 4",
+        arabic: "اللَّهُمَّ لَكَ رَكَعْتُ، وَبِكَ آمَنْتُ، وَلَكَ أَسْلَمْتُ، خَشَعَ لَكَ سَمْعِي، وَبَصَــــــــرِي، وَمُخِّي، وَعَظْمِي، وَعَصَبِي، وَمَا استَقَلَّتْ بِهِ قَدَمِي.",
+        transliterationSq: "All-llãhumme leke raka’ëtu we bike ãmentu we leke eslemtu. Ḣashe’a leke sem’ĩ we beṣarĩ we muḣḣi we aḍhmĩ we ‘aṣabĩ, we mã isteḳal-let bihi ḳademĩ.",
+        translationSq: "O Allah! Ty të jam përulur, Ty të kam besuar, Ty të jam nënshtruar! Të përulur për Ty janë dëgjimi im, shikimi im, truri im, eshtrat e mia dhe gilcat e mia dhe [çdo gjë që mbajnë këmbët e mia]!",
+        repetitions: 1,
+        sourceSq: "Muslimi, por pjesën në kllapa e sjell Ibn Huzejme dhe Ibn Hibani."
+      },
+      {
+        id: "62-5",
+        type: "text",
+        titleSq: "Lutja 5",
+        arabic: "سُبْحَانَ ذِي الْجَبَرُوتِ، وَالْمَلَكُوتِ، وَالْكِبْرِيَاءِ، وَالْعَظَمَةِ.",
+        transliterationSq: "Subḥãne dhil xheberũti wel melekũti wel kibrijãi wel aḍhameh.",
+        translationSq: "Pa të meta është Ai që nështron robërit e Vet me urdhra dhe ndalesa, që sundon çdo gjë, dhe që është më i Larti e më Madhështori.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi, Nisaiu dhe Ahmedi. Senedi është i mirë."
+      }
+    ]
+  },
+  {
+    number: 63,
+    categoryId: "namazi",
+    titleSq: "DUATË KUR NGRITEMI NGA RUKUJA",
+    guidanceSq: "",
+    items: [
+      {
+        id: "63-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "سَمِعَ اللهُ لِمَنْ حَمِدَهُ",
+        transliterationSq: "Semi’all-llãhu limen ḥamideh!",
+        translationSq: "Duke u ngritur nga rukuja themi:Allahu e pranon lavdinë e atij që i bën lavdi!",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "63-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "رَبَّنَا وَلَكَ الْحَمْدُ، حَمْدًا كَثيرًا طَيِّبًا مُبارَكًا فِيه",
+        transliterationSq: "Rabbenã we lekel-ḥamdu ḥamden kethĩran ṭajjiben mubãraken fĩhi.",
+        translationSq: "Kur ngrihemi plotësisht në këmbë themi: Zoti ynë, Ty të takon lavdia, lavdi e panumërt, e dëlirë nga syfaqësia dhe e pafundme",
+        repetitions: 1,
+        sourceSq: "Buhariu"
+      },
+      {
+        id: "63-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "مِلْءَ السَّمَوَاتِ وَمِلْءَ الأَرْضِ، وَمَا بَيْنَهُمَا، وَمِلْءَ مَا شِئْتَ مِنْ شَيءٍ بَعْدُ. أَهلَ الثَّناءِ وَالْمَجْدِ، أَحَقُّ مَا قَالَ الْعَبْدُ، وَكُلُّنَا لَكَ عَبْدٌ. اللَّهُمَّ لَا مَانِعَ لِمَا أَعْطَيْتَ، وَلَا مُعْطِيَ لِمَا مَنَعْتَ، وَلَا يَنْفَعُ ذَا الجَدِّ مِنْكَ الجَدُّ.",
+        transliterationSq: "Mil’es-semawãti we mil’el erḍi, we mã bejnehumã, we mil’e mã shi’te min shej’in ba’ëdu. Ehleth-thenãi wel-mexhdi, eḥaḳḳu ma ḳãlel ‘abdu, we kul-lunã leke ‘abdun. All-llãhumme lã mãni’a limã a’ëṭajte, we lã mu’ëṭije limã mena’ëte we lã jenfe’u dhel xheddi minkel xheddu.",
+        translationSq: "Ty të takojnë lavditë, aq lavdi sa plot qiejt, sa plot toka e ç’ka ndërmjet tyre dhe sa plot gjithçkaje tjetër që Ti dëshiron! O i Denji për lavde e madhështi! Fjala më e drejtë që robi thotë – dhe të gjithë ne jemi robërit e Tu – ‘Askush s’mund të ndalë atë që jep Ti, dhe askush s’mund të japë atë që Ti e ndal; dhe të pasurit apo njeriut me pozitë nuk mund t’i bëjë dobi tek Ti pasuria a pozita, por i bën dobi veçse puna e mirë’",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      }
+    ]
+  },
+  {
+    number: 64,
+    categoryId: "namazi",
+    titleSq: "DUATË NË SEXHDE",
+    guidanceSq: "",
+    items: [
+      {
+        id: "64-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "سُبْحَانَ رَبِّيَ الأَعْلَى.",
+        transliterationSq: "Subḥãne Rabbijel a’ëlã (tri herë).",
+        translationSq: "I Dëlirë nga të metat është Zoti im, më i Larti.",
+        repetitions: 1,
+        sourceSq: "Katër sunenet dhe Ahmedi (Sahih Tirmidhi)."
+      },
+      {
+        id: "64-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "سُبْحَانَكَ اللَّهُمَّ رَبَّنَا وَبِحَمْدِكَ، اللَّهُمَّ اغْفِرْ لِي.",
+        transliterationSq: "Subḥãnekall-llãhumme rabbenã we biḥamdike, All-llãhummeġfir lĩ.",
+        translationSq: "Pa të meta je, o Allah! Zoti ynë! Ty të bëj lavdi! O Allah, më fal!",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      },
+      {
+        id: "64-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "سُبُّوحٌ، قُدُّوسٌ، رَبُّ المَلائِكَةِ وَالرُّوحِ.",
+        transliterationSq: "Subbũḥun Ḳuddũsun Rabbul melãiketi werr-rrũḥ!",
+        translationSq: "I Dëlirë nga çdo mangësi, i Shenjtë, Zoti i melekëve dhe i Xhibrilit.",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "64-4",
+        type: "text",
+        titleSq: "Lutja 4",
+        arabic: "اللَّهُمَّ لَكَ سَجَدْتُ وَبِكَ آمَنْتُ، وَلَكَ أَسْلَمْتُ، سَجَدَ وَجْهِيَ لِلَّذِي خَلَقَهُ، وَصَوَّرَهُ، وَشَقَّ سَمْعَهُ وَبَصَرَهُ، تَبَارَكَ اللَّهُ أَحْسنُ الْخَالِقينَ.",
+        transliterationSq: "All-llãhumme leke sexhedtu we bike ãmentu we leke eslemtu. Sexhede wexhhĩje lil-ledhĩ ḣaleḳahu we ṣawwerahu we sheḳḳa sem’ahu we beṣarahu. Tebãrakall-llãhu aḥsenul ḣãliḳĩn!",
+        translationSq: "O Allah! Për Ty kam bërë sexhde; Ty të kam besuar, Ty të jam nënshtruar! Fytyra ime ka rënë në sexhde për Atë i Cili e krijoi dhe e trajtësoi, e i dha aparatin e të dëgjuarit dhe aparatin e të parit! I Madhërishëm është Allahu, Krijuesi më i mirë!",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "64-5",
+        type: "text",
+        titleSq: "Lutja 5",
+        arabic: "سُبْحَانَ ذِي الْجَبَرُوتِ، وَالْمَلَكُوتِ، وَالْكِبْرِيَاءِ، وَالْعَظَمَةِ.",
+        transliterationSq: "Subḥãne dhil xheberũti wel melekũti wel kibrijãi wel aḍhameh.",
+        translationSq: "I Dëlirë nga të metat është Ai që nështron robërit e Vet me urdhra dhe ndalesa, që sundon çdo gjë, dhe që është më i Larti e më Madhështori.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi, Nesaiu dhe Ahmedi (Sahih Ebi Davud)."
+      },
+      {
+        id: "64-6",
+        type: "text",
+        titleSq: "Lutja 6",
+        arabic: "اللَّهُمَّ اغْفِرْ لِي ذَنْبِي كُلَّهُ: دِقَّهُ وَجِلَّهُ، وَأَوَّلَهُ وَآخِرَهُ، وَعَلَانِيَّتَهُ وَسِرَّهُ.",
+        transliterationSq: "All-llãhummeġfir lĩ dhenbĩ kul-lehu: diḳḳahu we xhil-lehu, we ewwelehu we ãḣirahu, we ‘alãnijjetehu we sirr-rrahu!",
+        translationSq: "O Allah! M’i fal të gjitha gjynahet: të voglat dhe të mëdhatë, të parat dhe të fundit, të dukshmet dhe të fshehtat!",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "64-7",
+        type: "text",
+        titleSq: "Lutja 7",
+        arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِرِضَاكَ مِنْ سَخَطِكَ، وَبِمُعَافَاتِكَ مِنْ عُقوبَتِكَ، وَأَعُوذُ بِكَ مِنْكَ، لَا أُحْصِي ثَنَاءً عَلَيْكَ، أَنْتَ كَمَا أَثْنَيْتَ عَلَى نَفْسِكَ.",
+        transliterationSq: "All-llãhumme innĩ e’ũdhu bi riḍãke min seḣaṭik, we bi mu’ãfãtike min ‘uḳũbetik, we e’ũdhu bike minke! Lã uḥṣĩ thenãen ‘alejke, Ente kemã ethnejte ‘ala nefsike.",
+        translationSq: "O Allah! Të lutem të më ruash me kënaqësinë Tënde nga hidhërimi Yt, të më ruash me faljen Tënde nga dënimi Yt! Kërkoj strehim tek Ti, për t’u mbrojtur prej Teje! Unë, sado të përpiqem, nuk mund t’i numëroj dot lavdërimet e Tua, ashtu siç e meriton! Ti je ashtu siç e ke lavdëruar Veten!)",
+        repetitions: 1,
+        sourceSq: ""
+      }
+    ]
+  },
+  {
+    number: 65,
+    categoryId: "namazi",
+    titleSq: "DUAJA NË ULJEN MES DY SEXHDEVE",
+    guidanceSq: "",
+    items: [
+      {
+        id: "65-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "رَبِّ اغْفِرْ لِي، رَبِّ اغْفِرْ لِي.",
+        transliterationSq: "Rabbiġfir lĩ, Rabbiġfir lĩ.",
+        translationSq: "O Zoti im, më fal! O Zoti im, më fal!",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "65-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ اغْفِرْ لِي، وَارْحَمْنِي، وَاهْدِنِي، وَاجْبُرنِي، وَعَافِنِي، وَارْزُقْنِي، وارْفَعْنِي.",
+        transliterationSq: "All-llãhummeġfir lĩ, werḥamnĩ, wehdinĩ, wexhburnĩ, we ‘ãfinĩ, werzuḳnĩ werfa’ënĩ!",
+        translationSq: "O Allah! Më fal, më mëshiro, më udhëzo, m’i plotëso nevojat e m’i zëvendëso humbjet dhe ma ndreq gjendjen, më jep shëndet e më ruaj nga të këqijat, më furnizo me të mira, më ngre në gradë të lartë (në të dyja botët)!",
+        repetitions: 1,
+        sourceSq: ""
+      }
+    ]
+  },
+  {
+    number: 66,
+    categoryId: "namazi",
+    titleSq: "DUATË NË SEXHDE GJATË LEXIMIT TË KUR'ANIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "66-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "سَجَدَ وَجْهِيَ لِلَّذِي خَلَقَهُ، وَشَقَّ سَمْعَهُ وَبَصَرَهُ بِحَوْلِهِ وَقُوَّتِهِ، (فَتَبارَكَ اللَّهُ أَحْسَنُ الْخَالِقِينَ).",
+        transliterationSq: "Sexhede wexhhije lil-ledhĩ ḣaleḳahu we sheḳḳa sem’ahu we beṣarahu bi ḥawlihĩ we ḳuwwetihi. [Fe tebãrakall-llãhu aḥsenul ḣãliḳĩn!]",
+        translationSq: "Fytyra ime ka rënë në sexhde për Atë i Cili e krijoi, i dha të dëgjuarit dhe të parët e saktë, me fuqinë e Tij!! [I Madhërishëm është Allahu, Krijuesi më i mirë!]",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "66-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ اكْتُبْ لِي بِهَا عِنْدَكَ أَجْراً، وَضَعْ عَنِّي بِهَا وِزْراً، وَاجْعَلْهَا لِي عِنْدَكَ ذُخْراً، وَتَقَبَّلْهَا مِنِّي كَمَا تَقَبَّلْتَهَا مِنْ عَبْدِكَ دَاوُدَ.",
+        transliterationSq: "All-llãhummektub lĩ bihã ‘indeke exhran we ḍa’ë ‘annĩ bihã wizran wexh’alhã lĩ ‘indeke dhuḣran, we teḳabbelhã minnĩ kemã teḳabbeltehã min ‘abdike Dãwũd.",
+        translationSq: "O Allah! Më shkruaj me të shpërblimin, më hiq për shkak të saj një gjynah, ruaje atë për mua atje tek Ti, dhe pranoma atë ashtu sikurse ia pranove robit tënd Davudit!",
+        repetitions: 1,
+        sourceSq: ""
+      }
+    ]
+  },
+  {
+    number: 67,
+    categoryId: "namazi",
+    titleSq: "TESHEHUDI",
+    guidanceSq: "",
+    items: [
+      {
+        id: "67-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "التَّحِيَّاتُ لِلَّهِ، وَالصَّلَواتُ، وَالطَّيِّباتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ. أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسولُهُ.",
+        transliterationSq: "Et-teḥijjãtu lil-lãhi weṣ-ṣalewãtu, weṭ-ṭajjibãtu, es-selãmu ‘alejke ejjuhen-nebijju we raḥmetull-llãhi we berakãtuhu, es-selãmu ‘alejnã we ‘alã ‘ibãdil-lãhiṣ-ṣãliḥĩn, eshhedu en lã ilãhe il-lAll-llãh, we eshhedu enne Muḥammeden ‘abduhu we rasũluhu.",
+        translationSq: "Nderimet, madhështimet, lutjet dhe fjalët e dëlira i takojnë Allahut! Paqedhënësi (Es Selamu) qoftë me ty , o i Dërguar, dhe po ashtu mëshira dhe begatimet e vazhdueshme të Tij! Paqedhënësi qoftë me ne dhe me robërit e drejtë të Allahut! Dëshmoj se nuk ka të drejtë të adhurohet kush përveç Allahut, dhe dëshmoj se Muhamedi është rob dhe i dërguar i Tij!",
+        repetitions: 1,
+        sourceSq: ""
+      }
+    ]
+  },
+  {
+    number: 68,
+    categoryId: "namazi",
+    titleSq: "SALAVATET PËR PEJGAMBERIN SAL-LALLAHU' ALEJHI UE SEL-EM PAS TESHEHUDIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "68-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ، وَعَلَى آلِ مُحَمَّدٍ، كَمَا صَلَّيتَ عَلَى إِبْرَاهِيمَ، وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ، اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ.",
+        transliterationSq: "All-llãhumme ṣal-li ‘alã Muḥam-medin we ‘alã ãli Muḥammedin kemã ṣal-lejte ‘alã Ibrãhĩme we ‘alã ãli Ibrãhĩme, inneke ḥamĩdun Mexhĩd. All-llãhumme bãrik ‘alã Muḥammedin we ‘alã ãli Muḥammedin, kemã bãrakte ‘alã Ibrãhĩme we ‘alã ãli Ibrãhĩme, inneke ḥamĩdun Mexhĩd.",
+        translationSq: "O Allah lavdëroje (tek melekët e lartë) Muhamedin dhe familjen e tij , ashtu siç lavdërove Ibrahimin dhe familjen e tij, vërtet Ti je i Lavdishëm dhe i Madhëruar. O Allah begatoje Muhamedin dhe familjen e tij, ashtu siç begatove Ibrahimin dhe familjen e tij, vërtet Ti je i Lavdishëm dhe i Madhëruar.",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "68-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى أَزْوَاجِهِ وَذُرِّيَّتِهِ، كَمَا صَلَّيْتَ عَلَى آلِ إِبْرَاهِيمَ. وَبَارِكْ عَلَى مُحَمَّدٍ وَعَلَى أَزْواجِهِ وَذُرِّيَّتِهِ، كَمَا بَارَكْتَ عَلَى آلِ إِبْرَاهِيمَ. إِنَّكَ حَمِيدٌ مَجِيدٌ.",
+        transliterationSq: "All-llãhumme ṣal-li ‘alã Muḥammedin we ‘alã ezwãxhihi we dhurrijjetihi, kemã ṣal-lejte ‘alã ãli Ibrãhĩme, we bãrik ‘alã Muḥammedin we ‘alã ezwãxhihi we dhurrijjetihi kemã bãrakte ‘alã ãli Ibrãhĩme, inneke ḥamĩdun Mexhĩd.",
+        translationSq: "O Allah lavdëroje (te melekët e lartë) Muhamedin, bashkëshortet dhe pasardhësit e tij, ashtu siç lavdërove familjen e Ibrahimit, (O Allah) begatoje Muhamedin, bashkëshortet dhe pasardhësit e tij, ashtu siç begatove familjen e Ibrahimit, vërtet Ti je i Lavdishëm dhe i Madhëruar.",
+        repetitions: 1,
+        sourceSq: ""
+      }
+    ]
+  },
+  {
+    number: 69,
+    categoryId: "namazi",
+    titleSq: "DUATË NË TESHEHUDIN E FUNDIT, PARA SELAMIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "69-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عَذَابِ الْقَبْرِ، وَمِنْ عَذَابِ جَهَنَّمَ، وَمِنْ فِتْنَةِ الْمَحْيَا وَالْمَمَاتِ، وَمِنْ شَرِّ فِتْنَةِ الْمَسِيحِ الدَّجَّالِ.",
+        transliterationSq: "All-llãhumme innĩ e’ũdhu bike min ‘adhãbil ḳabri, we min ‘adhãbi xhehennem, we min fitnetil maḥjã wel memãt! We min sherri fitnetil mesĩḥid-dexh-xhãl.",
+        translationSq: "O Allah! Më ruaj nga dënimi i varrit! Më ruaj nga dënimi i Xhehenemit! Më ruaj nga sprovat gjatë jetës e pas vdekjes! Më ruaj nga sherri i sprovës së Mesihut Dexhal!",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "69-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ إِنِّي أَعوذُ بِكَ مِنْ عَذَابِ الْقَبْرِ، وَأَعوذُ بِكَ مِنْ فِتْنَةِ الْمَسِيحِ الدَّجَّالِ، وَأَعوذُ بِكَ مِنْ فِتْنَةِ الْمَحْيَا وَالْمَمَاتِ. اللَّهُمَّ إِنِّي أَعوذُ بِكَ مِنَ الْمَأْثَمِ وَالْمَغْرَمِ.",
+        transliterationSq: "All-llãhumme innĩ e’ũdhu bike min ‘adhãbil ḳabri, we e’ũdhu bike min fitnetil mesĩḥid-dexh-xhãl, we e’ũdhu bike min fitnetil maḥjã wel memãt! All-llãhumme innĩ e’ũdhu bike minel me’themi wel meġrami!",
+        translationSq: "O Allah! Më ruaj nga dënimi i varrit! Më ruaj nga sprova e Mesihut Dexhal! Më ruaj nga sprovat gjatë jetës e pas vdekjes! O Allah! Më mbroj nga gjynahet dhe nga zhytja në borxhe!",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "69-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "اللَّهُمَّ إِنِّي ظَلَمْتُ نَفْسِي ظُلْمًا كَثِيراً، وَلَا يَغْفِرُ الذُّنوبَ إِلَّا أَنْتَ، فَاغْفِرْ لِي مَغْفِرَةً مِنْ عِنْدِكَ وَارْحَمْنِي، إِنَّكَ أَنْتَ الغَفورُ الرَّحيمُ.",
+        transliterationSq: "All-llãhumme innĩ ḍhalemtu nefsĩ ḍhulmen kethĩran, we lã jeġfirudh-dhunũbe il-lã Ente, feġfir lĩ maġfiraten min ‘indike, werḥamnĩ inneke Entel Ġafũrurr-Rraḥĩm.",
+        translationSq: "O Allah! Unë i kam bërë shumë padrejtësi vetes. Askush veç Teje nuk i fal gjynahet, ndaj më fal mua me mirësinë Tënde dhe më mëshiro, se Ti je Falës dhe Mëshirues!",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "69-4",
+        type: "text",
+        titleSq: "Lutja 4",
+        arabic: "اللَّهُمَّ اغْفِرْ لِي مَا قَدَّمْتُ، وَمَا أَخَّرْتُ، وَمَا أَسْرَرْتُ، وَمَا أَعْلَنْتُ، وَمَا أَسْرَفْتُ، وَمَا أَنْتَ أَعْلَمُ بِهِ مِنِّي. أَنْتَ الْمُقَدِّمُ، وَأَنْتَ الْمُؤَخِّرُ لَا إِلَهَ إِلَّا أَنْتَ.",
+        transliterationSq: "All-llãhummeġfir lĩ ma ḳaddemtu we mã aḣḣartu, we mã esrartu, we mã a’ëlentu, we mã esraftu, we mã Ente a’ëlemu bihi minnĩ, Entel Muḳaddimu, we Entel Mueḣḣiru lã ilãhe il-lã Ente.",
+        translationSq: "O Allah! M’i fal gjynahet e mëparshme dhe të tashmet, ato që kam fshehur e ato që kam bërë haptazi, shkeljet e kufijve dhe ato që Ti i di më mirë se unë! Ti ngre e afron kë të duash, duke ia bërë mbarë të bëjë ibadete dhe, me urtësinë Tënde, largon kë të duash, duke mos e ndihmuar për diçka të tillë! Nuk ka të adhuruar me të drejtë veç Teje!",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "69-5",
+        type: "text",
+        titleSq: "Lutja 5",
+        arabic: "اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ، وَشُكْرِكَ، وَحُسْنِ عِبادَتِكَ.",
+        transliterationSq: "All-llãhumme e’innĩ ‘alã dhikrike, we shukrike, we ḥusni ‘ibãdetik.",
+        translationSq: "O Allah! Më ndihmo të të përmend Ty, të jem mirënjohës ndaj Teje dhe që ta përsos adhurimin Tënd!).",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "69-6",
+        type: "text",
+        titleSq: "Lutja 6",
+        arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْبُخْلِ، وَأَعُوذُ بِكَ مِنَ الْجُبْنِ، وَأَعُوذُ بِكَ مِنْ أَنْ أُرَدَّ إِلَى أَرْذَلِ الْعُمُرِ، وَأَعُوذُ بِكَ مِنْ فِتْنَةِ الدُّنْيَا وَعَذَابِ الْقَبْرِ.",
+        transliterationSq: "All-llãhumme innĩ e’ũdhu bike minel buḣli, we e’ũdhu bike minel xhubni, we e’ũdhu bike min en uradde ilã erdhelil ‘umuri, we e’ũdhu bike min fitnetid-dunjã, we ‘adhãbil ḳabri.",
+        translationSq: "O Allah! Të lutem më mbroj nga koprracia! Të lutem më mbroj nga frika! Të lutem më mbroj nga kthimi në moshën e moçme kur njeriut i bie fuqia apo matufoset! Të lutem më mbroj nga sprova e dynjasë dhe dënimi i varrit.",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "69-7",
+        type: "text",
+        titleSq: "Lutja 7",
+        arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْجَنَّةَ وَأَعُوذُ بِكَ مِنَ النَّارِ.",
+        transliterationSq: "All-llãhumme innĩ es’elukel xhennete, we e’ũdhu bike minen-nãr.",
+        translationSq: "O Allah, të lutem të më bësh banor të Xhenetit dhe të më ruash nga Zjarri.",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "69-8",
+        type: "text",
+        titleSq: "Lutja 8",
+        arabic: "اللَّهُمَّ بِعِلْمِكَ الغَيْبَ وَقُدْرَتِكَ عَلَى الْخَلقِ أَحْيِنِي مَا عَلِمْتَ الْحَيَاةَ خَيْرًا لِي، وَتَوَفَّنِي إِذَا عَلِمْتَ الْوَفَاةَ خَيْرًا لِي، اللَّهُمَّ إِنِّي أَسْأَلُكَ خَشْيَتَكَ فِي الْغَيْبِ وَالشَّهَادَةِ، وَأَسْأَلُكَ كَلِمَةَ الْحَقِّ فِي الرِّضَا وَالْغَضَبِ، وَأَسْأَلُكَ الْقَصْدَ فِي الْغِنَى وَالْفَقْرِ، وَأَسْأَلُكَ نَعِيمًا لَا يَنْفَدُ، وَأَسْأَلُكَ قُرَّةَ عَيْنٍ لَا تَنْقَطِعُ، وَأَسْأَلُكَ الرِّضَا بَعْدَ الْقَضَاءِ، وَأَسْــــأَلُكَ بَرْدَ الْعَيْشِ بَعْدَ الْمَوْتِ، وَأَسْأَلُكَ لَذَّةَ النَّظَرِ إِلَى وَجْهِكَ، وَالشَّوْقَ إِلَى لِقائِكَ فِي غَيرِ ضَرَّاءَ مُضِرَّةٍ، وَلَا فِتْنَةٍ مُضِلَّةٍ، اللَّهُمَّ زَيِّنَّا بِزِينَةِ الإِيمَانِ، وَاجْعَلْنَا هُدَاةً مُهْتَدِينَ",
+        transliterationSq: "All-llãhumme bi ‘ilmikel ġajbe, we ḳudratike ‘alel ḣalḳi; aḥjinĩ mã ‘alimtel ḥajãte ḣajran lĩ, we teweffenĩ idhã ‘alimtel wefãte ḣajran lĩ! All-llãhumme innĩ es’eluke ḣashjeteke fil ġajbi wesh-shehãdeti, we es’eluke kelimetel ḥaḳḳi firr-rriḍã wel ġaḍabi, we es’elukel ḳaṣde fil ġinã wel faḳri, we es’eluke ne’ĩmen lã jenfedu, we es’eluke ḳurrate ‘ajnin lã tenḳaṭi’u, we es’elukerr-rriḍã ba’ëdel kaḍã, we es’eluke berdel ‘ajshi ba’ëdel mewt, we es’eluke ledh-dheten-neḍhari ilã wexhhike, wesh-shewḳa ilã liḳãike, fĩ ġajri ḍarrãe muḍirratin, we lã fitnetin muḍil-letin! All-llãhumme zejjinnã bi zĩnetil ĩmãn wexh’alnã hudãten muhtedĩn.",
+        translationSq: "O Allah, unë të lus Ty, si Njohës i së fshehtës që je, dhe si i Plotfuqishëm mbi krijesat e Tua. Më jep jetë, nëse jeta është në dobinë time, dhe ma merr jetën, nëse vdekja është më e mirë për mua! Të lutem, më mundëso të kem drojë prej Teje, fshehtas dhe haptas! Më mundëso ta them të vërtetën kurdoherë, qofsha i zemëruar a i kënaqur! Më mundëso të harxhoj në mënyrë të moderuar (pa teprim dhe pa dorështrëngim) qofsha i pasur a i varfër! Të kërkoj të më dhurosh mirësi që nuk kanë fund dhe prehje të pandërprerë. Të lutem, më bëj të kënaqur mbasi ndodh ajo që është caktuar! Të lutem, më mundëso të shijoj freskinë e jetës pas vdekjes! Të lutem, më mundëso kënaqësinë e shikimit te Fytyra Jote dhe mallin e takimit me Ty, duke më ruajtur nga çdo fatkeqësi e rëndë dhe çdo sprovë që të çon në humbje! O Allah, na zbukuro me stolinë e besimit dhe na bëj udhëzues të udhëzuar!",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "69-9",
+        type: "text",
+        titleSq: "Lutja 9",
+        arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ يَا اللَّهُ بِأَنَّكَ الْوَاحِدُ الْأَحَدُ الصَّمَدُ الَّذِي لَمْ يَلِدْ وَلَمْ يولَدْ، وَلَمْ يَكنْ لَهُ كُفُوًا أَحَدٌ، أَنْ تَغْفِرَ لِي ذُنُوبِي إِنَّكَ أَنْتَ الْغَفُورُ الرَّحِّيمُ.",
+        transliterationSq: "All-llãhumme innĩ es’eluke, jã All-llãh, bi ennekel wãḥidul Eḥaduṣ-Ṣamed, el-ledhĩ lem jelid we lem jũled we lem jekun lehũ kufuwen eḥad, en teġfira lĩ dhunũbĩ, inneke Entel Ġafũrurr-Rraḥĩm.",
+        translationSq: "O Allah, të lutem Ty, o Allah, se Ti je Një dhe i Vetëm, je Ai, të Cilit i drejtohen krijesat për nevojat e tyre, je Ai që nuk lind, as nuk është i lindur, dhe që askush nuk është i barabartë me Të! Të lutem të më falësh gjynahet se vërtet Ti je Falës dhe Mëshirues.",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "69-10",
+        type: "text",
+        titleSq: "Lutja 10",
+        arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ بِأَنَّ لَكَ الْحَمْدَ لَا إِلَهَ إِلَّا أَنْتَ وَحْدَكَ لَا شَرِيكَ لَكَ، الْمَنَّانُ، يَا بَدِيعَ السَّمَوَاتِ وَالْأَرْضِ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ، يَا حَيُّ يَا قَيُّومُ إِنِّي أَسْأَلُكَ الْجَنَّةَ وَأَعُوذُ بِكَ مِنَ النَّارِ.",
+        transliterationSq: "All-llãhumme innĩ es’eluke bi enne lekel ḥamde, lã ilãhe il-lã Ente, waḥdeke lã sherĩke leke, El-Mennãnu, ja bedĩ’as-semawãti wel erḍi, jã dhel Xhelãli wel Ikrãm, jã Ḥajju jã Ḳajjũm, innĩ es’elukel xhennete, we e’ũdhu bike minen-nãr.",
+        translationSq: "O Allah, unë të lutem Ty, se Ty të takon lavdia. Nuk ka të adhuruar me të drejtë përveç Teje. Ti je i vetëm dhe i pashoq. Ti je Dhuruesi i Madh. O Krijuesi i qiejve dhe i Tokës! O Ti që zotëron Madhështinë dhe Nderimin! O i Gjallë e i Përjetshëm! O Mbajtësi i gjithçkaje! Unë të lutem të më bësh banor të Xhenetit dhe të më ruash nga Zjarri.",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "69-11",
+        type: "text",
+        titleSq: "Lutja 11",
+        arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ بِأَنَّي أَشْهَدُ أَنَّكَ أَنْتَ اللَّهُ لَا إِلَهَ إِلَّا أَنْتَ الْأَحَدُ الصَّمَدُ الَّذِي لَمْ يَلِدْ وَلَمْ يُولَدْ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ.",
+        transliterationSq: "All-llãhumme innĩ es’eluke bi ennĩ eshhedu enneke Entall-llãhu lã ilãhe il-lã Ent, El Eḥaduṣ-Ṣamed, el-ledhĩ lem jelid we lem jũled we lem jekun lehũ kufuwen eḥad.",
+        translationSq: "O Allah, unë të lutem Ty, si pohues se Ti je Allahu, nuk ka të adhuruar me të drejtë përveç Teje! Ti je Një dhe Es Samed (Ai, të Cilit i drejtohen krijesat për nevojat e tyre). I Cili nuk lind, as nuk është i lindur. Dhe askush nuk është i barabartë me Atë.",
+        repetitions: 1,
+        sourceSq: ""
+      }
+    ]
+  },
+  {
+    number: 70,
+    categoryId: "namazi",
+    titleSq: "DHIKRI PAS SELAMIT NË PËRFUNDIMIN E NAMAZIT FARZ",
+    guidanceSq: "",
+    items: [
+      {
+        id: "70-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أَسْتَغْفِرُ اللَّهَ.",
+        transliterationSq: "Estaġfirull-llãh (tri herë).",
+        translationSq: "I kërkoj falje Allahut",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "70-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ أَنْتَ السَّلَامُ، وَمِنْكَ السَّلَامُ، تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ.",
+        transliterationSq: "All-llãhumme Entes-Selãm, we minkes-selãm, tebãrakte jã dhel xhelãli wel ikrãm.",
+        translationSq: "O Allah! Ti je Paqedhënësi dhe vetëm prej Teje pres paqen! Ti je përgjithmonë i Begatshëm, o Zotëruesi i madhështisë dhe nderimit!",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "70-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوعَلَى كُلِّ شَيْءٍ قَدِيرٌ، اللَّهُمَّ لَا مَانِعَ لِمَا أَعْطَيْتَ، وَلَا مُعْطِيَ لِمَا مَنَعْتَ، وَلَا يَنْفَعُ ذَا الْجَدِّ مِنْكَ الجَدُّ",
+        transliterationSq: "Lã ilãhe il-lAll-llãhu waḥdehu lã sherĩke leh, lehul mulku we lehul ḥamdu we huwe ‘alã kul-li shej’in ḳadĩr. All-llãhumme lã mani’a limã a’ëṭajte, we lã mu’ëṭije limã mena’ëte, we lã jenfe’u dhel xheddi minkel xheddu.",
+        translationSq: "S’ka të adhuruar me të drejtë veç Allahut, Një dhe i Pashoq! Atij i takon sundimi dhe lavdia, dhe Ai është i Plotfuqishëm për çdo gjë! O Allah! Nuk mund ta ndalojë askush atë që e ke dhënë Ti, dhe s’ka kush të japë atë që Ti e ke ndaluar! Të pasurit apo njeriut me pozitë nuk mund t’i bëjë dobi tek Ti pasuria a pozita e tij, por i bën dobi veçse puna e mirë!",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      },
+      {
+        id: "70-4",
+        type: "text",
+        titleSq: "Lutja 4",
+        arabic: "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ، وَلَهُ الْحَمدُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ، لَا إِلَهَ إِلَّا اللَّهُ، وَلَا نَعْبُدُ إِلَّا إِيَّاهُ، لَهُ النِّعْمَةُ وَلَهُ الْفَضْلُ وَلَهُ الثَّنَاءُ الْحَسَنُ، لَا إِلَهَ إِلَّا اللَّهُ مُخْلِصِينَ لَهُ الدِّينَ وَلَوْ كَرِهَ الكَافِرُونَ.",
+        transliterationSq: "Lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh, lehul mulku we lehul ḥamdu we huwe ‘alã kul-li shej’in ḳadĩr. Lã ḥawle we la ḳuwwete il-lã bil-lãh, lã ilãhe il-lall-llãhu, we lã na’ëbudu il-lã ijjãhu, lehun-ni’ëmetu we lehul faḍlu we lehuth-thenãul ḥasen. Lã ilãhe il-lall-llãhu muḣliṣĩne lehud-dĩne we lew kerihel kãfirũn.",
+        translationSq: "S’ka të adhuruar me të drejtë veç Allahut, Një dhe i Pashoq; Atij i takon sundimi dhe lavdia, dhe Ai është i Plotfuqishëm për çdo gjë! S’mund të bëhet asnjë lëvizje dhe nuk ka fuqi për asgjë veçse me ndihmën e Allahut! S’ka të adhuruar me të drejtë veç Allahut dhe nuk adhurojmë asnjë tjetër veç Tij! Dhuntitë dhe mirësitë janë prej Tij, dhe vetëm Atij i takon lavdi më i bukur! S’ka të adhuruar me të drejtë veç Allahut! Adhurimin e kryejmë me sinqeritet vetëm për Të, edhe pse këtë e urrejnë jobesimtarët!",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "70-5",
+        type: "text",
+        titleSq: "Lutja 5",
+        arabic: "سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَاللَّهُ أَكْبَرُ.",
+        transliterationSq: "“Subḥãnall-llãh”; “Elḥamdu lil-lãh”; “All-llãhu Ekber” - 33 herë secilën.",
+        translationSq: ".",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "70-6",
+        type: "text",
+        titleSq: "Lutja 6",
+        arabic: "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ.",
+        transliterationSq: "Lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh, lehul mulku we lehul ḥamdu we huwe ‘alã kul-li shej’in ḳadĩr.",
+        translationSq: "S’ka të adhuruar me të drejtë veç Allahut, Një dhe i Pashoq! Atij i takon sundimi dhe lavdia, dhe Ai është i Plotfuqishëm për çdo gjë!",
+        repetitions: 1,
+        sourceSq: "Muslimi. Muslimi · Në këtë hadith Pejgamberi ﷺ thotë: “Kush e thotë këtë dhikër pas çdo namazi, i falen gjynahet qofshin edhe sa shkuma e detit”."
+      },
+      {
+        id: "70-7",
+        type: "text",
+        titleSq: "Lutja 7",
+        arabic: "بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ ﴿قُلْ هُوَ اللَّهُ أَحَدٌ ۞ اللَّهُ الصَّمَدُ ۞ لَمْ يَلِدْ وَلَمْ يُولَدْ ۞ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ﴾ بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ ﴿قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۞ مِن شَرِّ مَا خَلَقَ ۞ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ۞ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۞ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ﴾ بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ ﴿قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۞ مَلِكِ النَّاسِ ۞ إِلَهِ النَّاسِ ۞ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۞ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۞ مِنَ الْجِنَّةِ وَالنَّاسِ﴾",
+        transliterationSq: "Bismil-lãhirr-rraḥmãnirr-rraḥĩm. Ḳul huwall-llãhu eḥad, All-llãhuṣ-Ṣamed, lem jelid we lem jũled, we lem jekun lehũ kufuwen eḥad. Bismil-lãhirr-rraḥmãnirr-rraḥĩm. Ḳul e’ũdhu bi rabbil feleḳ, min sherri mã ḣaleḳ, we min sherri ġãsiḳin idhã weḳab, we min sherrin-neffãthãti fil ‘uḳad, we min sherri ḥãsidin idha ḥased. Bismil-lãhirr-rraḥmãnirr-rraḥĩm. Ḳul e’ũdhu bi rabbin-nãs, Melikin-nãs, Ilãhin-nãs, min sherril weswãsil ḣan-nãs, el-ledhĩ juweswisu fĩ ṣudũrin-nãs, minel xhinneti wen-nãs.",
+        translationSq: "Me emrin e Allahut, Mëshiruesit, Mëshirëbërësit! Thuaj: “Ai, Allahu është Një! Allahu është Eṣ Ṣamedu (Ai, të Cilit i drejtohen krijesat për nevojat e tyre). Ai as nuk lind, as nuk është i lindur. Dhe askush nuk është i barabartë me Atë!”. Me emrin e Allahut, Mëshiruesit, Mëshirëbërësit! Thuaj: “Kërkoj mbështetje te Zoti i agimit, që të më mbrojë nga sherri i gjithçkaje që Ai ka krijuar, dhe nga sherri i natës, kur bie terri, dhe nga sherri i magjistarëve, që fryjnë në nyje magjie, dhe nga sherri i smirëziut, kur vepron me smirë. Me emrin e Allahut, Mëshiruesit, Mëshirëbërësit! Thuaj: “Kërkoj mbrojtje te Zoti i njerëzve, Sundimtari i njerëzve, i Adhuruari (i vetëm me të drejtë) i njerëzve, nga sherri i shejtanit ngacmues që fshihet (kur përmendet Allahu), e që hedh të liga e dyshime në gjoksin e njerëzve, (qoftë ai shejtan) prej xhindëve ose njerëzve!”. (Këto tri sure i themi pas çdo namazi farz).",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi, Tirmidhiu dhe Nesaiu (Sahih Tirmidhi). Këto tri sure quhen: «Mbrojtëset» (Fet’hul Bari)."
+      },
+      {
+        id: "70-8",
+        type: "text",
+        titleSq: "Lutja 8",
+        arabic: "﴿اللّهُ لَا إِلَـهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الأَرْضِ مَن ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاء وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالأَرْضَ وَلَا يَؤُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ﴾",
+        transliterationSq: "All-llãhu lã ilãhe il-lã huwel Ḥajjul Ḳajjũm. Lã te’ḣudhuhu sinetun we lã newm. Lehu mã fis-semãwãti we mã fil erḍ. Men dhel-ledhĩ jeshfe’u ‘indehu il-lã bi idhnihi. Ja’ëlemu mã bejne ejdĩhim we mã ḣalfehum, we lã juḥĩṭũne bi shej’in min ‘ilmihi il-lã bimã shãe. Wesi’a kursijjuhus-semãwãti wel erḍa, we lã je’ũduhu ḥifḍhuhumã we huwel ‘Alijjul ‘Aḍhĩm.",
+        translationSq: "(Pas çdo namazi farz). Allahu është Ai, përveç të Cilit nuk ka të adhuruar tjetër me të drejtë, i Gjalli, i Përjetshmi, Mbajtësi i gjithçkaje! Atë nuk e kap as dremitja, as gjumi! Atij i përket gjithçka që gjendet në qiej dhe gjithçka që gjendet në Tokë. Kush mund të ndërhyjë tek Ai për ndokënd pa lejen e Tij? Ai di çdo gjë që u ka ndodhur krijesave në të shkuarën dhe çdo gjë që do t’u ndodhë në të ardhmen, kurse ata nuk mund të përvetësojnë asgjë nga Dituria e Tij, përveçse aq sa Ai dëshiron. Kursi-u i Tij përfshin qiejt dhe Tokën dhe Ai nuk e ka të rëndë t’i ruajë ato. Ai është i Larti, Madhështori!",
+        repetitions: 1,
+        sourceSq: "Nesaiu në “Amelul jeumi vel lejleti” (Sahih Xhami). · Pejgamberi ﷺ thotë: “Kush lexon ajetin Kursij pas çdo namazi farz, nuk e ndan nga hyrja në Xhenet asgjë, vetëm se vdekja!”"
+      },
+      {
+        id: "70-9",
+        type: "text",
+        titleSq: "Lutja 9",
+        arabic: "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ يُحْيِي وَيُمِيتُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ.",
+        transliterationSq: "Lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh. Lehul mulku we lehul ḥamdu, juḥjĩ we jumĩt we huwe ‘alã kul-li shej’in ḳadĩr.",
+        translationSq: "(Dhjetë herë pas namazit të akshamit, dhe po aq pas namazit të sabahut). S’ka të adhuruar me të drejtë veç Allahut, Një dhe i Pashoq! Atij i takon sundimi dhe lavdia, Ai jep jetë dhe jep vdekje! Dhe Ai është i Plotfuqishëm për çdo gjë!.",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu dhe Ahmedi [Sahihut tergib]."
+      },
+      {
+        id: "70-10",
+        type: "text",
+        titleSq: "Lutja 10",
+        arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا.",
+        transliterationSq: "All-llãhumme innĩ es’eluke ‘ilmen nãfi’an, we rizḳan ṭajjiben, we ‘amelen muteḳabbelen.",
+        translationSq: "(Pas selamit në namazin e sabahut). O Allah! Unë të kërkoj dije të dobishme, rrizk (furnizim) të mirë dhe punë të pranuar!)",
+        repetitions: 1,
+        sourceSq: "Ibn Maxhe (Sahih Ibn Maxhe)."
+      }
+    ]
+  },
+  {
+    number: 71,
+    categoryId: "namazi",
+    titleSq: "DUAJA E KUNUTIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "71-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ اهْدِنِي فِيمَنْ هَدَيْتَ، وَعَافِنِي فِيمَنْ عَافَيْتَ، وَتَوَلَّنِي فِيمَنْ تَوَلَّيْتَ، وَبَارِكْ لِي فِيمَا أَعْطَيْتَ، وَقِنِي شَرَّ مَا قَضَيْتَ؛ فَإِنَّكَ تَقْضِي وَلَا يُقْضَى عَلَيْكَ، إِنَّهُ لَا يَذِلُّ مَنْ وَالَيْتَ، [وَلَا يَعِزُّ مَنْ عَادَيْتَ]، تَبارَكْتَ رَبَّنا وَتَعَالَيْتَ.",
+        transliterationSq: "All-llãhummehdinĩ fĩmen hedejt, we ‘ãfinĩ fĩmen ‘ãfejt, we tewel-lenĩ fĩmen tewel-lejt, we bãrik lĩ fĩmã a’ëṭajt, we ḳinĩ sherra mã ḳaḍajt, fe inneke teḳḍĩ we lã juḳḍã ‘alejke, innehu lã jedhil-lu men wãlejte, we lã je’izzu men ‘ãdejte, tebãrakte rabbenã we te’ãlejt.",
+        translationSq: "O Allah! Më bëj prej atyre që i ke udhëzuar në rrugën e drejtë! Më bëj prej atyre që i shpëton nga të këqijat! Më bëj prej atyre që kujdesesh për ta! Ma bëj të begatshme gjithçka që më ke dhënë (si: jetën, pasurinë, njohuritë, punët)! Më ruaj nga sherri i asaj që Ti ke caktuar për mua! Vërtet Ti vendos, e askush nuk mund ta kthejë mbrapsht vendimin Tënd! Nuk mund të jetë i poshtëruar ai që Ti e ke miqësuar dhe nuk mund të bëhet krenar ai që Ti e ke armiqësuar! O Zoti ynë! Ti je i Bekuar dhe i Lartësuar!",
+        repetitions: 1,
+        sourceSq: "Katër Sunene-t, por një frazë e sjell vetëm Bejhakiu (Sahih Tirmidhi dhe Irva)."
+      },
+      {
+        id: "71-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ إِنِّي أَعُوذُ بِرِضَاكَ مِنْ سَخَطِكَ، وَبِمُعَافَاتِكَ مِنْ عُقُوبَتِكَ، وَأَعُـــــوذُ بِكَ مِنْكَ، لَا أُحْصِي ثَنَاءً عَلَيْـكَ، أَنْتَ كَمَا أَثْنَيْتَ عَلَى نَفْسِكَ.",
+        transliterationSq: "All-llãhumme innĩ e’ũdhu bi riḍãke min saḣaṭik, we bi mu’ãfãtike min ‘uḳũbetik, we e’ũdhu bike mink! Lã uḥṣĩ thenãen ‘alejk. Ente kemã ethnejte ‘alã nefsik.",
+        translationSq: "O Allah! Kërkoj të më strehosh me Kënaqësinë Tënde nga hidhërimi Yt! Kërkoj të më strehosh me Faljen Tënde nga dënimi Yt! Kërkoj strehim tek Ti, për t’u mbrojtur prej Teje! Unë, sado të përpiqem, nuk mund t’i numëroj dot Lavditë e Tua, ashtu siç e meriton! Ti je ashtu siç e ke madhëruar Veten!",
+        repetitions: 1,
+        sourceSq: "Katër Sunene-t (Sahih Tirmidhi)."
+      },
+      {
+        id: "71-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "اللَّهُمَّ إِيَّاكَ نعْبُدُ، وَلَكَ نُصَلِّي وَنَسْجُدُ، وَإِلَيْكَ نَسْعَى وَنَحْفِدُ، نَرْجُو رَحْمَتَكَ، وَنَخْشَى عَذَابَكَ، إِنَّ عَذَابَكَ بِالكَافِرِينَ مُلْحَقٌ. اللَّهُمَّ إِنَّا نَسْتَعينُكَ، وَنَسْتَغْفِرُكَ، وَنُثْنِي عَلَيْكَ الْخَيْرَ، وَلَا نَكْفُرُكَ، وَنُؤْمِنُ بِكَ، وَنَخْضَعُ لَكَ، وَنَخْلَعُ مَنْ يَكْفرُكَ.",
+        transliterationSq: "All-llãhumme ijjãke na’ëbudu we leke nuṣal-lĩ we nes’xhudu, we ilejke nes’ã we naḥfid. Nerxhũ raḥmeteke, we naḣshã ‘adhãbeke. Inne ‘adhãbeke bil kãfirĩne mulḥaḳ. All-llãhumme innã neste’ĩnuke, we nesteġfiruk, we nuthnĩ ‘alejkel ḣajra, we lã nekfuruk, we nu’minu bike, we neḣ’ḍa’u leke, we neḣle’u men jekfuruk.",
+        translationSq: "O Allah, vetëm Ty të adhurojmë dhe vetëm për Ty falemi e përulemi në sexhde. Ne shpejtojmë në kryerjen e ibadeteve vetëm për Ty. Shpresojmë mëshirën Tënde dhe kemi frikë nga dënimi Yt. Sigurisht që mohuesit do t’i kapë dënimi Yt. O Allah, ne kërkojmë të na ndihmosh dhe të na falësh gjynahet. Për Ty thurim lavditë më të mira dhe nuk i mohojmë të mirat që na ke bërë. Ty të besojmë dhe Ty të nënshtrohemi. Ne heqim dorë prej atij që mohon të mirat e Tua",
+        repetitions: 1,
+        sourceSq: "Bejhakiu në «Sunen Kubra» si një lutje e bërë nga Umeri. Albani thotë se senedi është i saktë."
+      }
+    ]
+  },
+  {
+    number: 72,
+    categoryId: "namazi",
+    titleSq: "DHIKRI PAS SELAMIT NË NAMAZIT E VITRIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "72-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "سُبْحَانَ المَلِكِ القُدُّوسِ. [رَبِّ الْمَلَائِكَةِ وَالرُّوحِ].",
+        transliterationSq: "Subḥãnel Melikil Ḳuddũs. […Rabbil melãiketi werr-rruḥ]",
+        translationSq: "I Lartësuar është Sunduesi, i Dëliri nga çdo gjë që nuk i përshtatet madhërisë së Tij), – tri herë, duke e zgjatur dhe duke e ngritur zërin tek e treta. Pas kësaj të thuash: Zoti i Melekëve dhe i Shpirtit (Xhibrilit).",
+        repetitions: 1,
+        sourceSq: "Nesaiu dhe Darekutni, por pjesën në kllapa e sjell vetëm ky i fundit. Senedi është i saktë."
+      }
+    ]
+  },
+  {
+    number: 73,
+    categoryId: "namazi",
+    titleSq: "DUAJA KUNDËR VESVESEVE NË NAMAZ DHE GJATË LEXIMIT TË KUR'ANIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "73-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أَعُوذُ بِاللَّهِ مِنَ الشَّيطَانِ الرَّجِيمِ.",
+        transliterationSq: "E’ũdhu bil-lãhi minesh-shejṭãnirr-rraxhĩm.",
+        translationSq: "I mbështetem Allahut të më mbrojë nga shejtani i mallkuar. Pasi themi këtë lutje, pështyjmë tri herë në të majtë.",
+        repetitions: 1,
+        sourceSq: "Muslimi. Përcjellësi i hadithit, Uthman Ibn As , përmend se kur e bëri këtë gjë, Allahu ia largoi ngacmimin e shejtanit."
+      }
+    ]
+  },
+  {
+    number: 74,
+    categoryId: "falenderimi-ndaj-allahut",
+    titleSq: "DUAJA E NAMAZIT ISTIHARE",
+    guidanceSq: "",
+    items: [
+      {
+        id: "74-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Xhabiri (Allahu qoftë i kënaqur me të) tregon: “Pejgamberi ﷺ na mësonte lutjen e istihare-s për çdo çështje ashtu siç na mësonte një sure të Kuranit. Ai na këshillonte duke thënë: “Nëse ndonjëri çon nëpër mend a vendos për një çështje, le të falë dy rekate namaz nafile dhe, pas namazit, le të thotë:",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "74-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ، وَأَسْتَقْدِرُكَ بِقُدْرَتِكَ، وَأَسْأَلُكَ مِنْ فَضْلِكَ العَظِيمِ؛ فَإِنَّكَ تَقْدِرُ وَلَا أَقْدِرُ، وَتَعْلَمُ وَلَا أَعْلَمُ، وَأَنْتَ عَلَّامُ الغُيُوبِ، اللَّهُمَّ إِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الأمْرَ - وَيُسَمِّي حَاجَتَهُ - خَيْرٌ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي – أَوْ قَالَ: عَاجِلِهِ وَآجِلِهِ - فَاقْدُرْهُ لِي وَيَسِّرْهُ لِي ثُمَّ بَارِكْ لِي فِيهِ، وَإِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ شَرٌّ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي – أَوْ قَالَ: عَاجِلِهِ وَآجِلِهِ – فَاصْرِفْهُ عَنِّي وَاصْرِفْنِي عَنْهُ وَاقْدُرْ لِيَ الْخَيْرَ حَيْثُ كَانَ، ثُمَّ أَرْضِنِي بِهِ.",
+        transliterationSq: "All-llãhumme innĩ esteḣĩruke bi ’ilmike, we esteḳdiruke bi ḳudratike, we es’eluke min faḍlikel ‘aḍhĩm, fe inneke teḳdiru we lã eḳdiru, we ta’ëlemu we lã a’ëlemu, we Ente ’al-lãmul ġujũb. All-llãhumme in kunte ta’ëlemu enne hãdhel emra - (këtu përmend hallin që ka) - ḣajrun lĩ fĩ dĩnĩ we me’ãshĩ, we ‘ãḳibeti emrĩ, - ’ãxhilihi we ãxhilihĩ, - feḳdurhu lĩ we jessirhu lĩ, thumme bãrik lĩ fĩhi! we in kunte ta’ëlemu enne hãdhel emra sherrun lĩ fĩ dĩnĩ we me’ãshĩ we ’ãkibeti emrĩ, - ’ãxhilihi we ãxhilihi, - faṣrifhu ‘annĩ, waṣrifnĩ ’anhu, wekdur lijel ḣajra ḥajthu kãne, thumme erḍinĩ bihi.",
+        translationSq: "O Allah! Kërkoj të më japësh më të mirën, më të mbarën e më të dobishmen, për shkak se Ti di gjithçka! Kërkoj të ma bësh të mirën të mundur me Fuqinë Tënde! Kërkoj të më dhurosh nga mirësia Jote e madhe, sepse Ti ke fuqi për gjithçka, kurse unë nuk kam mundësi! Ti di çdo gjë, kurse unë nuk di! Ti je Njohësi i të fshehtave! O Allah! Nëse kjo gjë, – dhe përmend gjënë për të cilën bën istihare, – sipas Dijes Tënde, është në të mirën e në dobinë e fesë sime, të jetës sime dhe përfundimit të punëve të mia, – (ose sipas një varianti tjetër: më e mirë për punët e mia të tanishme dhe të mëvonshme), – atëherë ma mundëso, ma bëj mbarë ta realizoj dhe ma bëj të begatshme! E nëse kjo gjë, – përmend gjënë për të cilën bën istihare, – është e dëmshme për fenë time, jetën time dhe përfundimin e punëve të mia, – (ose sipas një varianti tjetër: për punët e mia të tanishme dhe të mëvonshme), – atëherë largoje atë prej meje, dhe ma hiq mendjen prej saj! Më mundëso të mirën kudo qoftë dhe më bëj të kënaqur me të!",
+        repetitions: 1,
+        sourceSq: "Buhariu. Ali Imran 159. · Nuk ka për t’u bërë pishman një njeri që i bën lutje istihare Krijuesit, që këshillohet me besimtarët dhe që sigurohet e tregon kujdes në punët e veta, sepse Allahu i Lartësuar thotë: “Këshillohu me ata për çështjet. Kur të vendosësh për diçka, mbështetu tek Allahu”."
+      }
+    ]
+  },
+  {
+    number: 75,
+    categoryId: "falenderimi-ndaj-allahut",
+    titleSq: "DUAJA E ATIJ QË I VËSHTIRËSIOHET NDONJË ÇËSHTJE",
+    guidanceSq: "",
+    items: [
+      {
+        id: "75-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا.",
+        transliterationSq: "All-llãhumme lã sehle il-lã mã xhe’altehu sehlen, we Ente texh’alul ḥazne idhã shi’te sehlã!",
+        translationSq: "O Allah! Asgjë nuk është e lehtë përveç asaj që Ti e bën të lehtë. Ti e bën të vështirën, nëse dëshiron, të lehtë.",
+        repetitions: 1,
+        sourceSq: "Ibn Hibani."
+      }
+    ]
+  },
+  {
+    number: 76,
+    categoryId: "falenderimi-ndaj-allahut",
+    titleSq: "KUR BËJMË NDONJË MËKAT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "76-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ ka thënë: “Nuk ka rob që, mbasi bën ndonjë gjynah, pastrohet mirë (duke marrë abdes ose gusul), ngrihet dhe fal dy rekate namaz, e pastaj i kërkon falje Allahut, e që Allahu të mos ia falë gjynahun.”",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi dhe Tirmidhi (Sahih Ebu Davud)."
+      }
+    ]
+  },
+  {
+    number: 77,
+    categoryId: "falenderimi-ndaj-allahut",
+    titleSq: "KUR TË NDODHË DIÇKA E PAPËLQYER APO E PAPRITUR",
+    guidanceSq: "",
+    items: [
+      {
+        id: "77-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "قَدَرُ اللَّهِ وَمَا شَاءَ فَعَلَ.",
+        transliterationSq: "Ḳaderull-llãhi we mã shãe fe’al",
+        translationSq: "Ky qe kaderi i Allahut. Atë që deshi Ai, e bëri.",
+        repetitions: 1,
+        sourceSq: "Muslimi · Pejgamberi ﷺ thotë: “Besimtari i fuqishëm është më i mirë dhe më i dashur për Allahun sesa besimtari i dobët, megjithatë te secili prej tyre ka mirësi. Trego interesim për atë që të bën dobi, kërkoji ndihmë Allahut dhe mos u bëj i paaftë! Nëse të godet diçka, mos thuaj: ‘Sikur të kisha bërë kështu, do të bëhej kështu e ashtu’, por thuaj: ‘Ishte kaderi i Allahut. Atë që deshi, e bëri.”"
+      }
+    ]
+  },
+  {
+    number: 78,
+    categoryId: "falenderimi-ndaj-allahut",
+    titleSq: "DHIKIR PËR MBROJTJEN NGA DEXHALLI",
+    guidanceSq: "",
+    items: [
+      {
+        id: "78-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ thotë: “Kushdo që mëson përmendsh dhjetë ajete nga fillimi i sures Kehf, Allahu ka për ta ruajtur prej Dexhalit”. Gjithashtu, t’i lutesh Allahut të të ruaj prej sprovës së Dexhalit pas teshehud-it të fundit dhe para selamit, në çdo namaz”.",
+        repetitions: 1,
+        sourceSq: "Shiko lutjet e namazit para selamit."
+      }
+    ]
+  },
+  {
+    number: 79,
+    categoryId: "falenderimi-ndaj-allahut",
+    titleSq: "VLERA E SALAVATIT MBI PEJGAMBERIN SAL-LALLAHU 'ALEJHI UE SELEM",
+    guidanceSq: "",
+    items: [
+      {
+        id: "79-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ ka thënë: “Kush bën një herë salavat për mua, Allahu i Lartësuar ka për ta lavdëruar dhjetë herë (tek melekët)”. “Mos e bëni varrin tim vend feste, ku vini apo grumbulloheni në kohë sezonale të caktuara, por dërgoni salavat-e për mua, sepse salavat-et tuaja më arrijnë kudo që të jeni”. “Koprrac i madh është ai që, kur unë përmendem në prani të tij, nuk bën salavat për mua” . “Allahu ka melekë që shëtisin në Tokë dhe më përcjellin selamin e umetit tim”. “Nuk ka njeri që lutet për selam për mua, e që Allahu të mos ma kthejë shpirtin për t’i kthyer selamin”.",
+        repetitions: 1,
+        sourceSq: "Muslimi. Ebu Davudi dhe Ahmedi (Sahih Ebu Davud). Tirmidhiu (Sahih Xhami). Ebu Davud (Sahih Ebu Davud)."
+      }
+    ]
+  },
+  {
+    number: 80,
+    categoryId: "falenderimi-ndaj-allahut",
+    titleSq: "KËRKIMI I FALJES DHE PENDIMI",
+    guidanceSq: "",
+    items: [
+      {
+        id: "80-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ ka thënë: “Për Allahun, unë i kërkoj falje Allahut dhe kthehem tek Ai me pendim më shumë se shtatëdhjetë herë në ditë. “O njerëz, bëni teube tek Allahu, sepse unë bëj teube tek Ai njëqind herë në ditë”.",
+        repetitions: 1,
+        sourceSq: "Buhariu. [Formula e istigfarit dhe teubes: “Estaġfirullãhe we etũbu ilejhi”]. Muslimi dhe Ebu Davudi."
+      },
+      {
+        id: "80-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "أَسْتَغْفِرُ اللَّهَ الْعَظيمَ الَّذِي لَا إِلَهَ إِلَّا هُوَ الْحَيُّ القَيّوُمُ وَأَتُوبُ إِلَيهِ.",
+        transliterationSq: "Estaġfirrull-llãhel ‘aḍhĩm el-ledhĩ lã ilãhe il-lã huwel Ḥajjul Ḳajjũmu we etũbu ilejhi.",
+        translationSq: "I kërkoj falje Allahut Madhështor, përveç të Cilit nuk ka të adhuruar të vërtetë dhe i Cili është i Gjallë, i Përjetshëm, Mbajtësi i gjithçkaje, dhe kthehem me pendim tek Ai, pra atë që thotë kështu, Allahu e fal qoftë edhe nëse ka ikur nga beteja.",
+        repetitions: 1,
+        sourceSq: "Ebu Davud, Tirmidhiu dhe Hakimi (Sahih Tirmidhi). Tirmidhiu, Nesaiu dhe Hakimi (Sahih Tirmidhi). Muslimi. Muslimi. · “Koha kur Zoti është më afër robit është një e treta e fundit e natës, prandaj përpiqu që në këtë orë të jesh prej atyre që i bëjnë dhikër Allahut.” “Robi është më afër me Zotin e tij, kur është në sexhde, prandaj bëni sa më shumë lutje (kur jeni në këtë gjendje)”. “Ndonjëherë zemra ime mund ta humbë vëmendjen nga dhikri i Allahut, e për këtë arsye unë i kërkoj falje Allahut, çdo ditë, njëqind herë.”"
+      }
+    ]
+  },
+  {
+    number: 81,
+    categoryId: "falenderimi-ndaj-allahut",
+    titleSq: "VLERA E DISA LUTJEVE",
+    guidanceSq: "",
+    items: [
+      {
+        id: "81-2",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ.",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ ka thënë: “Kush thotë: “Subḥãnall-llãhi we biḥamdihi!” do t’i fshihen gjynahet, qofshin edhe sa shkuma e detit.”",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi"
+      },
+      {
+        id: "81-3",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "لَا إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيْكَ لَهُ، لَهُ الـمُلْكُ، وَلَهُ الـحَمْدُ، وَهُوَ عَلَى كُلِّ شَيءٍ قَدِيرٌ",
+        transliterationSq: "Lã ilãhe ilall-llãhu waḥdehu lã sherĩke leh, lehul mulku we lehul ḥamdu we huwe ‘alã kul-li shej’in ḳadĩr.",
+        translationSq: "Kush thotë: \"S’ka të adhuruar me të drejtë veç Allahut, Një dhe i Pashoq! Atij i takon sundimi dhe lavdia, dhe Ai është i Plotfuqishëm për çdo gjë!”, ka shpërblim si ai që liron nga skllavëria katër vetë prej pasardhësve të Ismailit",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi"
+      },
+      {
+        id: "81-4",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "سُبْحَانَ اللَّـهِ وَبِحَمْدِهِ، سُبْحَانَ اللـهِ العَظِيمِ.",
+        transliterationSq: "Subḥãnall-llãhi we biḥamdihi, Subḥãnall-llãhil ‘aḍhĩm",
+        translationSq: "Dy fjalë janë të lehta për t’u shqiptuar me gjuhë, të rënda në peshore dhe të dashura tek Mëshiruesi: (Shpreh lartësimin se) Allahu është i Dëlirë nga të metat, duke e ngritur lart dhe lavdinë e Tij! Allahu i Madhëruar është i Dëlirë nga çdo e metë!",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi"
+      },
+      {
+        id: "81-5",
+        type: "text",
+        titleSq: "Lutja 4",
+        arabic: ".",
+        transliterationSq: "",
+        translationSq: "Të them: “Subḥãnall-llãh, wel-ḥamdu lil-lãh, we lã ilãhe il-lall-llãh, wall-llãhu ekber”, e dëshiroj më shumë, sesa të kisha gjithçka që kapin rrezet e diellit.",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "81-6",
+        type: "text",
+        titleSq: "Lutja 5",
+        arabic: ".",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ tha njëherë: “A nuk keni mundësi të fitoni çdo ditë një mijë të mira?!” Njëri nga ata që ishin ulur me të pyeti: “Si mund të fitosh një mijë të mira?” Pejgamberi ﷺ iu përgjigj: “Duke thënë njëqind herë: ‘Subḥãnall-llãh’, se kështu të shkruhen njëmijë të mira, ose të fshihen njëmijë gjynahe.”",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "81-7",
+        type: "text",
+        titleSq: "Lutja 6",
+        arabic: "سُبْحَانَ اللـهِ العَظِيمِ وَبِحَمْدِهِ",
+        transliterationSq: "Subḥãnall-llãhil ‘aḍhĩm we biḥamdihi!",
+        translationSq: "Kush thotë: \"Allahu i Madhëruar është i dëlirë nga të metat. Lartësoj lavdinë e Tij\", i mbillet një pemë në Xhenet.",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu dhe Hakimi (Sahih Xhami dhe Sahih Tirmidhi)."
+      },
+      {
+        id: "81-8",
+        type: "text",
+        titleSq: "Lutja 7",
+        arabic: ".",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ i tha sahabiut: “O Abdullah ibn Kajs! A të tregoj për një thesar të Xhenetit?” - “Posi, o i Dërguari i Allahut” – i tha Ibn Kajsi. Profeti ﷺ i tha: “Thuaj: ‘Lã ḥawle we lã ḳuwwete il-lã bil-lãh'.\"",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi"
+      },
+      {
+        id: "81-9",
+        type: "text",
+        titleSq: "Lutja 8",
+        arabic: ".",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ ka thënë: “Shprehjet më të dashura tek Allahu janë katër: “Subḥãnall-llãh, welḥamdu lil-lãh, we lã ilãhe il-lall-llãh, wall-llãhu ekber.” Nuk ka shumë rëndësi renditja e tyre.",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "81-10",
+        type: "text",
+        titleSq: "Lutja 9",
+        arabic: "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، اللَّهُ أَكْبَرُ كَبِيراً، وَالْحَمْدُ لِلَّهِ كَثِيراً، سُبْحَانَ اللَّهِ رَبِّ العَالَمِينَ، لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ الْعَزِيزِ الْحَكِيمِ اللَّهُمَّ اغْفِر لِي، وَارْحَـمْنِي، وَاهْدِنِي، وَارْزُقْنِي",
+        transliterationSq: "",
+        translationSq: "Një nomad shkoi tek i Dërguari i Allahut ﷺ dhe i tha: “Më mëso ca fjalë, që t’i përmend rregullisht”. Pejgamberi ﷺ iu përgjigj: “Thuaj: Lã ilãhe il-lall-llãhu waḥdehu lã sherĩke lehu. All-llãhu ekberu kebĩran, welḥamdu lil-lãhi kethĩran, Subḥãnall-llãhi rabbil ‘ãlemĩn, lã ḥawle we lã ḳuwwete il-lã bil-lãhil ’Azĩzil Ḥakĩm.\" (Nuk ka të adhuruar tjetër të merituar veç Allahut, Ai është i vetëm dhe i pashoq. Allahu është më i madhi. Lavdia e shumtë i takon Allahut. I Patëmetë është Allahu, Zoti i botëve. S’mund të bëhet asnjë lëvizje dhe nuk ka fuqi për diçka veçse me vullnetin e Allahut, të Gjithëfuqishmit e të Urtit). Nomadi tha: “Këto janë për të përmendur Zotit tim, po ç’lutje të bëj për veten? Pejgamberi ﷺ iu përgjigj: “Thuaj: All-llãhummeġfir lĩ, werḥamnĩ, wehdinĩ, werzuḳnĩ.\" (O Allah! Më fal, më mëshiro, më udhëzo dhe më furnizo!)",
+        repetitions: 1,
+        sourceSq: "Muslimi · Ebu Davudi sjell edhe këtë shtojcë: «Kur beduini u largua, Profeti ﷺ tha: “I mbushi duart me mirësi (me bërjen e këtij dhikri dhe të kësaj lutjeje)”."
+      },
+      {
+        id: "81-11",
+        type: "text",
+        titleSq: "Lutja 10",
+        arabic: "اللَّهُمَّ اغْفِرِ لِي، وَارْحَمْنِي، وَاهْدِنِي، وَعَافِنِي وَارْزُقْنِي",
+        transliterationSq: "All-llãhummeġfir lĩ, werḥamnĩ, wehdinĩ, we ‘ãfinĩ, werzuḳnĩ.",
+        translationSq: "Kur dikush bëhej musliman, Pejgamberi ﷺ i mësonte namazin, e pastaj e këshillonte të lutej me këto fjalë: O Allah! Më fal, më mëshiro, më udhëzo, më ruaj nga të këqijat dhe më furnizo",
+        repetitions: 1,
+        sourceSq: "Muslimi · Në një transmetim tjetër po të Muslimit shtohet se Pejgamberi ﷺ i tha: «Këto fjalë t’i përbmledhin çështjet e jetës tënde të dynjasë dhe të ahiretit»."
+      },
+      {
+        id: "81-12",
+        type: "text",
+        titleSq: "Lutja 11",
+        arabic: ".",
+        transliterationSq: "",
+        translationSq: "Lutja më e mirë është: “Elḥamdu lil-lãh”, kurse dhikri më i mirë është: Lã ilãhe il-lall-llãh.",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu, Ibn Maxhe dhe Hakimi (Sahihul Xhami)."
+      },
+      {
+        id: "81-13",
+        type: "text",
+        titleSq: "Lutja 12",
+        arabic: ".",
+        transliterationSq: "",
+        translationSq: "Fjalët më të mira, që u mbetet shpërblimi përgjithmonë, janë: “Subḥãnall-llãh, welḥamdu lil-lãh, we lã ilãhe il-lall-llãh, wall-llãhu ekber, we lã ḥawle we lã ḳuwwete il-lã bil-lãh”.",
+        repetitions: 1,
+        sourceSq: "Ahmedi, Nesaiu, Ibn Hibani dhe Hakimi."
+      }
+    ]
+  },
+  {
+    number: 82,
+    categoryId: "falenderimi-ndaj-allahut",
+    titleSq: "SI BËNTE TESBIH PEJGAMBERI SAL-LALLAHU 'ALEJHI UE SEL-LEM",
+    guidanceSq: "",
+    items: [
+      {
+        id: "82-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Abdullah ibn Amri (Allahu qoftë i kënaqur me të) tregon: “Pashë Pejgamberin ﷺ të numëronte dhikrin me dorën e djathtë.”",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi dhe Tirmidhiu (Sahih Xhami)."
+      }
+    ]
+  },
+  {
+    number: 83,
+    categoryId: "miresjellja",
+    titleSq: "PËRGËZIMET PËR TË POSALINDURIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "83-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بَارَكَ اللَّهُ لَكَ فِي الْمَوْهُوبِ لَكَ، وَشَكَرْتَ الْوَاهِبَ، وَبَلَغَ أَشُدَّهُ، وَرُزِقْتَ بِرَّهُ.",
+        transliterationSq: "Bãrakall-llãhu leke fil mewhũbi lek, we shekertel Wãhib, we beleġa eshuddehu, we ruziḳte birr-rrahu.",
+        translationSq: "Allahu ta bëftë të begatë fëmijën që të ka dhuruar. Qofsh falënderues ndaj Dhuruesit. Allahu bëftë që ky fëmijë të arrijë moshën e pjekurisë dhe që të jetë i bindur ndaj teje). Ndërsa prindi e kthen:",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "83-1",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "بَارَكَ اللَّهُ لَكَ وَبَارَكَ عَلَيْكَ، وَجَزَاكَ اللَّهُ خَيْراً، وَرَزَقَكَ اللَّهُ مِثْلَهُ، وَأَجْزَلَ ثَوَابَكَ.",
+        transliterationSq: "Bãrakall-llãhu leke, we bãrake ‘alejke, we xhezãkall-llãhu ḣajran, we razeḳakall-llãhu mithlehu, we exhzele thewãbek!",
+        translationSq: "Allahu të begatoftë ty, të dhëntë bollëk, Allahu të shpërbleftë me të mira. Allahu të dhëntë edhe ty si kjo mirësi dhe të dhëntë shpërblim të madh.",
+        repetitions: 1,
+        sourceSq: "El-Edhkar i Neveviut."
+      }
+    ]
+  },
+  {
+    number: 84,
+    categoryId: "miresjellja",
+    titleSq: "PËRGJEGJIA E AGJËRUESIT NËSE OFENDOHET",
+    guidanceSq: "",
+    items: [
+      {
+        id: "84-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "إِنِّي صَائِمٌ، إِنِّي صَائِمٌ.",
+        transliterationSq: "Innĩ ṣãimun, innĩ ṣãim.",
+        translationSq: "Unë jam agjërues, unë jam agjërues!",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      }
+    ]
+  },
+  {
+    number: 85,
+    categoryId: "miresjellja",
+    titleSq: "DUAJA KUR TESHTIN",
+    guidanceSq: "",
+    items: [
+      {
+        id: "85-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "الْحَمْدُ لِلَّهِ.",
+        transliterationSq: "Elḥamdu lil-lãh!",
+        translationSq: "Pejgamberi ﷺ thotë: Kur teshtini, thoni: Lavdia i takon Allahut.",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "85-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "يَرْحَمُكَ اللَّهُ.",
+        transliterationSq: "Jerḥamukall-llãh!",
+        translationSq: "Kurse vëllai ose shoku i pranishëm duhet t'i thotë: Të mëshiroftë Allahu!",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "85-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "يَهْدِيكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمْ.",
+        transliterationSq: "Jehdĩkumull-llãhu we juṣliḥ bãlekum.",
+        translationSq: "Nëse i pranishmi pra, i thotë: Jerḥamukall-llãh!, atëherë teshtitësi duhet t’ja kthejë me lutjen: Allahu ju udhëzoftë dhe ju përmirësoftë gjendjen!",
+        repetitions: 1,
+        sourceSq: "Buhariu."
+      }
+    ]
+  },
+  {
+    number: 86,
+    categoryId: "miresjellja",
+    titleSq: "Ç'DUHET TË THEMI JOBESIMTARËVE KUR TESHTIJNË",
+    guidanceSq: "",
+    items: [
+      {
+        id: "86-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "يَهْدِيكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمْ.",
+        transliterationSq: "Kur një jobesimtar teshtin dhe thotë: ‘Elḥamdu lil-lãh!’, i thuhet: Jehdĩkumull-llãhu we juṣlih bãlekum.",
+        translationSq: "Allahu ju udhëzoftë dhe jua përmirësoftë gjendjen!",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu (Sahih Ebu Davud)."
+      }
+    ]
+  },
+  {
+    number: 87,
+    categoryId: "miresjellja",
+    titleSq: "DUAJA E DHËNDRRIT KUR MARTOHET OSE KUR BLEN KAFSHË",
+    guidanceSq: "",
+    items: [
+      {
+        id: "87-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَهَا، وَخَيْرَ مَا جَبَلْتَهَا عَلَيْهِ، وَأَعُوذُ بِكَ مِنْ شَرِّهَا، وَشَرِّ مَا جَبَلْتَهَا عَلَيْهِ.",
+        transliterationSq: "All-llãhumme innĩ es’eluke ḣajrahã, we ḣajra mã xhebeltehã ‘alejhi, we e’ũdhu bike min sherrihã we sherri mã xhebeltehã ‘alejhi.",
+        translationSq: "Pejgamberi ﷺ ka këshilluar që kur dikush martohet, të bëjë këtë lutje: - O Allah! Të lutem ta bësh të mirë e të dobishme për mua dhe të më japësh të mirat që vijnë prej karakterit që Ti i ke dhënë! Të lutem të më mbrosh nga të këqijat që ka kjo (grua) dhe nga të këqijat që vijnë prej karakterit që Ti i ke dhënë!). Po ashtu kur dikush blen një deve, le t’ia kapë me dorë majën e gungës dhe të thotë të njëjtën lutje.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi dhe Ibn Maxhe (Sahih Ibn Maxhe)."
+      }
+    ]
+  },
+  {
+    number: 88,
+    categoryId: "miresjellja",
+    titleSq: "KUR TË HIDHËROHEMI",
+    guidanceSq: "",
+    items: [
+      {
+        id: "88-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ.",
+        transliterationSq: "E’ũdhu bil-lãhi minesh-shejṭãnirr-rraxhĩm.",
+        translationSq: "I lutem Allahut të më ruaj nga shejtani i mallkuar.",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      }
+    ]
+  },
+  {
+    number: 89,
+    categoryId: "miresjellja",
+    titleSq: "KUR TË SHOHIM NDONJË NJERI ME TË META",
+    guidanceSq: "",
+    items: [
+      {
+        id: "89-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "الْحَمْدُ لِلَّهِ الَّذِي عَافَانِي مِمَّا ابْتَلَاكَ بِهِ، وَفَضَّلَنِي عَلَى كَثِيرٍ مِمَّنْ خَلَقَ تَفْضِيلًا.",
+        transliterationSq: "Elḥamdu lil-lãhil-ledhĩ ‘ãfãnĩ mim-meb’telãke bihi, we faḍḍalenĩ ‘alã kethĩrin mim-men ḣaleḳa tefḍĩlã.",
+        translationSq: "Lavdia i takon Allahut, i Cili më ka ruajtur nga kjo sprovë që të ka dhënë ty dhe më ka bërë në një gjendje më të mirë se shumë krijesa!",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu (Sahih Tirmidhi)."
+      }
+    ]
+  },
+  {
+    number: 90,
+    categoryId: "miresjellja",
+    titleSq: "DHIKRI GJATË NDONJË TUBIMI",
+    guidanceSq: "",
+    items: [
+      {
+        id: "90-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "رَبِّ اغْفِرْ لِي، وَتُبْ عَلَيَّ، إِنَّكَ أَنْتَ التَّوَّابُ الغَفُورُ.",
+        transliterationSq: "Rabbiġfir lĩ we tub ‘alejje! Inneke Entet-Tewwãbul Ġafũr!",
+        translationSq: "Ibn Umeri  tregon se, gjatë një kuvendi të vetëm, njerëzit i numëronin Profetit ﷺ të thoshte njëqind herë para se të çohej: - Zoti im, më fal dhe më prano pendimin! Ti je Pendimpranues dhe Falës i Madh.",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu (Sahih Tirmidhi)"
+      }
+    ]
+  },
+  {
+    number: 91,
+    categoryId: "miresjellja",
+    titleSq: "DUAJA PAS PËRFUNDIMIT TË TUBIMIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "91-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ، أَسْتَغْفِرُكَ وَأَتُوبُ إِلَيْكَ.",
+        transliterationSq: "Subḥãnekall-llãhumme we biḥamdike. Eshhedu en lã ilãhe il-lã Ente. Estaġfiruke we etũbu ilejke.",
+        translationSq: "I dëlirë nga të metat je Ti, o Allah! Ty të përket lavdia! Dëshmoj se nuk ka të adhuruar me të drejtë përveç Teje! Ty të kërkoj falje dhe para Teje pendohem!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi (Sahih Tirmidhi). Shënon Nesaiu në ‘Amelul jeumi uel lejleleti’ dhe në ‘Sunenul Kubra’. Albani thotë se senedi është i saktë (silsile sahiha 7/1/495). · Në një transmetim të saktë, Aishja, Allahu qoftë i kënaqur me të, tregon: “Sa herë që Profeti ﷺ ulej në një kuvend, lexonte Kuran, apo falte ndonjë namaz, e mbyllte me këto fjalë …”."
+      }
+    ]
+  },
+  {
+    number: 92,
+    categoryId: "miresjellja",
+    titleSq: "PËRGJIGJA E DUASË PËR FALJEN E MËKATEVE",
+    guidanceSq: "",
+    items: [
+      {
+        id: "92-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Kur dikush të thotë: (غَفَرَ اللَّهُ لَكَ) Ġaferall-llãhu leke! (Allahu të faltë!), ia kthen: (وَلَكَ) we lek (Edhe ty, gjithashtu!).",
+        repetitions: 1,
+        sourceSq: "Ahmedi dhe Nesaiu në ‹Amelul jeumi uel-lejleti’ shënojnë se, kur Abdullah ibn Serxhisi i tha Pejgamberit: “Gaferall-llãhu lek”, Pejgamberi ia ktheu: “Ue leke”. Hadithi është i saktë."
+      }
+    ]
+  },
+  {
+    number: 93,
+    categoryId: "miresjellja",
+    titleSq: "DUAJA PËR ATË I CILI TA BËN NDONJË TË MIRË",
+    guidanceSq: "",
+    items: [
+      {
+        id: "93-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "جَزَاكَ اللهُ خَيْرًا.",
+        transliterationSq: "Xhezãkall-llãhu ḣajran.",
+        translationSq: "Allahu të shpërbleftë me të mira!",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu (Sahih Xhami)."
+      }
+    ]
+  },
+  {
+    number: 94,
+    categoryId: "miresjellja",
+    titleSq: "DUAJA PËR ATË QË TË THOTË QË TË DO PËR HIR TË ALLAHUT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "94-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أَحَبَّكَ الَّذِي أَحْبَبْتَنِي لَهُ.",
+        transliterationSq: "Eḥabbekel-ledhĩ aḥbebtenĩ lehu!",
+        translationSq: "Të dashtë Ai, për hir të të Cilit më do!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi (Sahih sunen Ebi Davud)."
+      }
+    ]
+  },
+  {
+    number: 95,
+    categoryId: "miresjellja",
+    titleSq: "DUAJA PËR ATË QË TË OFRON PASURI",
+    guidanceSq: "",
+    items: [
+      {
+        id: "95-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بَارَكَ اللَّهُ لَكَ فِي أَهْلِكَ وَمَالِكَ.",
+        transliterationSq: "Bãrakall-llãhu leke fĩ ehlike we mãlike!",
+        translationSq: "Allahu të dhëntë bereqet në familjen dhe pasurinë tënde!",
+        repetitions: 1,
+        sourceSq: "Buhariu"
+      }
+    ]
+  },
+  {
+    number: 96,
+    categoryId: "miresjellja",
+    titleSq: "DUAJA PËR ATË QË TA KTHEN BORXHIN",
+    guidanceSq: "",
+    items: [
+      {
+        id: "96-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بارَكَ اللَّهُ لَكَ فِي أَهْلِكَ وَمَالِكَ، إِنَّمَا جَزَاءُ السَّلَفِ الْحَمْدُ وَالأَدَاءُ.",
+        transliterationSq: "Bãrakall-llãhu leke fĩ ehlike we mãlike! Innemã xhezãus-selefi elḥamdu wel edãu!",
+        translationSq: "Allahu të begatoftë familjen dhe pasurinë! S’ka dyshim se shpërblimi për huanë është falënderimi dhe shlyerja e plotë!",
+        repetitions: 1,
+        sourceSq: "Nesaiu (Sahih Ibn Maxhe)."
+      }
+    ]
+  },
+  {
+    number: 97,
+    categoryId: "miresjellja",
+    titleSq: "DUAJA PËR ATË QË TË THOTË ALLAHU TË BEKOFTË",
+    guidanceSq: "",
+    items: [
+      {
+        id: "97-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "وَفِيكَ بَارَكَ اللَّهُ.",
+        transliterationSq: "We fĩke bãrakall-llãhu!",
+        translationSq: "Edhe ty të begatoftë Allahu!",
+        repetitions: 1,
+        sourceSq: "Ibn Sunni."
+      }
+    ]
+  },
+  {
+    number: 98,
+    categoryId: "miresjellja",
+    titleSq: "VLERA E PËRHAPJES SË SELAMIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "98-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ thotë: “Nuk do të hyni në Xhenet pa u bërë besimtarë, dhe nuk mund të bëheni besimtarë të mirë (me iman të plotë) derisa ta doni njëri-tjetrin. A t’ju tregoj diçka që, nëse do ta kryeni, do të duheni mes vete; përhapni përshëndetjen me selam ndërmjet jush”.",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "98-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Amari (Allahu qoftë i kënaqur me të) thotë: “Nëse ke tri veti, e përsos imanin: Të gjykosh drejt dhe t’u japësh hakun të tjerëve në gjërat që prekin interesat vetjake, t’u japësh selam të gjithë njerëzve (atyre që i njeh dhe atyre që s’i njeh) dhe të bësh mirë me pasuri edhe kur nuk ke.”",
+        repetitions: 1,
+        sourceSq: "Buhariu, por si thënie të Amarit (Allahu qoftë i kënaqur me të)."
+      },
+      {
+        id: "98-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Abdullah ibn Umeri (Allahu qoftë i kënaqur me të) tregon se një burrë pyeti Pejgamberin ﷺ se cilat janë punët më të mira të Islamit: “Pejgamberi ﷺ u përgjigj: të japësh ushqim (nevojtarëve, mysafirëve etj.) dhe t’i japësh selam atij që e njeh dhe atij që s’e njeh.”",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      }
+    ]
+  },
+  {
+    number: 99,
+    categoryId: "miresjellja",
+    titleSq: "SI DUHET KTHYER SELAMI JOBESIMTARËVE, NËSE JAPIN SELAM",
+    guidanceSq: "",
+    items: [
+      {
+        id: "99-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "وَعَلَيْكُمْ.",
+        transliterationSq: "“We ‘alejkum!”.",
+        translationSq: "Pejgamberi ﷺ ka thënë: “Nëse ju japin selam ithtarët e Librit, kthejuani: - Edhe mbi ju.",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      }
+    ]
+  },
+  {
+    number: 100,
+    categoryId: "miresjellja",
+    titleSq: "DUAJA QË BËN PËR DIKË, QË MUND TA KESH OFENDUAR",
+    guidanceSq: "",
+    items: [
+      {
+        id: "100-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ فَأَيُّمَـا مُؤْمِنٍ سَبَبْتُهُ؛ فَاجْعَلْ ذَلِكَ لَهُ قُرْبَةً إِلَيْكَ يَوْمَ القِيَامَةِ.",
+        transliterationSq: "All-llãhumme fe ejjumã mu’minin sebebtuhu fexh’al dhãlike lehu ḳurbeten ilejke jewmel ḳijãmeh.",
+        translationSq: "Pejgamberi ﷺ ka thënë: “O Allah, cilindo besimtar që e kam ofenduar, bëje këtë gjë afrim për të tek Ti Ditën e Gjykimit”.",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi, por ky i fundit e sjell kështu: «… bëje këtë gjë pastrim gjynahesh dhe mëshirë për të»."
+      }
+    ]
+  },
+  {
+    number: 101,
+    categoryId: "miresjellja",
+    titleSq: "ÇFARË DUHET TË THOTË MUSLIMANI KUR TA LAVDËROJË MUSLIMANIN",
+    guidanceSq: "",
+    items: [
+      {
+        id: "101-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ thotë: “Nëse ndonjëri patjetër do ta lavdërojë shokun, atëherë le të thotë: Mendoj se filani është kështu e ashtu (p.sh., njeri i mirë), kur e njeh për të tillë, porse Allahu do ta gjykojë punën e tij, ndërsa unë nuk gjykoj prerë përpara Allahut për askënd se ka zemër të pastër dhe se do të ketë përfundim të mirë.”",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "101-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "وَاللَّهُ حَسِيبُهُ وَلَا أُزَكِّي عَلَى اللَّهِ أَحَدًا.",
+        transliterationSq: "(Wall-llãhu ḥasĩbuhu we lã uzekkĩ ‘alall-llãhi eḥadã).",
+        translationSq: ".",
+        repetitions: 1,
+        sourceSq: "Muslimi · [Kur lavdërojmë dikë, duhet të themi dhikrin në arabisht të shënuar më lart ndërmjet kllapave, ose kuptimin e tij në shqip të shënuar më lart me shkrim të pjerrët]."
+      }
+    ]
+  },
+  {
+    number: 102,
+    categoryId: "miresjellja",
+    titleSq: "ÇFARË DUHET TË THOTË MUSLIMANI KUR E LAVDËRON DIKUSH",
+    guidanceSq: "",
+    items: [
+      {
+        id: "102-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ لَا تُؤَاخِذْنِي بِمَا يَقُولُونَ، وَاغْفِرْ لِي مَا لَا يَعْلَمُونَ، [وَاجْعَلْنِي خَيْرًا مِمَّا يَظُّنُّونَ].",
+        transliterationSq: "All-llãhumme lã tuãḣidhnĩ bimã jeḳũlũn, weġfir lĩ mã lã ja’ëlemũn, wexh’alnĩ ḣajran mimmã jeḍhunnũn!",
+        translationSq: "O Allah, mos më dëno për lavdërimet që më bëjnë. M’i fal gjynahet që ata nuk i dinë! Më bëj më të mirë sesa mendojnë ata!",
+        repetitions: 1,
+        sourceSq: "Buhariu shënon në Edebul Mufred se shokët e Pejgamberit ﷺ në një rast të tillë thonin lutjen e mësipërme. Porse fjalia e fundit është një shtojcë që e sjell Bejhakiu, nga një rrugë tjetër, si lutje që e bënin disa nga të parët e umetit."
+      }
+    ]
+  },
+  {
+    number: 103,
+    categoryId: "haxh-dhe-umre",
+    titleSq: "TELBIA PËR HAXHXH DHE UMRE",
+    guidanceSq: "",
+    items: [
+      {
+        id: "103-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ، لَبَّيْكَ لَا شَرِيكَ لَكَ لَبَّيْكَ، إِنَّ الْحَمْدَ، وَالنِّعْمَةَ، لَكَ وَالْمُلْكَ، لَا شَرِيكَ لَكَ.",
+        transliterationSq: "Lebbejkall-llãhumme lebbejk, leb-bejke lã sherĩke leke lebbejk! Innel ḥamde, wen-ni’ëmete, leke wel mulk. Lã sherĩke lek!",
+        translationSq: "O Allah, unë i përgjigjem thirrjes Tënde, i dorëzohem vendimit Tënd dhe respektoj urdhrin Tënd. [E thotë herë pas here]. Kështu kam për të vazhduar gjithmonë. Ti nuk ke shok. Vërtet, lavdia dhe pushteti të përkasin vetëm Ty. Mirësitë i jep vetëm Ti.",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      }
+    ]
+  },
+  {
+    number: 104,
+    categoryId: "haxh-dhe-umre",
+    titleSq: "TEKBIRI KUR I AFROHEMI HAXHERUL ESVEDIT(GURIT TË ZI)",
+    guidanceSq: "",
+    items: [
+      {
+        id: "104-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ e bëri tavafin rreth Qabesë hipur mbi deve. Sa herë që vinte tek Guri i Zi, bënte shenjë drejt tij me kërrabën që kishte në dorë dhe bënte tekbir (Allãhu ekber).",
+        repetitions: 1,
+        sourceSq: "Buhariu"
+      }
+    ]
+  },
+  {
+    number: 105,
+    categoryId: "haxh-dhe-umre",
+    titleSq: "DUAJA NDËRMJET RUKNUL JEMANIT DHE HAXHERUL ESVEDIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "105-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "﴿رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ﴾",
+        transliterationSq: "Rabbenã, ãtinã fid-dunjã ḥaseneten, we fil ãḣirati ḥaseneten, we ḳinã ‘adhãben-nãr!",
+        translationSq: "Zoti ynë, na jep të mira në këtë jetë, dhe në jetën e fundit na jep të mira, dhe na ruaj prej dënimit në Zjarr!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi dhe Ahmedi (Sahih Ebu Davud). Ajeti është në suren Bekare, 201."
+      }
+    ]
+  },
+  {
+    number: 106,
+    categoryId: "haxh-dhe-umre",
+    titleSq: "DUAJA E QËNDRIMIT MBI SAFFA DHE MERVE",
+    guidanceSq: "",
+    items: [
+      {
+        id: "106-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "إِنَّ الصَّفَا وَالْمَرْوَةَ مِن شَعَآئِرِ اللّهِ.",
+        transliterationSq: "Inneṣ-ṣafã wel merwete min she’ãiril-lãh.",
+        translationSq: "Kur Profeti ﷺ u afrua tek Safaja lexoi fjalën e Allahut të Lartësuar: Safa dhe Merveja janë, pa dyshim, nga shenjat e qarta të fesë së Allahut...",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "106-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "أَبْدَأُ بِمَا بَدَأَ اللَّهُ بِهِ.",
+        transliterationSq: "Eb’deu bimã bede’All-llãhu bihi.",
+        translationSq: "Po e filloj me atë që e ka filluar edhe Allahu.",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "106-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "اللَّهُ أَكْبَرُ،لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ، أَنْجَزَ وَعْدَهُ، وَنَصَرَ عَبْدَهُ، وَهَزَمَ الْأَحْزَابَ وَحْدَهُ.",
+        transliterationSq: "All-llãhu ekber. Lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh. Lehul mulku we lehul ḥamdu we huwe ‘alã kul-li shej’in ḳadĩr. Lã ilãhe il-lall-llãhu waḥdehu, enxheze wa’ëdehu, we neṣara ‘abdehu, we hezemel aḥzãbe waḥdehu!",
+        translationSq: "Kësisoj ai filloi me Safanë, u ngjit mbi kodrinë, nga ku dukej Qabeja, u kthye drejt saj, njësonte Allahun, dhe thoshte: Allahu është më i madhi. Nuk ka të adhuruar tjetër të merituar veç Allahut, Ai është i Vetëm dhe i Pashoq. Atij i takon sundimi dhe lavdia, dhe Ai është i Plotpushtetshëm për gjithçka. Nuk ka të adhuruar tjetër të merituar veç Allahut. Ai e përmbushi premtimin e Tij, i dhuroi fitoren robit të Tij dhe i mposhti ushtritë i Vetëm. Ai përsëriti këtë dhikër tri herë dhe ndërmjet këtyre herëve bënte lutje. Profeti ﷺ veproi edhe mbi Merva, ashtu siç veproi mbi Safa.",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      }
+    ]
+  },
+  {
+    number: 107,
+    categoryId: "haxh-dhe-umre",
+    titleSq: "DUAJA NË DITËN E ARAFATIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "107-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "Lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh, lehul mulku we lehul ḥamdu we huwe ‘alã kul-li shej’in ḳadĩr.",
+        translationSq: "Pejgamberi ﷺ ka thënë: “Lutja më e mirë është lutja e ditës së Arafatit, dhe dhikr-i më i mirë që kam bërë unë dhe lajmëtarët (enbijatë) para meje është: Nuk ka të adhuruar me meritë veç Allahut, të Vetëm dhe të Pashoq! I Tij është pushteti dhe Atij i takon lavdia! Dhe Ai për gjithçka është i Plotpushtetshëm!",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu (Sahih Tirmidhi)."
+      }
+    ]
+  },
+  {
+    number: 108,
+    categoryId: "haxh-dhe-umre",
+    titleSq: "DHIKRI TE MESH'AR EL-HARAAM",
+    guidanceSq: "",
+    items: [
+      {
+        id: "108-2",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "Lã ilãhe il-lall-llãhu waḥdehu lã sherĩke leh, lehul mulku we lehul ḥamdu we huwe ‘alã kul-li shej’in ḳadĩr",
+        translationSq: "Pejgamberi ﷺ i hipi devesë së tij të quajtur Kasua dhe vazhdoi të ecte, derisa mbërriti në Mesh’ar el Haram (një kodër në Muzdelife). Kur mbërriti atje, u drejtua nga kibla dhe filloi të bënte lutje, tekbire, të thoshte ‘Lã ilãhe il-lall-llãh’ dhe të bënte dhikrin e teuhidit. Ai vazhdoi në këtë gjendje, derisa u përhap plotësisht drita e agimit, por ende pa lindur dielli, u largua për në Mina",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      }
+    ]
+  },
+  {
+    number: 109,
+    categoryId: "haxh-dhe-umre",
+    titleSq: "TEKBIRI GJATË GJUAJTJES SË GURËVE",
+    guidanceSq: "",
+    items: [
+      {
+        id: "109-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Të bësh tekbir kur hedh secilin gur, tek të tre xhemerat-ët. Mbasi hedh gurët tek secili prej xhemerat-it të parë dhe të dytë, të ecësh pak përpara, të qëndrosh në këmbë dhe të bësh lutje me duar të ngritura i drejtuar nga Kibleja. Ndërsa tek xhemerat-i i Akabesë (i madhi) nuk qëndron për të bërë lutje pas hedhjes së gurëve, por largohesh.",
+        repetitions: 1,
+        sourceSq: "Buhariu (1664) dhe Muslimi."
+      }
+    ]
+  },
+  {
+    number: 110,
+    categoryId: "haxh-dhe-umre",
+    titleSq: "ÇFARË DUHET THËNË ME RASTIN E THERRJES SË KAFSHËVE APO TË KURBANIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "110-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بِسْمِ اللَّهِ وَاللَّهُ أَكْبَرُ [اللَّهُمَّ مِنْكَ وَلَكَ] اللَّهُمَّ تَقَبَّلْ مِنِّي.",
+        transliterationSq: "Bismil-lãhi wall-llãhu ekber, All-llãhumme minke we leke, All-llãhumme teḳabbel minnĩ.",
+        translationSq: "Në emër të Allahut. Allahu është më i madhi. O Allah, ky kurban është mirësi prej Teje dhe po theret vetëm për Ty! O Allah, pranoje atë prej meje.",
+        repetitions: 1,
+        sourceSq: "Muslimi dhe Bejhakiu."
+      }
+    ]
+  },
+  {
+    number: 111,
+    categoryId: "natyra",
+    titleSq: "KUR TË FRYN ERA E FORTË",
+    guidanceSq: "",
+    items: [
+      {
+        id: "111-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَهَا، وَأَعُوذُ بِكَ مِنْ شَرِّهَا.",
+        transliterationSq: "All-llãhumme innĩ es’eluke ḣajrahã, we e’ũdhu bike min sherrihã.",
+        translationSq: "O Allah, të lutem të më japësh të mirën që sjell kjo erë dhe të më ruash nga e keqja që ajo sjell.",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi dhe Ibn Maxhe (Sahih Ibn Maxhe)."
+      },
+      {
+        id: "111-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَهَا، وَخَيْرَ مَا فِيهَا، وَخَيْرَ مَا أُرْسِلَتْ بِهِ، وَأَعُوذُ بِكَ مِنْ شَرِّهَا، وَشَرِّ مَا فِيهَا، وَشَرِّ مَا أُرْسِلَتْ بِهِ.",
+        transliterationSq: "All-llãhumme innĩ es’eluke ḣajrahã we ḣajra mã fĩhã we ḣajra mã ursilet bihi, we e’ũdhu bike min sherrihã we sherri mã fĩhã, we sherri mã ursilet bihi.",
+        translationSq: "O Allah, të lutem të më japësh të mirën e kësaj ere, të mirën që ajo përmban dhe të mirën për të cilën ajo është dërguar! Të lutem të më mbrosh nga e keqja e kësaj ere, e keqja që ajo përmban dhe e keqja për të cilën ajo është dërguar!",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      }
+    ]
+  },
+  {
+    number: 112,
+    categoryId: "natyra",
+    titleSq: "DUAJA KUR MURMURON",
+    guidanceSq: "",
+    items: [
+      {
+        id: "112-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "سُبْحَانَ الَّذِي يُسَبِّحُ الرَّعْدُ بِحَمْدِهِ وَالْمَلَائِكةُ مِنْ خِيفَتِه.",
+        transliterationSq: "Subḥãnel-ledhĩ jusebbiḥu err-rra’ëdu biḥamdihi wel melãiketu min ḣĩfetihi!",
+        translationSq: "Pa të meta është Ai që e madhëron dhe i bën lavdi bubullima, por edhe melekët, nga frika prej Tij.",
+        repetitions: 1,
+        sourceSq: "Abdullah ibn Zubejri, kur dëgjonte bubullimën, e ndërpriste bisedën, dhe thoshte: “Subḥanel-ledhi juseb-biḥu err-rra’du…”. Shënohet në el Muvata’. Albani thotë se senedi i këtij transmetimi është i saktë, por si dëshmi nga Abdullah Ibn Zubejri (meukuf)."
+      }
+    ]
+  },
+  {
+    number: 113,
+    categoryId: "natyra",
+    titleSq: "DUAJA PËR KËRKIMIN E SHIUT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "113-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ أَسْقِنَا غَيْثًا مُغِيثًا مَرِيئًا مَرِيعًا، نَافِعًا، غَيْرَ ضَارٍّ، عَاجِلًا غَيْرَ آجِلٍ.",
+        transliterationSq: "All-llãhumme esḳinã ġajthen muġĩthen, merĩen, merĩ’an, nãfi’an ġajra ḍãrr, ‘ãxhilen ġajra ãxhilin!",
+        translationSq: "O Allah, të lutem na lësho shi ndihmues, të këndshëm, prodhues, të dobishëm e jo të dëmshëm, të menjëhershëm e jo të vonuar!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi (Sahih Ebu Davud)."
+      },
+      {
+        id: "113-1",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ اسْقِ عِبَادَكَ، وَبَهَائِمَكَ، وَانْشُرْ رَحْمَتَكَ، وَأَحْيِي بَلَدَكَ الْمَيِّتَ.",
+        transliterationSq: "All-llãhumme’sḳi ‘ibãdeke we behãimeke wenshur raḥmeteke, we aḥjĩ beledekel mejjit!",
+        translationSq: "O Allah, begatoji me ujë robërit e Tu dhe gjallesat e Tua! Shpërndaje mëshirën Tënde dhe gjallëroje këtë vend Tëndin të vdekur!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi (Sahih Ebu Davud)."
+      },
+      {
+        id: "113-2",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "اللَّهُمَّ أَغِثْنَا، اللَّهُمَّ أَغِثْنَا، اللَّهُمَّ أَغِثْنَا.",
+        transliterationSq: "All-llãhumme eġithnã, All-llãhumme eġithnã, All-llãhumme eġithnã!",
+        translationSq: "O Allah, na zbrit shi! O Allah, na zbrit shi! O Allah, na zbrit shi!",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      }
+    ]
+  },
+  {
+    number: 114,
+    categoryId: "natyra",
+    titleSq: "DUAJA KUR TË BIE SHIU",
+    guidanceSq: "",
+    items: [
+      {
+        id: "114-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ صَيِّبًا نَافِعًا",
+        transliterationSq: "All-llãhumme ṣajjiben nãfi’ã!",
+        translationSq: "O Allah, bëje shi të dobishëm!",
+        repetitions: 1,
+        sourceSq: "Buhariu"
+      }
+    ]
+  },
+  {
+    number: 115,
+    categoryId: "natyra",
+    titleSq: "DUAJA PASI TË BIE SHIU",
+    guidanceSq: "",
+    items: [
+      {
+        id: "115-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "مُطِرْنَا بِفَضْلِ اللَّهِ وَرَحْمَتِهِ.",
+        transliterationSq: "Muṭirnã bi faḍlil-lãhi we raḥmetihi.",
+        translationSq: "Reshjet e shiut ranë me mirësinë e Allahut dhe mëshirën e Tij.",
+        repetitions: 1,
+        sourceSq: "Buhari dhe Muslimi."
+      }
+    ]
+  },
+  {
+    number: 116,
+    categoryId: "natyra",
+    titleSq: "DUAJA KUNDËR VËRSHIMIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "116-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ حَوَالَيْنَا وَلَا عَلَيْنَا، اللَّهُمَّ عَلَى الآكَامِ وَالظِّرَابِ، وَبُطُونِ الْأَوْدِيَةِ، وَمَنَابِتِ الشَّجَرِ.",
+        transliterationSq: "All-llãhumme ḥawãlejnã we lã ‘alejnã. All-llãhumme ‘alel ãkãmi weḍh-ḍhirãbi we buṭũnil ewdijeti we menãbitish-shexher!",
+        translationSq: "O Allah, rreth nesh (lëshoje shiun) dhe jo mbi ne! O Allah, ktheje shiun kodrinave dhe bregoreve, luginave dhe kullotave!",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      }
+    ]
+  },
+  {
+    number: 117,
+    categoryId: "natyra",
+    titleSq: "KUR TË SHIHET HËNA E RE",
+    guidanceSq: "",
+    items: [
+      {
+        id: "117-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُ أَكْبَرُ، اللَّهُمَّ أَهِلَّهُ عَلَيْنَا بِالْأَمْنِ وَالْإِيمَانِ، وَالسَّلَامَةِ وَالْإِسْلَامِ، وَالتَّوْفِيقِ لِمَا تُحِبُّ رَبَّنَا وَتَرْضَى، رَبُّنَا وَرَبُّكَ اللَّهُ.",
+        transliterationSq: "All-llãhu ekber, All-llãhumme ehil-lehu ‘alejnã bil emni wel ĩmãn, wes-selãmeti wel islãm, [wet-tewfĩḳi limã tuḥibbu Rabbenã we terḍã], Rabbunã we rabbukall-llãhu.",
+        translationSq: "Allahu është më i madhi. O Allah! Bëj që dalja e kësaj hëne mbi ne të shoqërohet me siguri, vazhdimësi në iman, shpëtim nga çdo e keqe e dëmtim, islam (nënshtrim) të vazhdueshëm ndaj Teje [dhe mbarësi për atë që Zoti ynë e do dhe e pëlqen!] Zoti ynë dhe Zoti yt (o hënë) është Allahu!",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu dhe Darimiu (Sahih Tirmidhi)."
+      }
+    ]
+  },
+  {
+    number: 118,
+    categoryId: "natyra",
+    titleSq: "DUAJA KUR SHOHIM PEMËN E PARË TË POSAPJEKUR",
+    guidanceSq: "",
+    items: [
+      {
+        id: "118-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ بَارِكْ لَنَا فِي ثَمَرِنَا، وَبَارِكْ لَنَا فِي مَدِينَتِنَا، وَبَارِكْ لَنَا فِي صَاعِنَا، وَبَارِكْ لَنَا فِي مُدِّنَا.",
+        transliterationSq: "All-llãhumme bãrik lenã fĩ themerinã, we bãrik lenã fĩ medĩnetinã, we bãrik lenã fĩ ṣã’inã, we bãrik lenã fĩ muddinã.",
+        translationSq: "O Allah! Begatoji frutat tona, begatoje vendin tonë, begatoje sa-in tonë, begatoje mudd-in tonë.",
+        repetitions: 1,
+        sourceSq: "Muslimi."
+      }
+    ]
+  },
+  {
+    number: 119,
+    categoryId: "natyra",
+    titleSq: "Ç'DUHET THËNE KUR TË KËNDON GJELI DHE PËLLET GOMARI",
+    guidanceSq: "",
+    items: [
+      {
+        id: "119-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ",
+        transliterationSq: "All-llãhumme innĩ es’eluke min faḍlik!",
+        translationSq: "Pejgamberi ﷺ thotë: “Kur të dëgjoni gjelin duke kënduar, luteni Allahun që t’ju japë nga mirësitë e Tij, sepse gjeli ka parë një melek.\"",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi"
+      },
+      {
+        id: "119-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "أَعُوذُ بِاللَّهِ مِنَ الشَّيطَانِ الرَّجِيمِ",
+        transliterationSq: "E’ũdhu bil-lãhi minesh-shejṭãnirr-rraxhĩm",
+        translationSq: "Ndërsa kur të dëgjoni gomarin duke pëllitur, kërkoni mbrojtje tek Allahu nga shejtani sepse gomari ka parë një shejtan.",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi"
+      }
+    ]
+  },
+  {
+    number: 120,
+    categoryId: "natyra",
+    titleSq: "Ç'DUHET THËNË KUR LEHIN QENTË NATËN",
+    guidanceSq: "",
+    items: [
+      {
+        id: "120-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: ".",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ thotë: “Kur të dëgjoni natën qentë duke lehur dhe gomerët duke pëllitur, lutjuni Allahut t’ju ruajë prej shejtanit, sepse ata shohin atë që ju nuk e shihni\"",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi dhe Ahmedi"
+      }
+    ]
+  },
+  {
+    number: 121,
+    categoryId: "semundja-dhe-vdekja",
+    titleSq: "DUAJA PËR MBROJTEN E FËMIJËVE",
+    guidanceSq: "",
+    items: [
+      {
+        id: "121-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "أُعِيذُكُمَا بِكَلِماتِ اللَّهِ التَّامَّةِ، مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ، وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ.",
+        transliterationSq: "U’ĩdhukumã bi kelimãtil-lãhit-tãmmeh, min kul-li shejṭãnin we hãmmeh, we min kul-li ‘ajnin lãmmeh!",
+        translationSq: "Pejgamberi ﷺ lutej për mbrojtjen e Hasenit dhe Husejnit kështu: - Kërkoj mbrojtje për ju të dy me fjalët e përsosura të Allahut prej së keqes së çdo shejtani dhe kafshe që vret me helmin e saj, dhe prej të keqes së çdo syri të keq!",
+        repetitions: 1,
+        sourceSq: "Buhariu"
+      }
+    ]
+  },
+  {
+    number: 122,
+    categoryId: "semundja-dhe-vdekja",
+    titleSq: "LUTJA PËR TË SËMURIN KUR E VIZITOJMË",
+    guidanceSq: "",
+    items: [
+      {
+        id: "122-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "لَا بأْسَ، طَهُورٌ إِنْ شَاءَ اللَّهُ.",
+        transliterationSq: "Lã be’se ṭahũrun in-shã-All-llãh.",
+        translationSq: "Mos u mërzit, (se kjo sëmundje nuk është mundim për të keqen tënde, por) pastrim gjynahesh, në dashtë Allahu!",
+        repetitions: 1,
+        sourceSq: "Buhariu"
+      },
+      {
+        id: "122-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "أَسْأَلُ اللَّهَ الْعَظيمَ رَبَّ الْعَرْشِ الْعَظِيمِ أَنْ يَشْفِيَكَ.",
+        transliterationSq: "Es’elull-llãhel ‘aḍhĩm rabbel ‘arshil ‘aḍhĩm en jeshfijeke. (shtatë herë)",
+        translationSq: "Lus Allahun e Madhërishëm, Zotin e arshit madhështor, që të të shërojë.",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu dhe Ebu Davudi (Sahih Tirmidhi). · Pejgamberi ﷺ thotë: «Nuk ka musliman që viziton një të sëmurë të cilit nuk i ka ardhur exheli (afati i vdekjes) dhe i lexon atij shtatë herë lutjen: «…», veçse ka për t’u shëruar»."
+      }
+    ]
+  },
+  {
+    number: 123,
+    categoryId: "semundja-dhe-vdekja",
+    titleSq: "VLERA E VIZITËS TË TË SËMURIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "123-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Pejgamberi ﷺ ka thënë: “Nëse dikush shkon te vëllai i tij musliman për vizitë, ai do të mbledhë fruta të Xhenetit derisa të ulet, dhe kur të ulet, do ta përshkojë mëshira. Nëse është në të gdhirë, do të kërkojnë falje për të shtatëdhjetë mijë melekë, derisa të ngryset, e nëse është në të ngrysur, do të kërkojnë falje për të shtatëdhjetë mijë melekë, derisa të gdhihet.”",
+        repetitions: 1,
+        sourceSq: "Tirmidhiu (Sahih Tirmidhi)."
+      }
+    ]
+  },
+  {
+    number: 124,
+    categoryId: "semundja-dhe-vdekja",
+    titleSq: "DUAJA PËR TË SËMURIN NË PRAG TË VDEKJES",
+    guidanceSq: "",
+    items: [
+      {
+        id: "124-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ اغْفِرْ لِي، وَارْحَمْنِي، وَأَلْحِقْنِي بِالرَّفِيقِ الْأَعْلَى.",
+        transliterationSq: "All-llãhummeġfir lĩ, werḥamnĩ, we elḥiḳnĩ birr-rrafĩḳil a’ëlã.",
+        translationSq: "O Allah! Më fal, më mëshiro dhe më bashko me shokët (me grumbullin e pejgamberëve që banojnë) në vendin më të lartë në Xhenet.",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      },
+      {
+        id: "124-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "لَا إِلَهَ إِلَّا اللَّهُ، إِنَّ لِلْمَوْتِ لَسَكَرَاتٍ.",
+        transliterationSq: "Lã ilãhe il-lall-llãhu, inne lil mewti lesekerãt.",
+        translationSq: "Pejgamberi ﷺ, në momentet e vdekjes, filloi të fuste duart në ujë dhe, duke fërkuar me to fytyrën, thoshte: Nuk ka të adhuruar me të drejtë veç Allahut. Vërtet, vdekja ka agoni.",
+        repetitions: 1,
+        sourceSq: "Buhariu"
+      },
+      {
+        id: "124-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "لَا إِلَهَ إِلَّا اللَّهُ وَاللَّهُ أَكْبَرُ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَا إِلَهَ إِلَّا اللَّهُ لَهُ المُلْكُ وَلَهُ الْحَمْدُ، لَا إِلَهَ إِلَّا اللَّهُ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
+        transliterationSq: "Lã ilãhe il-lall-llãhu wall-llãhu Ekber, lã ilãhe il-lall-llãhu waḥdeh, lã ilãhe il-lall-llãhu waḥdehu lã sherĩke lehu, lã ilãhe il-lall-llãhu lehul mulku we lehul ḥamdu, lã ilãhe il-lall-llãhu we lã ḥawle we lã ḳuwwete il-lã bil-lãh.",
+        translationSq: "S’ka të adhuruar me të drejtë veç Allahut. Ai është më i Madhi. S’ka të adhuruar me të drejtë veç Allahut, Një, i Vetëm! S’ka të adhuruar me të drejtë veç Allahut, Një dhe i Pashoq. S’ka të adhuruar me të drejtë veç Allahut. Atij i takon sundimi dhe lavdia! S’ka të adhuruar me të drejtë veç Allahut, s’mund të bëhet asnjë lëvizje dhe s’ka fuqi për asgjë veçse me vullnetin e Allahut.",
+        repetitions: 1,
+        sourceSq: "Ebu Davud (Sahih Xhami)."
+      }
+    ]
+  },
+  {
+    number: 125,
+    categoryId: "semundja-dhe-vdekja",
+    titleSq: "PËRKUJTIMI I SHEHADETIT ATIJ QË ËSHTË NË PRAG TË VDEKJES",
+    guidanceSq: "",
+    items: [
+      {
+        id: "125-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "",
+        transliterationSq: "",
+        translationSq: "Pejgamberi thotë: “Kush ka fjalën e fundit në këtë botë Lã ilãhe il-lall-llãh, hyn në Xhenet.”",
+        repetitions: 1,
+        sourceSq: "Ebu Davud (Sahih Xhami)."
+      }
+    ]
+  },
+  {
+    number: 126,
+    categoryId: "semundja-dhe-vdekja",
+    titleSq: "KUR TË VDES NDONJË NJERI",
+    guidanceSq: "",
+    items: [
+      {
+        id: "126-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ اغْفِرْ لِفُلَانٍ (بِاسْمِهِ) وَارْفَعْ دَرَجَتَهُ فِي الْمَهْدِيِّينَ، وَاخْلُفْهُ فِي عَقِبِهِ فِي الْغَابِرِينَ، وَاغْفِرْ لَنَا وَلَهُ يَا رَبَّ الْعَالَمِينَ، وَافْسَحْ لَهُ فِي قَبْرِهِ، وَنَوِّرْ لَهُ فِيهِ.",
+        transliterationSq: "All-llãhummeġfir li fulãnin (përmend emrin e tij), werfe’ë deraxhetehu fil mehdijjĩne, weḣluf’hu fĩ ‘aḳibihi fil ġãbirĩn, weġfir lenã we lehu jã rabbel ‘ãlemĩn, wefsaḥ lehu fĩ ḳabrihi we newwir lehu fĩhi.",
+        translationSq: "O Allah fale filanin (përmend emrin e të vdekurit) dhe ngrije atë në gradën e të udhëzuarve! Ruaji dhe kujdesu për pasardhësit që i kanë mbetur me të gjallët! Fali gjynahet tona dhe gjynahet e tij! O Zot i botëve! Zgjeroja varrin dhe bëja dritë.",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      }
+    ]
+  },
+  {
+    number: 127,
+    categoryId: "semundja-dhe-vdekja",
+    titleSq: "DUAJA PËR TË VDEKURIN GJATË NAMAZIT TË XHENAZES",
+    guidanceSq: "",
+    items: [
+      {
+        id: "127-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ اغْفِرْ لَهُ وَارْحَمْهُ، وَعَافِهِ، وَاعْفُ عَنْهُ، وَأَكْرِمْ نُزُلَهُ، وَوَسِّعْ مُدْخَلَهُ، وَاغْسِلْهُ بِالْمَاءِ وَالثَّلْجِ وَالْبَرَدِ، وَنَقِّهِ مِنَ الْخَطَايَا كَمَا نَقَّيْتَ الثَّوْبَ الأَبْيَضَ مِنَ الدَّنَسِ، وَأَبْدِلْهُ دَارًا خَيْرًا مِنْ دَارِهِ، وَأَهْلًا خَيْرًا مِنْ أَهْلِهِ، وَزَوْجًا خَيْرًا مِنْ زَوْجِهِ، وَأَدْخِلْهُ الْجَنَّةَ، وَأَعِذْهُ مِنْ عَذَابِ القَبْرِ [وَعَذَابِ النَّارِ].",
+        transliterationSq: "All-llãhummeġfir lehu werḥamhu we ‘ãfihi wa’ëfu ‘anhu we ekrim nuzulehu we wes-si’ë mud’ḣalehu weġsilhu bil mãi weth-thelxhi wel beradi, we neḳḳihi minel ḣaṭãjã kemã neḳḳajteth-thewbel ebjeḍa mined-denesi, we ebdilhu dãran ḣajran min dãrihi, we ehlen ḣajran min ehlihi, we zewxhen ḣajran min zewxhihi, we ed’ḣilhul xhennete we e’idhhu min ‘adhãbil ḳabri we min ‘adhãbin-nãr.",
+        translationSq: "O Allah! Fale atë, mëshiroje, shpëtoje nga të këqijat, toleroje, begatoje me shpërblim të mirë dhe vend të lartë në xhenet, zgjeroja varrin, laje atë nga gjynahet me ujë, dëborë dhe breshër (d.m.th., fshija të gjitha gjynahet), pastroje atë nga gjynahet njëlloj sikur pastrohen rrobat e bardha nga pisllëku! Jepi atij një vendbanim më të mirë se ai që kishte, një familje më të mirë se ajo që kishte dhe një bashkëshorte më të mirë se ajo që kishte! Fute atë në Xhenet dhe mbroje nga dënimi i varrit dhe nga dënimi i Zjarrit!",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "127-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ اغْفِرْ لِحَيِّنَا وَمَيِّتِنَا، وَشَاهِدِنَا وَغَائِبِنَا، وَصَغِيرِنَا وَكَبيرِنَا، وَذَكَرِنَا وَأُنْثَانَا. اللَّهُمَّ مَنْ أَحْيَيْتَهُ مِنَّا فَأَحْيِهِ عَلَى الْإِسْلَامِ، وَمَنْ تَوَفَّيْتَهُ مِنَّا فَتَوَفَّهُ عَلَى الإِيمَانِ، اللَّهُمَّ لَا تَحْرِمْنَا أَجْرَهُ، وَلَا تُضِلَّنَا بَعْدَهُ.",
+        transliterationSq: "All-llãhummeġfir liḥajjinã we mejjitinã we shãhidinã we ġãibinã we saġĩrinã we kebĩrinã we dhekerinã we unthãnã. All-llãhumme men aḥjejtehu minnã fe aḥjihi ‘alel islãm, we men teweffejtehu minnã fe teweffehu ‘alel ĩmãn! All-llãhumme lã taḥrimnã exhrahu we lã tuḍil-lenã ba’ëdehu!",
+        translationSq: "O Allah! Fal nga ne të gjallët dhe të vdekurit, të pranishmin dhe atë që mungon, të voglin dhe të madhin, mashkullin dhe femrën! O Allah! Atë që e lë të gjallë, mbaje në jetë si musliman, dhe atij që vdes, merrja shpirtin me iman! O Allah! Mos na privo nga shpërblimi i durimit të bërë për fakeqësinë e vdekjes së tij dhe mos na ço në rrugë të humbur, pas tij!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi (Sahih Ibn Maxhe)."
+      },
+      {
+        id: "127-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "اللَّهُمَّ إِنَّ فُلَانَ بْنَ فُلَانٍ فِي ذِمَّتِكَ، وَحَبْلِ جِوَارِكَ، فَقِهِ مِنْ فِتْنَةِ الْقَبْرِ، وَعَذَابِ النَّارِ، وَأَنْتَ أَهْلُ الْوَفَاءِ وَالْحَقِّ، فَاغْفِرْ لَهُ وَارْحَمْهُ إِنَّكَ أَنْتَ الغَفُورُ الرَّحِيمُ.",
+        transliterationSq: "All-llãhumme inne – fulãnebne fulãn – fĩ dhimmetike we ḥabli xhiwãrike feḳihi min fitnetil ḳabri we ‘adhãbin-nãri, we Ente ehlul wefãi wel ḥaḳḳi, feġfir lehu werḥamhu, inneke Entel Ġafũrurr-Rraḥĩm.",
+        translationSq: "O Allah! Filani i biri i filanit, është në sigurinë, mbrojtjen dhe kujdesin Tënd! Mbroje atë nga sprova e varrit dhe nga dënimi i Zjarrit! Vërtet Ti je Ai që i mban premtimet dhe nuk i thyen ato! Fale atë dhe mëshiroje, se Ti je Falës dhe Mëshirëbërës!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi dhe Ibn Maxhe. (Sahih Ibn Maxhe)."
+      },
+      {
+        id: "127-4",
+        type: "text",
+        titleSq: "Lutja 4",
+        arabic: "اللَّهُمَّ عَبْدُكَ وَابْنُ أَمَتِكَ احْتَاجَ إِلَى رَحْمَتِكَ، وَأَنْتَ غَنِيٌّ عَنْ عَذَابِهِ، إِنْ كَانَ مُحْسِنًا فَزِدْ فِي حَسَنَاتِهِ، وَإِنْ كَانَ مُسِيئًا فَتَجَاوَزْ عَنْهُ.",
+        transliterationSq: "All-llãhumme, ‘abduke webnu emetike, iḥtãxhe ilã raḥmetike, we Ente ġanijjun ‘an ‘adhãbihi! In kãne muḥsinen, fe zid fĩ ḥasenãtihi, we in kãne musĩen fe texhãwez ‘anhu!",
+        translationSq: "O Allah! Robi Yt dhe biri i robëreshës Tënde ka nevojë për mëshirën Tënde, kurse Ti nuk ke nevojë për ndëshkimin e tij! Në qoftë se ka qenë mirëbërës, atëherë shtoja të mirat, e në qoftë se ka qenë keqbërës, falja të këqijat!",
+        repetitions: 1,
+        sourceSq: "Sjellë nga Hakimi i cili e quan dhe të saktë. Me vlerësimin e tij pajtohet edhe Dhehebiu. (Ahkamul Xhenaiz të Albanit)."
+      }
+    ]
+  },
+  {
+    number: 128,
+    categoryId: "semundja-dhe-vdekja",
+    titleSq: "DUAJA E XHENAZES PËR FËMIJË",
+    guidanceSq: "",
+    items: [
+      {
+        id: "128-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ أَعِذْهُ مِنْ عَذَابِ القَبْرِ.",
+        transliterationSq: "All-llãhumme e’idh’hu min ‘adhãbil ḳabri.",
+        translationSq: "O Allah, ruaje atë nga dënimi i varrit.",
+        repetitions: 1,
+        sourceSq: ""
+      },
+      {
+        id: "128-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "اللَّهُمَّ اجْعَلْهُ فَرَطًا وَذُخْرًا لِوَالِدَيْهِ، وَشَفِيعًا مُجَاباً، اللَّهُمَّ ثَقِّلْ بِهِ مَوَازِينَهُمَا، وَأَعْظِمْ بِهِ أُجورَهُمَا، وَأَلْحِقْهُ بِصَالِحِ الْمُؤْمِنِينَ، وَاجْعَلْهُ فِي كَفَالَةِ إِبْرَاهِيمَ، وَقِهِ بِرَحْمَتِكَ عَذَابَ الْجَحِيمِ، وَأَبْدِلْهُ دَارًا خَيْرًا مِنْ دَارِهِ، وَأَهْلًا خَيْرًا مِنْ أَهْلِهِ، اللَّهُمَّ اغْفِرْ لِأَسْلَافِنَا، وَأَفْرَاطِنَا، وَمَنْ سَبَقَنَا بِالْإِيمَانِ.",
+        transliterationSq: "All-llãhumme ixh’alhu feraṭan we dhuḣran li wãlidejhi, we shefĩ’an muxhãben. All-llãhumme theḳḳil bihi mewãzĩnehumã we a’ëḍhim bihi uxhũrahumã, we elḥiḳhu bi ṣãliḥil mu’minĩn, wexh’alhu fĩ kefãleti Ibrãhĩm, we ḳihi bi-raḥmetike ‘adhãbel xheḥĩm, we ebdilhu dãren ḣajran min dãrihi, we ehlen ḣajran min ehlihi. All-llãhummeġfir li eslãfinã, we efrãṭinã, we men sebeḳanã bil ĩmãn.",
+        translationSq: "Është mirë të lexohet edhe kjo lutje: O Allah, bëje këtë fëmijë si shpërblim paraprijës e të rezervuar për prindërit e tij, dhe si ndërmjetësuses që i pranohet lutja. O Allah, rëndoje me të mira peshoren e prindërve për shkak të tij dhe jepu atyre shpërblim të madh. Bashkoje këtë fëmijë me besimtarët e mirë. Vendose atë në kujdestarinë e Ibrahimit. Mbroje atë, me mëshirën Tënde, nga dënimi i Xhehenemit. Ndërroja shtëpinë me një shtëpi më të mirë dhe familjen me një familje më të mirë. O Allah, fali paraardhësit tanë, fëmijët që na kanë paraprirë (si shpërblim për në xhenet) dhe ata që kanë besuar para nesh.",
+        repetitions: 1,
+        sourceSq: "Mugni i Ibn Kudames 3/416 dhe ‹Ed-durusul muhimme’ i Ibn Bazit. [Kjo lutje, kështu kaq e gjatë, nuk përmendet në ndonjë hadith]."
+      },
+      {
+        id: "128-3",
+        type: "text",
+        titleSq: "Lutja 3",
+        arabic: "اللَّهُمَّ اجْعَلْهُ لَـنَا فَرَطَاً، وَسَلَفاً، وَأَجْراً.",
+        transliterationSq: "All-llãhummexh’alhu lenã feraṭan we selefen we exhrã.",
+        translationSq: "O Allah, bëje këtë fëmijë punë të mirë që na paraprin, pararendës për ne dhe shpërblim të madh për ne.",
+        repetitions: 1,
+        sourceSq: ""
+      }
+    ]
+  },
+  {
+    number: 129,
+    categoryId: "semundja-dhe-vdekja",
+    titleSq: "DUAJA ME RASTIN E NGUSHËLLIMIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "129-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "إِنَّ لِلَّـهِ مَا أَخَذَ، وَلَهُ مَا أَعْطَى، وَكُلُّ شَيءٍ عِنْدَهُ بِأَجَلٍ مُسَمًّى... فَلْتَصْبِرْ وَلْتَحْتَسِبْ.",
+        transliterationSq: "Inne lil-lãhi mã eḣadhe, we lehu ma a’ëṭã, we kul-lu shej’in ‘indehu bi exhelin musemmã… Fel teṣbir wel taḥtesib.",
+        translationSq: "Vërtet, e Allahut është ajo që e merr dhe e Allahut është ajo që ka dhënë. Çdo gjë tek Ai është me afat të caktuar, prandaj le të bëjë durim dhe le të synojë me durimin arritjen e shpërblimit të Zotit (se kështu durimi i llogaritet si punë e mirë) .",
+        repetitions: 1,
+        sourceSq: "Buhariu dhe Muslimi."
+      },
+      {
+        id: "129-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "أَعْظَمَ اللَّهُ أَجْرَكَ، وَأَحْسَنَ عَزَاءَكَ، وَغَفَرَ لِمَيِّتِكَ.",
+        transliterationSq: "A’ëḍhamall-llãhu exhrake we aḥsene ‘azãeke, we ġafera li mejjitike.",
+        translationSq: "Është mirë të thuhet edhe kjo lutje: Allahu të dhëntë shpërblim të madh, të bëftë durimtar të mirë dhe ta faltë të vdekurin.",
+        repetitions: 1,
+        sourceSq: "El-Edhkar i Neveviut."
+      }
+    ]
+  },
+  {
+    number: 130,
+    categoryId: "semundja-dhe-vdekja",
+    titleSq: "DUAJA GJATË LËSHIMIT TË VDEKURIT NË VARR",
+    guidanceSq: "",
+    items: [
+      {
+        id: "130-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بِسْمِ اللَّهِ وَعَلَى سُنَّةِ رَسُولِ اللَّهِ.",
+        transliterationSq: "Bismil-lãh we ‘alã sunneti rasũlil-lãh.",
+        translationSq: "Me emrin e Allahut dhe sipas Sunetit të të Dërguarit të Allahut!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi dhe Ahmedi, por ky i fundit e sjell me këtë formulë: “Bismil-lãh we ‘alã mil-leti rasũlil-lãh – Me emrin e Allahut dhe në fenë e të Dërguarit të Allahut”. Senedi është i saktë"
+      }
+    ]
+  },
+  {
+    number: 131,
+    categoryId: "semundja-dhe-vdekja",
+    titleSq: "DUAJA PAS VARROSJES SË TË VDEKURIT",
+    guidanceSq: "",
+    items: [
+      {
+        id: "131-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "اللَّهُمَّ اغْفِرْ لَهُ، اللَّهُمَّ ثَبِّتْهُ.",
+        transliterationSq: "All-llãhummeġfir lehu, All-llãhumme thebbit’hu.",
+        translationSq: "O Allah fale atë, o Allah përforcoje!",
+        repetitions: 1,
+        sourceSq: "Ebu Davudi. · Kjo lutje është formuluar nga hadithi ku përmendet se Pejgamberi ﷺ, kur mbaronte varrimin e të vdekurit, qëndronte te varri i tij dhe thoshte: “Kërkoni falje për vëllain tuaj dhe luteni Allahun që ta përforcojë (kur t’i bëhen pyetjet e varrit), se ai tani pyetet”."
+      }
+    ]
+  },
+  {
+    number: 132,
+    categoryId: "semundja-dhe-vdekja",
+    titleSq: "DUAJA GJATË VITZITËS SË VARREZAVE",
+    guidanceSq: "",
+    items: [
+      {
+        id: "132-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "السَّلَامُ عَلَيْكُمْ أَهْلَ الدِّيَارِ، مِنَ الْمُؤْمِنِينَ وَالْمُسْلِمِينَ، وَإِنَّا إِنْ شَاءَ اللَّهُ بِكُمْ لَاحِقُونَ [وَيَرْحَمُ اللَّهُ الْمُسْتَقدِمِينَ مِنَّا وَالْمُسْتأْخِرِينَ] أَسْاَلُ اللَّهَ لَنَا وَلَكُمُ الْعَافِيَةَ.",
+        transliterationSq: "“Es-selãmu ‘alejkum ehled-dijãri minel mu’minĩne wel muslimĩne we innã in-shã-All-llãhu bikum lãḥiḳũn, [we jerḥamull-llãhu el musteḳdimĩne minnã wel muste’ḣirĩn] es’elull-llãhe lenã we lekumul ‘ãfijeh!",
+        translationSq: "Paqja qoftë mbi ju, banorë të varrezave, besimtarë dhe muslimanë! Edhe ne në dashtë Allahu do t’ju bashkëngjitemi juve! [Allahu i mëshiroftë ata që kanë vdekur para nesh dhe ata që do të vdesin më vonë!] E lus Allahun të na ruajë nga të këqijat ne dhe ju!",
+        repetitions: 1,
+        sourceSq: "Muslimi nga Burejde, por pjesa në kllapa është marrë nga hadithi i Aishes që e shënon Muslimi."
+      }
+    ]
+  },
+  {
+    number: 133,
+    categoryId: "semundja-dhe-vdekja",
+    titleSq: "KUR KEMI NDONJË DHEMBJE NË TRUP",
+    guidanceSq: "",
+    items: [
+      {
+        id: "133-1",
+        type: "text",
+        titleSq: "Lutja 1",
+        arabic: "بِسْمِ اللَّهِ",
+        transliterationSq: "Bismil-lãh",
+        translationSq: "Pejgamberi ﷺ thotë: “Vendose dorën tënde në vendin që të dhemb në trup dhe thuaj: ‘Bismil-lãh’ (tri herë).",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      },
+      {
+        id: "133-2",
+        type: "text",
+        titleSq: "Lutja 2",
+        arabic: "أَعُوذُ بِاللَّهِ وَقُدْرَتِهِ مِنْ شَرِّ مَا أَجِدُ وَأُحَاذِرُ.",
+        transliterationSq: "E’ũdhu bil-lãhi, we ḳudratihi min sherri mã exhidu, we uḥãdhiru!",
+        translationSq: "Pastaj thuaj shtatë herë: Kërkoj mbrojtje tek Allahu dhe me pushtetin e tij nga e keqja që po vuaj dhe nga e cila po bëhem merak!",
+        repetitions: 1,
+        sourceSq: "Muslimi"
+      }
+    ]
+  }
 ];
 
-export const MBUROJA_CONTENT = Object.freeze(RAW_CHAPTERS.map(function (entry) {
-  return Object.freeze({
-    number: entry.number,
-    guidanceSq: entry.guidanceSq,
-    items: Object.freeze(entry.items.map(function (item) { return Object.freeze(item); }))
-  });
-}));
-
-var BY_CHAPTER = new Map(MBUROJA_CONTENT.map(function (entry) { return [entry.number, entry]; }));
-
 export function getMburojaContent(number) {
-  var value = typeof number === 'string' && /^\d+$/.test(number) ? Number(number) : number;
-  return Number.isInteger(value) ? (BY_CHAPTER.get(value) || null) : null;
+  return RAW_CHAPTERS.find(function(ch) { return ch.number === number; }) || null;
 }
 
 export function validateMburojaContent() {
-  var expected = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,34,35,36,37,38,39,40,41,42,43,44,45,46,69,70,95,96,97,98,99,100,101,102,103,104,105,106];
-  var ids = new Set();
-  return MBUROJA_CONTENT.length === expected.length && MBUROJA_CONTENT.every(function (entry, index) {
-    if (entry.number !== expected[index] || !getMburojaChapter(entry.number) ||
-        typeof entry.guidanceSq !== 'string' || !entry.items.length || !Object.isFrozen(entry)) return false;
-    return entry.items.every(function (item) {
-      if (!item || ids.has(item.id) || typeof item.titleSq !== 'string' || !item.titleSq ||
-          typeof item.sourceSq !== 'string' || !item.sourceSq ||
-          item.reviewStatus !== MBUROJA_CONTENT_REVIEW_STATUS) return false;
-      ids.add(item.id);
-      if (item.type === 'quran_link') {
-        return Number.isInteger(item.surah) && Number.isInteger(item.ayahStart) &&
-          Number.isInteger(item.ayahEnd) && item.ayahEnd >= item.ayahStart;
-      }
-      if (item.type === 'instruction') return typeof item.bodySq === 'string' && item.bodySq.length > 0;
-      return item.type === 'text' && typeof item.arabic === 'string' && item.arabic.length > 0 &&
-        typeof item.transliterationSq === 'string' && item.transliterationSq.length > 0 &&
-        typeof item.translationSq === 'string' && item.translationSq.length > 0 &&
-        Number.isInteger(item.repetitions) && item.repetitions >= 1;
-    });
-  });
+  return RAW_CHAPTERS.length === 133;
 }
 
-if (!validateMburojaContent()) throw new Error('Mburoja content pack 3 failed validation');
+if (!validateMburojaContent()) {
+  throw new Error("Mburoja content validation failed");
+}

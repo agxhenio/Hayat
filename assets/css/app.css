@@ -3905,3 +3905,8 @@
 .post-dhikr-quran__surah{padding-block:var(--space-4);border-block-end:1px solid var(--color-border-subtle)}.post-dhikr-quran__surah-title{margin:0;color:var(--color-text-secondary);font-size:var(--text-sm);font-weight:var(--font-weight-semibold)}
 .post-dhikr-quran__group-title{margin:0;color:var(--color-primary);font-size:var(--text-xs);font-weight:var(--font-weight-semibold);letter-spacing:.06em;text-transform:uppercase}
 .quran-reader__audio{display:flex;align-items:center;gap:var(--space-2);padding:var(--space-2) 0}.quran-reader__audio-meta{color:var(--color-text-secondary);font-size:var(--text-xs)}
+
+/* Mburoja hub layout */
+.mburoja-favorites{margin-block-end:var(--space-6)}
+.mburoja-section-title{margin:0 0 var(--space-3);font-size:var(--text-lg);font-weight:var(--font-weight-semibold);color:var(--color-text-primary)}
+.mburoja-catalog-section{padding-block-start:var(--space-6);border-block-start:1px solid var(--color-border-subtle)}

@@ -1,37 +1,23 @@
-/** Hayat — Mburoja e Muslimanit: Daily Dhikr + Catalog hub. */
+/**
+ * Hayat — Mburoja e Muslimanit: Home, Categories, Detail screens.
+ */
 
-import {
-  DAILY_DHIKR_CONTENT_VERSION,
-  DAILY_DHIKR_ROUTINES,
-  getDailyDhikrRoutine,
-  getDailyDhikrItem
-} from '../js/data/daily-dhikr.js';
-import {
-  DAILY_DHIKR_SESSION_STATUS,
-  getDailyDhikrSession,
-  createDailyDhikrSession,
-  saveDailyDhikrSession,
-  updateDailyDhikrItemProgress,
-  setDailyDhikrCurrentItem,
-  resetDailyDhikrSession,
-  validateDailyDhikrSession
-} from '../js/storage/daily-dhikr-progress.js';
-import {
-  getAyah,
-  getAyahRange,
-  QuranContentError
-} from '../js/services/quran-content.js';
-import { getQuranTransliterationSq, getQuranTranslationSq } from '../js/data/quran-transliteration-sq.js';
-import {
-  MBUROJA_CHAPTERS,
-  MBUROJA_CATEGORIES,
-  getMburojaChapter,
-  searchMburojaChapters
-} from '../js/data/mburoja-catalog.js';
+import { MBUROJA_CATEGORIES, getMburojaChapter } from '../js/data/mburoja-catalog.js';
 import { getMburojaContent } from '../js/data/mburoja-content.js';
+import {
+  ALL_MBUROJA_ITEMS,
+  searchMburojaItems,
+  getItemsByCategory,
+  getMburojaItem,
+  getCategoriesWithCounts
+} from '../js/data/mburoja-items.js';
+import {
+  isFavorite,
+  toggleFavorite,
+  getFavoriteItems
+} from '../js/storage/mburoja-favorites.js';
 
-var OBLIGATION_NOTE = 'Kjo faqe përmban dhikër dhe dua nga Mburoja e Muslimanit. Ato nuk paraqiten si obligim.';
-var REVIEW_NOTE = 'Përmbajtja është përgatitur me referenca dhe kërkon rishikim përfundimtar nga person i kualifikuar para publikimit të gjerë.';
+// ─── Helpers ───
 
 function icon(name, sizeClass) {
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -43,512 +29,438 @@ function icon(name, sizeClass) {
   return svg;
 }
 
-function localDateKey() {
-  var now = new Date();
-  return String(now.getFullYear()).padStart(4, '0') + '-' +
-    String(now.getMonth() + 1).padStart(2, '0') + '-' +
-    String(now.getDate()).padStart(2, '0');
+function notice(text) {
+  var p = document.createElement('p');
+  p.className = 'mburoja-notice';
+  p.textContent = text;
+  return p;
 }
 
-function routineIcon(routineId) {
-  if (routineId === 'morning') return 'sunrise';
-  if (routineId === 'evening') return 'sunset';
-  return 'moon';
-}
+// ─── Category icons ───
 
-function notice(className, text) {
-  var box = document.createElement('p');
-  box.className = className;
-  box.textContent = text;
-  return box;
-}
+var CATEGORY_ICONS = {
+  'daily': 'sunrise',
+  'home-mosque': 'home',
+  'prayer': 'mosque',
+  'distress': 'heart',
+  'health-death': 'heart',
+  'nature': 'sun',
+  'food-family': 'heart',
+  'social-protection': 'shield',
+  'travel': 'map-pin',
+  'social': 'heart',
+  'hajj-umrah': 'compass',
+  'protection': 'shield',
+  'remembrance': 'heart'
+};
 
-function pageHeading(title, subtitle) {
+// ═══════════════════════════════════════════════
+// SCREEN 1: HOME
+// ═══════════════════════════════════════════════
+
+function renderHome(page) {
+  page.classList.add('mburoja-page');
+
+  // Header
   var header = document.createElement('header');
-  header.className = 'route-page__header daily-dhikr-header';
-  var eyebrow = document.createElement('span');
-  eyebrow.className = 'route-page__eyebrow';
-  eyebrow.textContent = 'Mburoja e Muslimanit';
+  header.className = 'mburoja-home__header';
   var h1 = document.createElement('h1');
-  h1.className = 'route-page__title';
+  h1.className = 'mburoja-home__title';
   h1.dataset.routeHeading = '';
-  h1.textContent = title;
-  var description = document.createElement('p');
-  description.className = 'route-page__subtitle';
-  description.textContent = subtitle;
-  header.append(eyebrow, h1, description);
-  return header;
-}
+  h1.textContent = 'Mburoja';
+  header.appendChild(h1);
 
-function renderDashboard(page) {
-  page.classList.add('daily-dhikr-page');
-  var header = pageHeading('Mburoja', 'Mbrojtja e muslimanit me dhikër dhe dua.');
-  header.append(
-    notice('daily-dhikr-obligation-note', OBLIGATION_NOTE),
-    notice('daily-dhikr-review-note', REVIEW_NOTE)
-  );
+  // Search bar
+  var searchBar = document.createElement('div');
+  searchBar.className = 'mburoja-search';
+  var searchIcon = document.createElement('span');
+  searchIcon.className = 'mburoja-search__icon';
+  searchIcon.appendChild(icon('search'));
+  var searchInput = document.createElement('input');
+  searchInput.type = 'search';
+  searchInput.className = 'input mburoja-search__input';
+  searchInput.placeholder = 'Kërko...';
+  searchInput.dataset.mburojaSearchInput = '';
+  searchBar.append(searchIcon, searchInput);
 
-  var dashboard = document.createElement('div');
-  dashboard.className = 'daily-dhikr-dashboard';
-  dashboard.dataset.dailyDhikrDashboard = '';
-  var storageWarning = document.createElement('p');
-  storageWarning.className = 'daily-dhikr-storage-warning';
-  storageWarning.dataset.dailyDhikrStorageWarning = '';
-  storageWarning.setAttribute('role', 'status');
-  storageWarning.textContent = 'Ruajtja lokale nuk është e disponueshme. Rutinat mund të hapen pa shfaqur progresin e ruajtur.';
-  storageWarning.hidden = true;
+  // Search results (hidden by default)
+  var searchResults = document.createElement('div');
+  searchResults.className = 'mburoja-search-results';
+  searchResults.dataset.mburojaSearchResults = '';
+  searchResults.hidden = true;
 
-  var cards = document.createElement('div');
-  cards.className = 'daily-dhikr-cards';
-  DAILY_DHIKR_ROUTINES.forEach(function (routine) {
-    var card = document.createElement('article');
-    card.className = 'daily-dhikr-routine-card card';
-    card.dataset.dailyRoutineCard = routine.id;
-    var body = document.createElement('div');
-    body.className = 'card__body';
-    var cardHeader = document.createElement('div');
-    cardHeader.className = 'daily-dhikr-routine-card__header';
+  // Favorites section
+  var favSection = document.createElement('section');
+  favSection.className = 'mburoja-favorites-section';
+  var favHeader = document.createElement('div');
+  favHeader.className = 'mburoja-favorites-section__header';
+  var favTitle = document.createElement('h2');
+  favTitle.className = 'mburoja-favorites-section__title';
+  favTitle.textContent = 'Të zgjedhurat';
+  favHeader.appendChild(favTitle);
+
+  var favCarousel = document.createElement('div');
+  favCarousel.className = 'mburoja-favorites-carousel';
+  favCarousel.dataset.mburojaFavoritesCarousel = '';
+
+  var favEmpty = document.createElement('p');
+  favEmpty.className = 'mburoja-favorites-empty';
+  favEmpty.dataset.mburojaFavoritesEmpty = '';
+  favEmpty.textContent = 'Nuk ka të dhëna!';
+
+  favSection.append(favHeader, favCarousel, favEmpty);
+
+  // Categories list
+  var catSection = document.createElement('section');
+  catSection.className = 'mburoja-categories-section';
+  var catTitle = document.createElement('h2');
+  catTitle.className = 'mburoja-categories-section__title';
+  catTitle.textContent = 'Kategoritë';
+  catSection.appendChild(catTitle);
+
+  var catList = document.createElement('div');
+  catList.className = 'mburoja-categories-list';
+  catList.dataset.mburojaCategoriesList = '';
+
+  getCategoriesWithCounts().forEach(function (cat) {
+    var item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'mburoja-category-row';
+    item.dataset.mburojaCategory = cat.id;
+
     var iconWrap = document.createElement('span');
-    iconWrap.className = 'daily-dhikr-routine-card__icon';
-    iconWrap.appendChild(icon(routineIcon(routine.id), 'icon--lg'));
-    var heading = document.createElement('h2');
-    heading.className = 'daily-dhikr-routine-card__title';
-    heading.textContent = routine.titleSq;
-    cardHeader.append(iconWrap, heading);
-    var description = document.createElement('p');
-    description.className = 'daily-dhikr-routine-card__description';
-    description.textContent = routine.descriptionSq;
-    var status = document.createElement('p');
-    status.className = 'daily-dhikr-routine-card__status';
-    status.dataset.dailyRoutineStatus = '';
-    status.textContent = 'I pa filluar';
-    var progressText = document.createElement('p');
-    progressText.className = 'daily-dhikr-routine-card__progress-text';
-    progressText.dataset.dailyRoutineProgressText = '';
-    progressText.textContent = '0 nga ' + routine.items.length + ' të përfunduara';
-    var progress = document.createElement('progress');
-    progress.className = 'daily-dhikr-progress-bar';
-    progress.max = routine.items.length;
-    progress.value = 0;
-    progress.dataset.dailyRoutineProgress = '';
-    progress.setAttribute('aria-label', progressText.textContent);
-    var action = document.createElement('button');
-    action.type = 'button';
-    action.className = 'btn btn--primary daily-dhikr-routine-card__action';
-    action.dataset.openDailyRoutine = routine.id;
-    action.textContent = 'Fillo';
-    body.append(cardHeader, description, status, progressText, progress, action);
-    card.appendChild(body);
-    cards.appendChild(card);
+    iconWrap.className = 'mburoja-category-row__icon';
+    iconWrap.appendChild(icon(CATEGORY_ICONS[cat.id] || 'heart'));
+
+    var text = document.createElement('span');
+    text.className = 'mburoja-category-row__text';
+    text.textContent = cat.titleSq;
+
+    var count = document.createElement('span');
+    count.className = 'mburoja-category-row__count';
+    count.textContent = cat.count;
+
+    var arrow = document.createElement('span');
+    arrow.className = 'mburoja-category-row__arrow';
+    arrow.appendChild(icon('chevron-right', 'icon--sm'));
+
+    item.append(iconWrap, text, count, arrow);
+    catList.appendChild(item);
   });
 
-  dashboard.append(storageWarning, cards);
-  page.append(header, dashboard);
+  catSection.appendChild(catList);
+
+  // Review notice
+  var reviewNote = notice('Përmbajtja është përgatitur me referenca dhe kërkon rishikim përfundimtar nga person i kualifikuar.');
+
+  page.append(header, searchBar, searchResults, favSection, catSection, reviewNote);
 }
 
-function renderInvalid(page, message) {
-  page.classList.add('daily-dhikr-page');
+function renderFavoritesCarousel(carousel, emptyEl) {
+  var favorites = getFavoriteItems(ALL_MBUROJA_ITEMS);
+  carousel.replaceChildren();
+  emptyEl.hidden = favorites.length > 0;
+
+  favorites.slice(0, 10).forEach(function (item) {
+    var card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'mburoja-fav-card';
+    card.dataset.mburojaItemId = item.id;
+
+    var title = document.createElement('span');
+    title.className = 'mburoja-fav-card__title';
+    title.textContent = item.title;
+
+    var chapter = document.createElement('span');
+    chapter.className = 'mburoja-fav-card__chapter';
+    chapter.textContent = item.chapterTitle;
+
+    card.append(title, chapter);
+    carousel.appendChild(card);
+  });
+
+  if (favorites.length > 10) {
+    var more = document.createElement('button');
+    more.type = 'button';
+    more.className = 'mburoja-fav-card mburoja-fav-card--more';
+    more.dataset.mburojaShowAllFavorites = '';
+    more.textContent = 'Të gjitha';
+    carousel.appendChild(more);
+  }
+}
+
+function renderSearchResults(container, query) {
+  var results = searchMburojaItems(query);
+  container.replaceChildren();
+
+  if (!query || !query.trim()) {
+    container.hidden = true;
+    return;
+  }
+
+  container.hidden = false;
+
+  if (results.length === 0) {
+    var empty = document.createElement('p');
+    empty.className = 'mburoja-search-results__empty';
+    empty.textContent = 'Asnjë rezultat.';
+    container.appendChild(empty);
+    return;
+  }
+
+  results.slice(0, 20).forEach(function (item) {
+    var row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'mburoja-search-result';
+    row.dataset.mburojaItemId = item.id;
+
+    var title = document.createElement('span');
+    title.className = 'mburoja-search-result__title';
+    title.textContent = item.title;
+
+    var cat = document.createElement('span');
+    cat.className = 'mburoja-search-result__category';
+    cat.textContent = item.categoryTitle;
+
+    var arrow = document.createElement('span');
+    arrow.className = 'mburoja-search-result__arrow';
+    arrow.appendChild(icon('chevron-right', 'icon--sm'));
+
+    row.append(title, cat, arrow);
+    container.appendChild(row);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// SCREEN 2: CATEGORY DETAIL
+// ═══════════════════════════════════════════════
+
+function renderCategory(page, categoryId) {
+  page.classList.add('mburoja-page');
+
+  var category = MBUROJA_CATEGORIES.find(function (c) { return c.id === categoryId; });
+  if (!category) {
+    renderError(page, 'Kategoria nuk u gjet.');
+    return;
+  }
+
+  var items = getItemsByCategory(categoryId);
+
+  // Top bar
+  var topBar = document.createElement('header');
+  topBar.className = 'mburoja-topbar';
+  var back = document.createElement('button');
+  back.type = 'button';
+  back.className = 'btn btn--icon btn--ghost';
+  back.dataset.mburojaBackHome = '';
+  back.appendChild(icon('chevron-left'));
+  var title = document.createElement('h1');
+  title.className = 'mburoja-topbar__title';
+  title.dataset.routeHeading = '';
+  title.textContent = category.titleSq;
+  topBar.append(back, title);
+
+  // Items list
+  var list = document.createElement('div');
+  list.className = 'mburoja-items-list';
+
+  items.forEach(function (item, index) {
+    var row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'mburoja-item-row';
+    row.dataset.mburojaItemId = item.id;
+
+    var num = document.createElement('span');
+    num.className = 'mburoja-item-row__num';
+    num.textContent = String(index + 1);
+
+    var text = document.createElement('span');
+    text.className = 'mburoja-item-row__text';
+    text.textContent = item.title;
+
+    var arrow = document.createElement('span');
+    arrow.className = 'mburoja-item-row__arrow';
+    arrow.appendChild(icon('chevron-right', 'icon--sm'));
+
+    row.append(num, text, arrow);
+    list.appendChild(row);
+  });
+
+  page.append(topBar, list);
+}
+
+// ═══════════════════════════════════════════════
+// SCREEN 3: DHikr DETAIL
+// ═══════════════════════════════════════════════
+
+function renderDetail(page, itemId) {
+  page.classList.add('mburoja-page');
+
+  var item = getMburojaItem(itemId);
+  if (!item) {
+    renderError(page, 'Lutja nuk u gjet.');
+    return;
+  }
+
+  var fav = isFavorite(item.id);
+
+  // Top bar
+  var topBar = document.createElement('header');
+  topBar.className = 'mburoja-topbar';
+  var back = document.createElement('button');
+  back.type = 'button';
+  back.className = 'btn btn--icon btn--ghost';
+  back.dataset.mburojaBackCategory = '';
+  back.dataset.mburojaCategoryId = item.categoryId;
+  back.appendChild(icon('chevron-left'));
+
+  var titleEl = document.createElement('h1');
+  titleEl.className = 'mburoja-topbar__title';
+  titleEl.dataset.routeHeading = '';
+  titleEl.textContent = item.categoryTitle;
+
+  var favBtn = document.createElement('button');
+  favBtn.type = 'button';
+  favBtn.className = 'btn btn--icon btn--ghost';
+  favBtn.dataset.mburojaToggleFavorite = item.id;
+  favBtn.setAttribute('aria-label', fav ? 'Hiqe nga të zgjedhurat' : 'Shto te të zgjedhurat');
+  var heartIcon = icon('heart');
+  if (fav) heartIcon.classList.add('mburoja-heart--active');
+  favBtn.appendChild(heartIcon);
+
+  topBar.append(back, titleEl, favBtn);
+
+  // Content
+  var content = document.createElement('div');
+  content.className = 'mburoja-detail';
+
+  // Title
+  var dhikrTitle = document.createElement('h2');
+  dhikrTitle.className = 'mburoja-detail__title';
+  dhikrTitle.textContent = item.title;
+
+  // Arabic block
+  var arabicBlock = document.createElement('div');
+  arabicBlock.className = 'mburoja-detail__block';
+  var arabicLabel = document.createElement('p');
+  arabicLabel.className = 'mburoja-detail__label';
+  arabicLabel.textContent = 'Arabisht';
+  var arabicText = document.createElement('p');
+  arabicText.className = 'mburoja-detail__arabic text-quran';
+  arabicText.lang = 'ar';
+  arabicText.dir = 'rtl';
+  arabicText.textContent = item.arabic;
+  arabicBlock.append(arabicLabel, arabicText);
+
+  // Transliteration block
+  var translitBlock = document.createElement('div');
+  translitBlock.className = 'mburoja-detail__block';
+  var translitLabel = document.createElement('p');
+  translitLabel.className = 'mburoja-detail__label';
+  translitLabel.textContent = 'Transliterim';
+  var translitText = document.createElement('p');
+  translitText.className = 'mburoja-detail__transliteration';
+  translitText.textContent = item.transliteration;
+  translitBlock.append(translitLabel, translitText);
+
+  // Translation block
+  var transBlock = document.createElement('div');
+  transBlock.className = 'mburoja-detail__block';
+  var transLabel = document.createElement('p');
+  transLabel.className = 'mburoja-detail__label';
+  transLabel.textContent = 'Përkthimi';
+  var transText = document.createElement('p');
+  transText.className = 'mburoja-detail__translation';
+  transText.textContent = item.translation;
+  transBlock.append(transLabel, transText);
+
+  // Reference block
+  var refBlock = document.createElement('div');
+  refBlock.className = 'mburoja-detail__block';
+  var refLabel = document.createElement('p');
+  refLabel.className = 'mburoja-detail__label';
+  refLabel.textContent = 'Referenca';
+  var refText = document.createElement('p');
+  refText.className = 'mburoja-detail__reference';
+  refText.textContent = item.reference;
+  refBlock.append(refLabel, refText);
+
+  content.append(dhikrTitle, arabicBlock, translitBlock, transBlock, refBlock);
+
+  // Bottom actions
+  var actions = document.createElement('div');
+  actions.className = 'mburoja-detail__actions';
+
+  var copyBtn = document.createElement('button');
+  copyBtn.type = 'button';
+  copyBtn.className = 'btn btn--outline';
+  copyBtn.dataset.mburojaCopy = '';
+  copyBtn.append(icon('copy', 'icon--sm'), document.createTextNode(' Kopjo'));
+
+  var checkBtn = document.createElement('button');
+  checkBtn.type = 'button';
+  checkBtn.className = 'btn btn--primary';
+  checkBtn.dataset.mburojaCheck = '';
+  checkBtn.append(icon('check', 'icon--sm'), document.createTextNode(' Lexova'));
+
+  var repeatBadge = document.createElement('span');
+  repeatBadge.className = 'mburoja-detail__repeat-badge';
+  if (item.repetitions > 1) {
+    repeatBadge.textContent = item.repetitions + 'x';
+  } else {
+    repeatBadge.textContent = '1x';
+  }
+
+  actions.append(copyBtn, checkBtn, repeatBadge);
+
+  page.append(topBar, content, actions);
+}
+
+// ═══════════════════════════════════════════════
+// ERROR SCREEN
+// ═══════════════════════════════════════════════
+
+function renderError(page, message) {
+  page.classList.add('mburoja-page');
   var box = document.createElement('div');
-  box.className = 'daily-dhikr-error';
+  box.className = 'mburoja-error';
   box.setAttribute('role', 'alert');
   box.appendChild(icon('alert-circle', 'icon--2xl'));
-  var heading = document.createElement('h1');
-  heading.className = 'daily-dhikr-error__title';
-  heading.dataset.routeHeading = '';
-  heading.textContent = message;
+  var h1 = document.createElement('h1');
+  h1.className = 'mburoja-error__title';
+  h1.textContent = message;
   var back = document.createElement('button');
   back.type = 'button';
   back.className = 'btn btn--primary';
-  back.dataset.dailyDhikrInvalidBack = '';
-    back.textContent = 'Kthehu te Mburoja';
-  box.append(heading, back);
+  back.dataset.mburojaBackHome = '';
+  back.textContent = 'Kthehu te Mburoja';
+  box.append(h1, back);
   page.appendChild(box);
 }
 
-function renderReader(page, routine) {
-  page.classList.add('daily-dhikr-page', 'daily-dhikr-reader');
-  var header = document.createElement('header');
-  header.className = 'daily-dhikr-reader__header';
-  var top = document.createElement('div');
-  top.className = 'daily-dhikr-reader__header-top';
-  var back = document.createElement('button');
-  back.type = 'button';
-  back.className = 'btn btn--icon btn--ghost';
-  back.dataset.dailyDhikrBack = '';
-    back.setAttribute('aria-label', 'Kthehu te dashboard-i i Mburojës');
-  back.appendChild(icon('chevron-left'));
-  var titles = document.createElement('div');
-  titles.className = 'daily-dhikr-reader__titles';
-  var eyebrow = document.createElement('span');
-  eyebrow.className = 'route-page__eyebrow';
-    eyebrow.textContent = 'Mburoja e Muslimanit';
-  var h1 = document.createElement('h1');
-  h1.className = 'route-page__title';
-  h1.dataset.routeHeading = '';
-  h1.textContent = routine.titleSq;
-  titles.append(eyebrow, h1);
-  top.append(back, titles);
-  var description = document.createElement('p');
-  description.className = 'route-page__subtitle';
-  description.textContent = routine.descriptionSq;
-  header.append(
-    top,
-    description,
-    notice('daily-dhikr-obligation-note', OBLIGATION_NOTE),
-    notice('daily-dhikr-review-note', REVIEW_NOTE)
-  );
-  var content = document.createElement('div');
-  content.className = 'daily-dhikr-reader__content';
-  content.dataset.dailyDhikrReaderContent = '';
-  page.append(header, content);
-}
-
-var MBUROJA_PDF_URL = 'https://d1.islamhouse.com/data/sq/ih_books/single/sq_mburoja_muslimanit.pdf';
-
-function renderHub(page) {
-  page.classList.add('daily-dhikr-page');
-  var header = pageHeading('Mburoja', 'Mbrojtja e muslimanit me dhikër dhe dua.');
-  header.append(
-    notice('daily-dhikr-obligation-note', OBLIGATION_NOTE),
-    notice('daily-dhikr-review-note', REVIEW_NOTE)
-  );
-
-  // === FAVORITES SECTION ===
-  var favoritesSection = document.createElement('section');
-  favoritesSection.className = 'mburoja-favorites';
-  var favHeading = document.createElement('h2');
-  favHeading.className = 'mburoja-section-title';
-  favHeading.textContent = 'Dhikri i përditshëm';
-
-  var favCards = document.createElement('div');
-  favCards.className = 'daily-dhikr-cards';
-  DAILY_DHIKR_ROUTINES.forEach(function (routine) {
-    var card = document.createElement('article');
-    card.className = 'daily-dhikr-routine-card card';
-    card.dataset.dailyRoutineCard = routine.id;
-    var body = document.createElement('div');
-    body.className = 'card__body';
-    var cardHeader = document.createElement('div');
-    cardHeader.className = 'daily-dhikr-routine-card__header';
-    var iconWrap = document.createElement('span');
-    iconWrap.className = 'daily-dhikr-routine-card__icon';
-    iconWrap.appendChild(icon(routineIcon(routine.id), 'icon--lg'));
-    var heading = document.createElement('h3');
-    heading.className = 'daily-dhikr-routine-card__title';
-    heading.textContent = routine.titleSq;
-    cardHeader.append(iconWrap, heading);
-    var description = document.createElement('p');
-    description.className = 'daily-dhikr-routine-card__description';
-    description.textContent = routine.descriptionSq;
-    var status = document.createElement('p');
-    status.className = 'daily-dhikr-routine-card__status';
-    status.dataset.dailyRoutineStatus = '';
-    status.textContent = 'I pa filluar';
-    var progressText = document.createElement('p');
-    progressText.className = 'daily-dhikr-routine-card__progress-text';
-    progressText.dataset.dailyRoutineProgressText = '';
-    progressText.textContent = '0 nga ' + routine.items.length + ' të përfunduara';
-    var progress = document.createElement('progress');
-    progress.className = 'daily-dhikr-progress-bar';
-    progress.max = routine.items.length;
-    progress.value = 0;
-    progress.dataset.dailyRoutineProgress = '';
-    progress.setAttribute('aria-label', progressText.textContent);
-    var action = document.createElement('button');
-    action.type = 'button';
-    action.className = 'btn btn--primary daily-dhikr-routine-card__action';
-    action.dataset.openDailyRoutine = routine.id;
-    action.textContent = 'Fillo';
-    body.append(cardHeader, description, status, progressText, progress, action);
-    card.appendChild(body);
-    favCards.appendChild(card);
-  });
-  favoritesSection.append(favHeading, favCards);
-
-  // === STORAGE WARNING ===
-  var storageWarning = document.createElement('p');
-  storageWarning.className = 'daily-dhikr-storage-warning';
-  storageWarning.dataset.dailyDhikrStorageWarning = '';
-  storageWarning.setAttribute('role', 'status');
-  storageWarning.textContent = 'Ruajtja lokale nuk është e disponueshme.';
-  storageWarning.hidden = true;
-
-  // === CATALOG SECTION ===
-  var catalogSection = document.createElement('section');
-  catalogSection.className = 'mburoja-catalog-section';
-  var catHeading = document.createElement('h2');
-  catHeading.className = 'mburoja-section-title';
-  catHeading.textContent = 'Katalogu i Mburojës';
-
-  var search = document.createElement('div');
-  search.className = 'mburoja-search';
-  var searchIcon = document.createElement('span');
-  searchIcon.className = 'mburoja-search__icon';
-  searchIcon.appendChild(icon('search'));
-  var input = document.createElement('input');
-  input.type = 'search';
-  input.className = 'input mburoja-search__input';
-  input.placeholder = 'Kërko në kapituj...';
-  input.dataset.mburojaSearch = '';
-  search.append(searchIcon, input);
-
-  var filters = document.createElement('div');
-  filters.className = 'mburoja-filters';
-  filters.dataset.mburojaFilters = '';
-  var all = document.createElement('button');
-  all.type = 'button';
-  all.className = 'mburoja-filter mburoja-filter--active';
-  all.dataset.mburojaCategory = '';
-  all.setAttribute('aria-pressed', 'true');
-  all.textContent = 'Të gjitha';
-  filters.appendChild(all);
-  MBUROJA_CATEGORIES.forEach(function (category) {
-    var button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'mburoja-filter';
-    button.dataset.mburojaCategory = category.id;
-    button.setAttribute('aria-pressed', 'false');
-    button.textContent = category.titleSq;
-    filters.appendChild(button);
-  });
-
-  var list = document.createElement('ul');
-  list.className = 'mburoja-catalog';
-  list.dataset.mburojaList = '';
-
-  var empty = document.createElement('p');
-  empty.className = 'mburoja-empty';
-  empty.dataset.mburojaEmpty = '';
-  empty.textContent = 'Asnjë rezultat.';
-  empty.hidden = true;
-
-  catalogSection.append(catHeading, search, filters, list, empty);
-
-  page.append(header, storageWarning, favoritesSection, catalogSection);
-}
-
-function renderCatalog(page) {
-  page.classList.add('mburoja-page');
-  var top = document.createElement('div');
-  top.className = 'mburoja-page__top';
-  var back = document.createElement('button');
-  back.type = 'button';
-  back.className = 'btn btn--icon btn--ghost';
-  back.dataset.mburojaBackHub = '';
-  back.appendChild(icon('chevron-left'));
-  top.appendChild(back);
-
-  var noticeBox = document.createElement('div');
-  noticeBox.className = 'mburoja-audit-note';
-  noticeBox.textContent = 'Përmbajtja është në proces rishikimi të kualifikuar.';
-
-  var search = document.createElement('div');
-  search.className = 'mburoja-search';
-  var label = document.createElement('label');
-  label.htmlFor = 'mburoja-search';
-  label.textContent = 'Kërko';
-  var searchIcon = document.createElement('span');
-  searchIcon.className = 'mburoja-search__icon';
-  searchIcon.appendChild(icon('search'));
-  var input = document.createElement('input');
-  input.type = 'search';
-  input.id = 'mburoja-search';
-  input.className = 'input mburoja-search__input';
-  input.placeholder = 'Kërko në kapituj...';
-  input.dataset.mburojaSearch = '';
-  search.append(label, searchIcon, input);
-
-  var filters = document.createElement('div');
-  filters.className = 'mburoja-filters';
-  filters.dataset.mburojaFilters = '';
-  var all = document.createElement('button');
-  all.type = 'button';
-  all.className = 'mburoja-filter mburoja-filter--active';
-  all.dataset.mburojaCategory = '';
-  all.setAttribute('aria-pressed', 'true');
-  all.textContent = 'Të gjitha';
-  filters.appendChild(all);
-  MBUROJA_CATEGORIES.forEach(function (category) {
-    var button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'mburoja-filter';
-    button.dataset.mburojaCategory = category.id;
-    button.setAttribute('aria-pressed', 'false');
-    button.textContent = category.titleSq;
-    filters.appendChild(button);
-  });
-
-  var list = document.createElement('ul');
-  list.className = 'mburoja-catalog';
-  list.dataset.mburojaList = '';
-
-  var status = document.createElement('p');
-  status.className = 'mburoja-status';
-  status.dataset.mburojaStatus = '';
-  status.hidden = true;
-
-  var empty = document.createElement('p');
-  empty.className = 'mburoja-empty';
-  empty.dataset.mburojaEmpty = '';
-  empty.textContent = 'Asnjë rezultat.';
-  empty.hidden = true;
-
-  var pdfLink = document.createElement('a');
-  pdfLink.className = 'mburoja-pdf-link';
-  pdfLink.href = MBUROJA_PDF_URL;
-  pdfLink.target = '_blank';
-  pdfLink.rel = 'noopener noreferrer';
-  pdfLink.textContent = 'Shkarko PDF-në e plotë';
-
-  page.append(top, noticeBox, search, filters, status, list, empty, pdfLink);
-}
-
-function chapterRow(chapter) {
-  var item = document.createElement('li');
-  item.className = 'mburoja-catalog__item';
-  var button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'mburoja-chapter-row';
-  button.dataset.mburojaChapter = String(chapter.number);
-  button.setAttribute('aria-label', 'Hap kapitullin ' + chapter.number);
-  var number = document.createElement('span');
-  number.className = 'mburoja-chapter-row__number';
-  number.textContent = String(chapter.number);
-  var text = document.createElement('span');
-  text.className = 'mburoja-chapter-row__content';
-  var title = document.createElement('span');
-  title.className = 'mburoja-chapter-row__title';
-  title.textContent = chapter.titleSq;
-  var meta = document.createElement('span');
-  meta.className = 'mburoja-chapter-row__meta';
-  var available = getMburojaContent(chapter.number);
-  meta.textContent = available
-    ? 'Faqja ' + chapter.page + ' · ' + available.items.length + ' hyrje'
-    : 'Faqja ' + chapter.page + ' · Në auditim';
-  if (available) button.classList.add('mburoja-chapter-row--available');
-  text.append(title, meta);
-  var trailing = document.createElement('span');
-  trailing.className = 'mburoja-chapter-row__trailing';
-  trailing.appendChild(icon('chevron-right', 'icon--sm'));
-  button.append(number, text, trailing);
-  item.appendChild(button);
-  return item;
-}
-
-function renderCatalogResults(list, empty, status, chapters) {
-  list.replaceChildren();
-  chapters.forEach(function (chapter) {
-    list.appendChild(chapterRow(chapter));
-  });
-  empty.hidden = chapters.length > 0;
-}
-
-function renderChapter(page, chapter) {
-  page.classList.add('mburoja-page');
-  var top = document.createElement('div');
-  top.className = 'mburoja-page__top';
-  var back = document.createElement('button');
-  back.type = 'button';
-  back.className = 'btn btn--icon btn--ghost';
-  back.dataset.mburojaBackCatalog = '';
-  back.appendChild(icon('chevron-left'));
-  top.appendChild(back);
-
-  var heading = document.createElement('h2');
-  heading.className = 'mburoja-chapter__title';
-  heading.textContent = chapter.titleSq;
-
-  var meta = document.createElement('p');
-  meta.className = 'mburoja-chapter__meta';
-  meta.textContent = 'Kapitulli ' + chapter.number + ' · Faqja ' + chapter.page;
-
-  var content = document.createElement('div');
-  content.className = 'mburoja-chapter__content';
-
-  var available = getMburojaContent(chapter.number);
-  if (available) {
-    available.items.forEach(function (item) {
-      var block = document.createElement('div');
-      block.className = 'mburoja-item';
-      if (item.titleSq) {
-        var title = document.createElement('h3');
-        title.className = 'mburoja-item__title';
-        title.textContent = item.titleSq;
-        block.appendChild(title);
-      }
-      if (item.arabic) {
-        var arabic = document.createElement('p');
-        arabic.className = 'mburoja-item__arabic text-quran';
-        arabic.lang = 'ar';
-        arabic.dir = 'rtl';
-        arabic.textContent = item.arabic;
-        block.appendChild(arabic);
-      }
-      if (item.transliterationSq) {
-        var translit = document.createElement('p');
-        translit.className = 'mburoja-item__transliteration';
-        translit.textContent = item.transliterationSq;
-        block.appendChild(translit);
-      }
-      if (item.translationSq) {
-        var translation = document.createElement('p');
-        translation.className = 'mburoja-item__translation';
-        translation.textContent = item.translationSq;
-        block.appendChild(translation);
-      }
-      if (item.noteSq) {
-        var note = document.createElement('p');
-        note.className = 'mburoja-item__note';
-        note.textContent = item.noteSq;
-        block.appendChild(note);
-      }
-      content.appendChild(block);
-    });
-  } else {
-    var pending = document.createElement('p');
-    pending.className = 'mburoja-pending';
-    pending.textContent = 'Përmbajtja e këtij kapitulli është në proces rishikimi.';
-    content.appendChild(pending);
-  }
-
-  var pdfLink = document.createElement('a');
-  pdfLink.className = 'mburoja-chapter__pdf';
-  pdfLink.href = MBUROJA_PDF_URL + '#page=' + chapter.page;
-  pdfLink.target = '_blank';
-  pdfLink.rel = 'noopener noreferrer';
-  pdfLink.textContent = 'Shiko në PDF-në origjinale';
-
-  page.append(top, heading, meta, content, pdfLink);
-}
+// ═══════════════════════════════════════════════
+// EXPORTS: render + mount
+// ═══════════════════════════════════════════════
 
 export function render(context) {
   var page = document.createElement('div');
   page.className = 'route-page';
   var params = context.params || {};
 
-  // Chapter detail view
-  if (params.chapter !== undefined) {
-    var chapter = getMburojaChapter(params.chapter);
-    if (chapter) renderChapter(page, chapter);
-    else renderInvalid(page, 'Kapitulli nuk u gjet.');
+  // Detail view
+  if (params.item) {
+    renderDetail(page, params.item);
     return page;
   }
 
-  // Daily dhikr routine view
-  if (params.routine !== undefined) {
-    var routine = getDailyDhikrRoutine(params.routine);
-    if (!routine) {
-      renderInvalid(page, 'Rutina e kërkuar nuk ekziston.');
-    } else if (params.item !== undefined && !getDailyDhikrItem(routine.id, params.item)) {
-      renderInvalid(page, 'Hyrja e kërkuar nuk ekziston në këtë rutinë.');
-    } else {
-      renderReader(page, routine);
-    }
+  // Category view
+  if (params.category) {
+    renderCategory(page, params.category);
     return page;
   }
 
-  // Default: hub with favorites on top + catalog below
-  renderHub(page);
+  // Home view (default)
+  renderHome(page);
   return page;
 }
 
@@ -560,790 +472,114 @@ export function mount(page, context, appContext) {
     cleanups.push(function () { element.removeEventListener(event, handler); });
   }
 
-  // Hub page: favorites + catalog
-  var favoritesDashboard = page.querySelector('[data-daily-dhikr-dashboard]');
-  var catalogList = page.querySelector('[data-mburoja-list]');
-  if (favoritesDashboard && catalogList) {
-    // Favorites: daily dhikr cards
-    var warning = page.querySelector('[data-daily-dhikr-storage-warning]');
-    var dateKey = localDateKey();
+  // ─── HOME MOUNT ───
+  var searchInput = page.querySelector('[data-mburoja-search-input]');
+  var searchResults = page.querySelector('[data-mburoja-search-results]');
+  var favCarousel = page.querySelector('[data-mburoja-favorites-carousel]');
+  var favEmpty = page.querySelector('[data-mburoja-favorites-empty]');
+  var categoriesList = page.querySelector('[data-mburoja-categories-list]');
 
-    function updateCard(routine, session) {
-      var card = page.querySelector('[data-daily-routine-card="' + routine.id + '"]');
-      if (!card) return;
-      var done = completedCount(routine, session);
-      var status = card.querySelector('[data-daily-routine-status]');
-      var progressText = card.querySelector('[data-daily-routine-progress-text]');
-      var progress = card.querySelector('[data-daily-routine-progress]');
-      var action = card.querySelector('[data-open-daily-routine]');
-      if (!session) {
-        status.textContent = 'I pa filluar';
-        action.textContent = 'Fillo';
-      } else if (session.status === DAILY_DHIKR_SESSION_STATUS.COMPLETED) {
-        status.textContent = 'U krye';
-        action.textContent = 'Shiko';
-      } else {
-        status.textContent = 'Në vazhdim';
-        action.textContent = 'Vazhdo';
-      }
-      progressText.textContent = done + ' nga ' + routine.items.length + ' të përfunduara';
-      progress.value = done;
-      progress.setAttribute('aria-label', progressText.textContent);
-    }
-
-    Promise.allSettled(DAILY_DHIKR_ROUTINES.map(function (routine) {
-      return getDailyDhikrSession(dateKey, routine.id);
-    })).then(function (results) {
-      results.forEach(function (result, index) {
-        updateCard(DAILY_DHIKR_ROUTINES[index], result.status === 'fulfilled' ? result.value : null);
-        if (result.status === 'rejected' && warning) warning.hidden = false;
-      });
+  if (searchInput && searchResults) {
+    // Search
+    listen(searchInput, 'input', function () {
+      renderSearchResults(searchResults, searchInput.value);
     });
 
-    listen(favoritesDashboard, 'click', function (event) {
-      var button = event.target.closest('[data-open-daily-routine]');
-      if (!button || !favoritesDashboard.contains(button)) return;
-      var routine = getDailyDhikrRoutine(button.dataset.openDailyRoutine);
-      if (routine) appContext.navigate('dhikr', { params: { routine: routine.id } });
+    // Click on search result
+    listen(searchResults, 'click', function (event) {
+      var btn = event.target.closest('[data-mburoja-item-id]');
+      if (!btn) return;
+      searchInput.value = '';
+      searchResults.hidden = true;
+      appContext.navigate('dhikr', { params: { item: btn.dataset.mburojaItemId } });
     });
-
-    // Catalog: search + filter + chapter click
-    var input = page.querySelector('[data-mburoja-search]');
-    var filters = page.querySelector('[data-mburoja-filters]');
-    var empty = page.querySelector('[data-mburoja-empty]');
-    var activeCategory = '';
-
-    function updateResults() {
-      renderCatalogResults(catalogList, empty, null, searchMburojaChapters(input ? input.value : '', activeCategory));
-    }
-
-    listen(input, 'input', updateResults);
-    listen(filters, 'click', function (event) {
-      var button = event.target.closest('[data-mburoja-category]');
-      if (!button || !filters.contains(button)) return;
-      activeCategory = button.dataset.mburojaCategory;
-      filters.querySelectorAll('[data-mburoja-category]').forEach(function (choice) {
-        var active = choice === button;
-        choice.classList.toggle('mburoja-filter--active', active);
-        choice.setAttribute('aria-pressed', String(active));
-      });
-      updateResults();
-    });
-
-    listen(catalogList, 'click', function (event) {
-      var button = event.target.closest('[data-mburoja-chapter]');
-      if (!button || !catalogList.contains(button)) return;
-      appContext.navigate('dhikr', {
-        params: { chapter: Number(button.dataset.mburojaChapter) }
-      });
-    });
-
-    updateResults();
-    return function () { cleanups.forEach(function (fn) { fn(); }); };
   }
 
-  // Chapter detail view
-  var chapterBack = page.querySelector('[data-mburoja-back-catalog]');
-  if (chapterBack) {
-    listen(chapterBack, 'click', function () {
-      appContext.navigate('dhikr');
-    });
-    return function () { cleanups.forEach(function (fn) { fn(); }); };
-  }
+  if (favCarousel && favEmpty) {
+    // Render favorites
+    renderFavoritesCarousel(favCarousel, favEmpty);
 
-  // Daily Dhikr routine reader
-  if (page.querySelector('[data-daily-dhikr-reader-content]')) {
-    return mountReader(page, context, appContext);
-  }
-
-  // Invalid page
-  var invalidBack = page.querySelector('[data-daily-dhikr-invalid-back]');
-  if (!invalidBack) return function () {};
-  listen(invalidBack, 'click', function () { appContext.navigate('dhikr'); });
-  return function () { cleanups.forEach(function (fn) { fn(); }); };
-}
-
-function completedCount(routine, session) {
-  if (!session) return 0;
-  return routine.items.reduce(function (total, item) {
-    return total + (session.itemProgress[item.id].completed ? 1 : 0);
-  }, 0);
-}
-
-function mountDashboard(page, appContext) {
-  var mounted = true;
-  var dashboard = page.querySelector('[data-daily-dhikr-dashboard]');
-  var warning = page.querySelector('[data-daily-dhikr-storage-warning]');
-  var dateKey = localDateKey();
-
-  function updateCard(routine, session) {
-    var card = page.querySelector('[data-daily-routine-card="' + routine.id + '"]');
-    if (!card) return;
-    var done = completedCount(routine, session);
-    var status = card.querySelector('[data-daily-routine-status]');
-    var progressText = card.querySelector('[data-daily-routine-progress-text]');
-    var progress = card.querySelector('[data-daily-routine-progress]');
-    var action = card.querySelector('[data-open-daily-routine]');
-    if (!session) {
-      status.textContent = 'I pa filluar';
-      action.textContent = 'Fillo';
-    } else if (session.status === DAILY_DHIKR_SESSION_STATUS.COMPLETED) {
-      status.textContent = 'U krye';
-      action.textContent = 'Shiko';
-    } else {
-      status.textContent = 'Në vazhdim';
-      action.textContent = 'Vazhdo';
-    }
-    progressText.textContent = done + ' nga ' + routine.items.length + ' të përfunduara';
-    progress.value = done;
-    progress.setAttribute('aria-label', progressText.textContent);
-  }
-
-  Promise.allSettled(DAILY_DHIKR_ROUTINES.map(function (routine) {
-    return getDailyDhikrSession(dateKey, routine.id);
-  })).then(function (results) {
-    if (!mounted) return;
-    results.forEach(function (result, index) {
-      updateCard(DAILY_DHIKR_ROUTINES[index], result.status === 'fulfilled' ? result.value : null);
-      if (result.status === 'rejected') warning.hidden = false;
-    });
-  });
-
-  var openHandler = function (event) {
-    var target = event.target;
-    if (!target || typeof target.closest !== 'function') return;
-    var button = target.closest('[data-open-daily-routine]');
-    if (!button || !dashboard.contains(button)) return;
-    var routine = getDailyDhikrRoutine(button.dataset.openDailyRoutine);
-    if (routine) appContext.navigate('dhikr', { params: { routine: routine.id } });
-  };
-  dashboard.addEventListener('click', openHandler);
-  return function () {
-    mounted = false;
-    dashboard.removeEventListener('click', openHandler);
-  };
-}
-
-function memorySession(dateKey, routine) {
-  var now = new Date().toISOString();
-  var id = dateKey + ':' + routine.id;
-  var itemProgress = {};
-  routine.items.forEach(function (item) {
-    itemProgress[item.id] = { count: 0, completed: false, updatedAt: now };
-  });
-  return {
-    id: id,
-    dateRoutine: id,
-    dateKey: dateKey,
-    routineId: routine.id,
-    status: DAILY_DHIKR_SESSION_STATUS.IN_PROGRESS,
-    itemProgress: itemProgress,
-    currentItemId: routine.items[0].id,
-    startedAt: now,
-    completedAt: null,
-    updatedAt: now,
-    contentVersion: DAILY_DHIKR_CONTENT_VERSION
-  };
-}
-
-function mountReader(page, context, appContext) {
-  var routine = getDailyDhikrRoutine(context.params.routine);
-  var requestedItem = context.params.item === undefined
-    ? null
-    : getDailyDhikrItem(routine.id, context.params.item);
-  var content = page.querySelector('[data-daily-dhikr-reader-content]');
-  var back = page.querySelector('[data-daily-dhikr-back]');
-  var dateKey = localDateKey();
-  var mounted = true;
-  var storageAvailable = true;
-  var session = null;
-  var saveTimer = null;
-  var saveChain = Promise.resolve();
-  var dirty = false;
-  var quranController = null;
-  var activeQuranItemId = null;
-  var quranCache = new Map();
-  var resetting = false;
-  var storageWarningElement = null;
-  var completionHost = null;
-  var progressTextElement = null;
-  var progressElement = null;
-  var itemHost = null;
-  var navigationHost = null;
-  var resetHost = null;
-  var feedbackHost = null;
-  var counterElements = null;
-
-  function showLoading() {
-    content.replaceChildren();
-    var loading = document.createElement('div');
-    loading.className = 'app__loading';
-    loading.setAttribute('role', 'status');
-    var spinner = document.createElement('div');
-    spinner.className = 'app__loading-spinner';
-    spinner.setAttribute('aria-hidden', 'true');
-    var text = document.createElement('p');
-    text.className = 'app__loading-text';
-    text.textContent = 'Duke hapur rutinën...';
-    loading.append(spinner, text);
-    content.appendChild(loading);
-  }
-
-  function showStorageWarning() {
-    if (!storageWarningElement) return;
-    storageWarningElement.hidden = false;
-    storageWarningElement.textContent = 'Ruajtja lokale nuk është e disponueshme. Progresi mbahet vetëm derisa kjo faqe të mbetet e hapur.';
-  }
-
-  function showFeedback(message) {
-    if (feedbackHost) feedbackHost.textContent = message;
-  }
-
-  function snapshot() {
-    return validateDailyDhikrSession(session);
-  }
-
-  function markDirty() {
-    dirty = true;
-  }
-
-  function persistNow() {
-    if (saveTimer) {
-      clearTimeout(saveTimer);
-      saveTimer = null;
-    }
-    if (!storageAvailable || !dirty) return saveChain;
-    var value = snapshot();
-    if (!value) return saveChain;
-    dirty = false;
-    saveChain = saveChain.catch(function () {}).then(function () {
-      return saveDailyDhikrSession(value);
-    }).catch(function (error) {
-      storageAvailable = false;
-      if (mounted) {
-        showStorageWarning();
-        showFeedback('Progresi vazhdon në këtë sesion, por nuk u ruajt lokalisht.');
-      }
-      return null;
-    });
-    return saveChain;
-  }
-
-  function scheduleSave() {
-    if (!storageAvailable) return;
-    if (saveTimer) clearTimeout(saveTimer);
-    saveTimer = setTimeout(function () {
-      saveTimer = null;
-      persistNow();
-    }, 400);
-  }
-
-  function renderShell() {
-    content.replaceChildren();
-    storageWarningElement = document.createElement('p');
-    storageWarningElement.className = 'daily-dhikr-storage-warning';
-    storageWarningElement.setAttribute('role', 'status');
-    storageWarningElement.hidden = storageAvailable;
-
-    completionHost = document.createElement('div');
-    completionHost.className = 'daily-dhikr-completion-host';
-
-    var progressBox = document.createElement('section');
-    progressBox.className = 'daily-dhikr-progress';
-    progressBox.setAttribute('aria-label', 'Progresi i rutinës');
-    progressTextElement = document.createElement('p');
-    progressTextElement.className = 'daily-dhikr-progress__text';
-    progressElement = document.createElement('progress');
-    progressElement.className = 'daily-dhikr-progress-bar';
-    progressElement.max = routine.items.length;
-    progressBox.append(progressTextElement, progressElement);
-
-    itemHost = document.createElement('div');
-    itemHost.className = 'daily-dhikr-item-host';
-    navigationHost = document.createElement('nav');
-    navigationHost.className = 'daily-dhikr-navigation';
-    navigationHost.setAttribute('aria-label', 'Navigimi i hyrjeve të rutinës');
-
-    var utility = document.createElement('div');
-    utility.className = 'daily-dhikr-utility';
-    var reset = document.createElement('button');
-    reset.type = 'button';
-    reset.className = 'btn btn--ghost btn--sm';
-    reset.append(icon('rotate-ccw', 'icon--sm'), document.createTextNode(' Rifillo rutinën'));
-    reset.addEventListener('click', showResetConfirmation);
-    utility.appendChild(reset);
-
-    resetHost = document.createElement('div');
-    resetHost.className = 'daily-dhikr-reset-host';
-    feedbackHost = document.createElement('p');
-    feedbackHost.className = 'daily-dhikr-feedback sr-only';
-    feedbackHost.setAttribute('role', 'status');
-    feedbackHost.setAttribute('aria-live', 'polite');
-
-    content.append(
-      storageWarningElement,
-      completionHost,
-      progressBox,
-      itemHost,
-      navigationHost,
-      utility,
-      resetHost,
-      feedbackHost
-    );
-    if (!storageAvailable) showStorageWarning();
-  }
-
-  function renderCompletion() {
-    completionHost.replaceChildren();
-    if (session.status !== DAILY_DHIKR_SESSION_STATUS.COMPLETED) return;
-    var completion = document.createElement('div');
-    completion.className = 'daily-dhikr-completion';
-    completion.setAttribute('role', 'status');
-    completion.appendChild(icon('check-circle', 'icon--xl'));
-    var text = document.createElement('p');
-    text.className = 'daily-dhikr-completion__title';
-    text.textContent = 'Rutina u përfundua.';
-    var note = document.createElement('p');
-    note.className = 'daily-dhikr-completion__text';
-    note.textContent = 'Allahu ta pranoftë.';
-    completion.append(text, note);
-    completionHost.appendChild(completion);
-  }
-
-  function updateProgress() {
-    var done = completedCount(routine, session);
-    progressTextElement.textContent = done + ' nga ' + routine.items.length + ' të përfunduara';
-    progressElement.value = done;
-    progressElement.setAttribute('aria-label', progressTextElement.textContent);
-  }
-
-  function shouldAnnounceCount(count, target) {
-    return target <= 10 || count === 1 || count === target || count % 5 === 0;
-  }
-
-  function updateCounter() {
-    if (!counterElements) return;
-    var item = getDailyDhikrItem(routine.id, counterElements.itemId);
-    var progress = session.itemProgress[item.id];
-    var completed = progress.completed;
-    counterElements.button.disabled = resetting || completed ||
-      session.status === DAILY_DHIKR_SESSION_STATUS.COMPLETED;
-    counterElements.value.textContent = item.repetitions === 1
-      ? (completed ? 'U krye' : 'Shëno si të kryer')
-      : progress.count + ' / ' + item.repetitions;
-    counterElements.button.setAttribute('aria-label', completed
-      ? item.titleSq + ', u krye'
-      : 'Rrit numërimin për ' + item.titleSq + ', ' + progress.count +
-        ' nga ' + item.repetitions);
-    if (shouldAnnounceCount(progress.count, item.repetitions)) {
-      counterElements.status.textContent = completed
-        ? item.titleSq + ': u krye.'
-        : progress.count + ' nga ' + item.repetitions;
-    }
-  }
-
-  function buildCounter(item) {
-    var wrapper = document.createElement('div');
-    wrapper.className = 'daily-dhikr-counter';
-    var button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'btn btn--primary daily-dhikr-counter__button';
-    var value = document.createElement('span');
-    value.className = 'daily-dhikr-counter__value';
-    var status = document.createElement('span');
-    status.className = 'sr-only';
-    status.setAttribute('aria-live', 'polite');
-    status.setAttribute('aria-atomic', 'true');
-    button.appendChild(value);
-    wrapper.append(button, status);
-    counterElements = { itemId: item.id, button: button, value: value, status: status };
-    updateCounter();
-
-    button.addEventListener('click', function () {
-      var current = session.itemProgress[item.id];
-      if (resetting || current.completed ||
-          session.status === DAILY_DHIKR_SESSION_STATUS.COMPLETED) return;
-      session = updateDailyDhikrItemProgress(session, item.id, current.count + 1);
-      markDirty();
-      updateCounter();
-      updateProgress();
-      renderCompletion();
-      if (session.status === DAILY_DHIKR_SESSION_STATUS.COMPLETED) {
-        persistNow();
-        showFeedback('Rutina u përfundua.');
-      } else {
-        scheduleSave();
-      }
-    });
-    return wrapper;
-  }
-
-  function sourceBlock(item) {
-    var source = document.createElement('details');
-    source.className = 'daily-dhikr-item__source';
-    var summary = document.createElement('summary');
-    summary.textContent = 'Burimi: ' + item.source.collection;
-    var details = document.createElement('div');
-    details.className = 'daily-dhikr-item__source-details';
-    var reference = document.createElement('p');
-    reference.textContent = 'Referenca: ' + item.source.reference;
-    var edition = document.createElement('p');
-    var sourceLink = document.createElement('a');
-    sourceLink.href = item.source.sourceUrl;
-    sourceLink.target = '_blank';
-    sourceLink.rel = 'noopener noreferrer';
-    sourceLink.textContent = item.source.sourceWork;
-    edition.append(
-      document.createTextNode('Botimi shqip: '),
-      sourceLink,
-      document.createTextNode(' · ' + item.source.sourceChapter + ' · f. ' +
-        item.source.sourcePages.join('–'))
-    );
-    var credits = document.createElement('p');
-    credits.textContent = 'Përktheu: ' + item.source.translator +
-      ' · Redaktor fetar: ' + item.source.religiousEditor +
-      ' · Redaktor gjuhësor: ' + item.source.languageEditor;
-    details.append(reference, edition, credits);
-    if (item.type === 'quran' || item.type === 'quran_group') {
-      var quranTranslation = document.createElement('p');
-      quranTranslation.className = 'daily-dhikr-item__source-note';
-      quranTranslation.textContent = 'Arabishtja dhe përkthimi: QuranEnc · Hasan Nahi. Transliterimi: Mburoja e Muslimanit · Azem Bardhoshi.';
-      details.appendChild(quranTranslation);
-    }
-    if (item.source.noteSq) {
-      var note = document.createElement('p');
-      note.className = 'daily-dhikr-item__source-note';
-      note.textContent = item.source.noteSq;
-      details.appendChild(note);
-    }
-    source.append(summary, details);
-    return source;
-  }
-
-  function quranReferenceText(item) {
-    var references = item.type === 'quran_group' ? item.quranReferences : [item.quranReference];
-    return references.map(function (reference) {
-      return reference.ayahStart === reference.ayahEnd
-        ? 'Sureja ' + reference.surah + ', ajeti ' + reference.ayahStart
-        : 'Sureja ' + reference.surah + ', ajetet ' + reference.ayahStart + '–' + reference.ayahEnd;
-    }).join(' · ');
-  }
-
-  function showQuranLoading(container, item) {
-    container.replaceChildren();
-    var loading = document.createElement('div');
-    loading.className = 'daily-dhikr-quran__loading';
-    loading.setAttribute('role', 'status');
-    loading.textContent = 'Duke ngarkuar tekstin e Kur\'anit...';
-    var reference = document.createElement('p');
-    reference.className = 'daily-dhikr-quran__reference';
-    reference.textContent = quranReferenceText(item);
-    container.append(loading, reference);
-  }
-
-  function showQuranError(container, item) {
-    container.replaceChildren();
-    var box = document.createElement('div');
-    box.className = 'daily-dhikr-quran__error';
-    box.setAttribute('role', 'status');
-    var message = document.createElement('p');
-    message.textContent = 'Teksti i Kur\'anit nuk u ngarkua.';
-    var reference = document.createElement('p');
-    reference.className = 'daily-dhikr-quran__reference';
-    reference.textContent = quranReferenceText(item);
-    var retry = document.createElement('button');
-    retry.type = 'button';
-    retry.className = 'btn btn--outline btn--sm';
-    retry.append(icon('refresh', 'icon--sm'), document.createTextNode(' Provo përsëri'));
-    retry.addEventListener('click', function () {
-      quranCache.delete(item.id);
-      loadQuranItem(item, container);
-    });
-    box.append(message, reference, retry);
-    container.appendChild(box);
-  }
-
-  function showQuranSuccess(container, verses) {
-    container.replaceChildren();
-    var list = document.createElement('div');
-    list.className = 'daily-dhikr-quran__verses';
-    var groups = [];
-    verses.forEach(function (verse) { var group = groups[groups.length - 1]; if (!group || group.surah !== verse.surah) { group = { surah: verse.surah, verses: [] }; groups.push(group); } group.verses.push(verse); });
-    groups.forEach(function (group) {
-      var surah = document.createElement('section'); surah.className = 'daily-dhikr-quran__surah';
-      var heading = document.createElement('h3'); heading.className = 'daily-dhikr-quran__surah-title'; heading.textContent = 'Sureja ' + group.surah;
-      var arabicGroup = document.createElement('div'); arabicGroup.className = 'daily-dhikr-quran__group'; var arabicHeading = document.createElement('p'); arabicHeading.className = 'daily-dhikr-quran__group-title'; arabicHeading.textContent = 'Arabisht'; arabicGroup.appendChild(arabicHeading);
-      group.verses.forEach(function (verse) { var arabic = document.createElement('p'); arabic.className = 'daily-dhikr-quran__arabic text-quran'; arabic.lang = 'ar'; arabic.dir = 'rtl'; arabic.textContent = verse.arabicText; arabicGroup.appendChild(arabic); });
-      var transliterationGroup = document.createElement('div'); transliterationGroup.className = 'daily-dhikr-quran__group'; var transliterationHeading = document.createElement('p'); transliterationHeading.className = 'daily-dhikr-quran__group-title'; transliterationHeading.textContent = 'Transliterim'; transliterationGroup.appendChild(transliterationHeading);
-      group.verses.forEach(function (verse) { var transliteration = document.createElement('p'); transliteration.className = 'daily-dhikr-quran__transliteration'; var entry = getQuranTransliterationSq(verse.verseKey); var value = entry && entry.transliterationSq; transliteration.textContent = value || 'Transliterimi nuk është i disponueshëm në këtë hyrje.'; if (!value) transliteration.classList.add('daily-dhikr-quran__transliteration--missing'); transliterationGroup.appendChild(transliteration); });
-      var translationGroup = document.createElement('div'); translationGroup.className = 'daily-dhikr-quran__group'; var translationHeading = document.createElement('p'); translationHeading.className = 'daily-dhikr-quran__group-title'; translationHeading.textContent = 'Përkthimi shqip'; translationGroup.appendChild(translationHeading);
-      group.verses.forEach(function (verse) { var block = document.createElement('section'); block.className = 'daily-dhikr-quran__verse'; var translation = document.createElement('p'); translation.className = 'daily-dhikr-quran__translation'; var hardcodedTranslation = getQuranTranslationSq(verse.verseKey); translation.textContent = hardcodedTranslation || verse.translationSq; var reference = document.createElement('p'); reference.className = 'daily-dhikr-quran__reference'; reference.textContent = verse.verseKey; block.append(translation, reference); if (!hardcodedTranslation && verse.footnotesSq) { var details = document.createElement('details'); details.className = 'daily-dhikr-quran__footnotes'; var summary = document.createElement('summary'); summary.textContent = 'Shënime të përkthimit'; var footnotes = document.createElement('p'); footnotes.textContent = verse.footnotesSq; details.append(summary, footnotes); block.appendChild(details); } translationGroup.appendChild(block); });
-      surah.append(heading, arabicGroup, transliterationGroup, translationGroup); list.appendChild(surah);
-    });
-    var attribution = document.createElement('p');
-    attribution.className = 'daily-dhikr-quran__attribution';
-    var link = document.createElement('a');
-    link.href = verses[0].providerUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.textContent = verses[0].provider;
-    attribution.append(link, document.createTextNode(' · ' + verses[0].translationNameSq));
-    container.append(list, attribution);
-  }
-
-  function loadQuranItem(item, container) {
-    var cached = quranCache.get(item.id);
-    if (cached && cached.status === 'success') {
-      showQuranSuccess(container, cached.verses);
-      return;
-    }
-    if (cached && cached.status === 'error') {
-      showQuranError(container, item);
-      return;
-    }
-    if (quranController) quranController.abort();
-    var controller = new AbortController();
-    quranController = controller;
-    quranCache.set(item.id, { status: 'loading', controller: controller });
-    showQuranLoading(container, item);
-    function requestReference(reference) {
-      return reference.ayahStart === reference.ayahEnd
-        ? getAyah(reference.surah, reference.ayahStart, { signal: controller.signal })
-          .then(function (verse) { return [verse]; })
-        : getAyahRange(reference.surah, reference.ayahStart, reference.ayahEnd, {
-          signal: controller.signal
-        });
-    }
-    var request = item.type === 'quran_group'
-      ? Promise.all(item.quranReferences.map(requestReference)).then(function (groups) {
-        return groups.reduce(function (verses, group) { return verses.concat(group); }, []);
-      })
-      : requestReference(item.quranReference);
-    request.then(function (verses) {
-      var cachedRequest = quranCache.get(item.id);
-      if (!cachedRequest || cachedRequest.controller !== controller) return;
-      quranCache.set(item.id, { status: 'success', verses: verses.slice() });
-      if (mounted && activeQuranItemId === item.id) showQuranSuccess(container, verses);
-    }).catch(function (error) {
-      var cachedRequest = quranCache.get(item.id);
-      if (!cachedRequest || cachedRequest.controller !== controller) return;
-      if (error instanceof QuranContentError && error.code === 'ABORTED') {
-        quranCache.delete(item.id);
+    // Click on favorite card
+    listen(favCarousel, 'click', function (event) {
+      var btn = event.target.closest('[data-mburoja-item-id]');
+      if (btn) {
+        appContext.navigate('dhikr', { params: { item: btn.dataset.mburojaItemId } });
         return;
       }
-      quranCache.set(item.id, { status: 'error' });
-      if (mounted && activeQuranItemId === item.id) showQuranError(container, item);
-    }).finally(function () {
-      if (quranController === controller) quranController = null;
-    });
-  }
-
-  function moveToItem(index, moveFocus) {
-    var item = routine.items[index];
-    if (resetting || !item) return;
-    session = setDailyDhikrCurrentItem(session, item.id);
-    markDirty();
-    persistNow();
-    renderCurrentItem(moveFocus);
-  }
-
-  function renderNavigation(index) {
-    navigationHost.replaceChildren();
-    var previous = document.createElement('button');
-    previous.type = 'button';
-    previous.className = 'btn btn--outline';
-    previous.disabled = index === 0;
-    previous.setAttribute('aria-label', 'Hyrja paraardhëse');
-    previous.append(icon('chevron-left', 'icon--sm'), document.createTextNode(' Mbrapa'));
-    previous.addEventListener('click', function () { moveToItem(index - 1, true); });
-    var next = document.createElement('button');
-    next.type = 'button';
-    next.className = 'btn btn--primary';
-    next.disabled = index === routine.items.length - 1;
-    next.setAttribute('aria-label', 'Hyrja pasuese');
-    next.append(document.createTextNode('Tjetra '), icon('chevron-right', 'icon--sm'));
-    next.addEventListener('click', function () { moveToItem(index + 1, true); });
-    navigationHost.append(previous, next);
-    if (index === routine.items.length - 1) {
-      var finish = document.createElement('button'); finish.type = 'button'; finish.className = 'btn btn--primary'; finish.textContent = 'Mbarova';
-      finish.addEventListener('click', function () { var current = session.itemProgress[item.id]; if (!current.completed) { showFeedback('Përfundo numërimin e hyrjes së fundit para se ta mbyllësh rutinën.'); return; } session = updateDailyDhikrItemProgress(session, item.id, current.count); markDirty(); persistNow(); updateProgress(); renderCompletion(); if (session.status === DAILY_DHIKR_SESSION_STATUS.COMPLETED) showFeedback('Rutina u përfundua.'); });
-      navigationHost.appendChild(finish);
-    }
-  }
-
-  function renderCurrentItem(moveFocus) {
-    if (quranController) {
-      quranController.abort();
-      quranController = null;
-    }
-    var index = routine.items.findIndex(function (item) {
-      return item.id === session.currentItemId;
-    });
-    if (index < 0) {
-      index = 0;
-      session = setDailyDhikrCurrentItem(session, routine.items[0].id);
-      markDirty();
-    }
-    var item = routine.items[index];
-    activeQuranItemId = item.type === 'quran' || item.type === 'quran_group' ? item.id : null;
-    counterElements = null;
-    itemHost.replaceChildren();
-
-    var card = document.createElement('article');
-    card.className = 'daily-dhikr-item card';
-    var body = document.createElement('div');
-    body.className = 'card__body';
-    var step = document.createElement('p');
-    step.className = 'daily-dhikr-item__step';
-    step.textContent = 'Hapi ' + (index + 1) + ' nga ' + routine.items.length;
-    var title = document.createElement('h2');
-    title.className = 'daily-dhikr-item__title';
-    title.tabIndex = -1;
-    title.textContent = item.titleSq;
-    body.append(step, title);
-
-    if (item.type === 'text') {
-      var arabic = document.createElement('p');
-      arabic.className = 'daily-dhikr-item__arabic text-arabic';
-      arabic.lang = 'ar';
-      arabic.dir = 'rtl';
-      arabic.textContent = item.arabic;
-      var transliteration = document.createElement('p');
-      transliteration.className = 'daily-dhikr-item__transliteration';
-      transliteration.textContent = item.transliterationSq;
-      var translation = document.createElement('p');
-      translation.className = 'daily-dhikr-item__translation';
-      translation.textContent = item.translationSq;
-      body.append(arabic, transliteration, translation);
-    } else {
-      if (item.type === 'quran_group' && item.guidanceSq) {
-        var guidance = document.createElement('p');
-        guidance.className = 'daily-dhikr-item__guidance';
-        guidance.textContent = item.guidanceSq;
-        body.appendChild(guidance);
+      var showAll = event.target.closest('[data-mburoja-show-all-favorites]');
+      if (showAll) {
+        // TODO: show all favorites screen
       }
-      var quran = document.createElement('div');
-      quran.className = 'daily-dhikr-quran';
-      body.appendChild(quran);
-      loadQuranItem(item, quran);
-    }
-    body.append(buildCounter(item), sourceBlock(item));
-    card.appendChild(body);
-    itemHost.appendChild(card);
-    renderNavigation(index);
-    updateProgress();
-    renderCompletion();
-    if (moveFocus) {
-      setTimeout(function () {
-        if (mounted) title.focus({ preventScroll: true });
-      }, 0);
-    }
-  }
-
-  function showResetConfirmation() {
-    resetHost.replaceChildren();
-    var panel = document.createElement('div');
-    panel.className = 'daily-dhikr-reset-confirmation';
-    var text = document.createElement('p');
-    text.textContent = 'Ta rifillojmë këtë rutinë? Progresi i sotëm do të pastrohet.';
-    var cancel = document.createElement('button');
-    cancel.type = 'button';
-    cancel.className = 'btn btn--ghost btn--sm';
-    cancel.textContent = 'Anulo';
-    cancel.addEventListener('click', function () { resetHost.replaceChildren(); });
-    var confirm = document.createElement('button');
-    confirm.type = 'button';
-    confirm.className = 'btn btn--danger btn--sm';
-    confirm.textContent = 'Rifillo';
-    confirm.addEventListener('click', resetRoutine);
-    panel.append(text, cancel, confirm);
-    resetHost.appendChild(panel);
-  }
-
-  function resetRoutine() {
-    resetHost.replaceChildren();
-    resetting = true;
-    updateCounter();
-    if (!storageAvailable) {
-      session = memorySession(dateKey, routine);
-      dirty = false;
-      resetting = false;
-      renderCurrentItem(false);
-      showFeedback('Rutina u rifillua në këtë sesion.');
-      return;
-    }
-    persistNow().then(function () {
-      return resetDailyDhikrSession(dateKey, routine.id);
-    }).then(function () {
-      return createDailyDhikrSession(dateKey, routine.id);
-    }).then(function (created) {
-      if (!mounted) return;
-      session = created;
-      dirty = false;
-      resetting = false;
-      renderCurrentItem(false);
-      showFeedback('Rutina u rifillua.');
-    }).catch(function () {
-      if (!mounted) return;
-      storageAvailable = false;
-      session = memorySession(dateKey, routine);
-      dirty = false;
-      resetting = false;
-      showStorageWarning();
-      renderCurrentItem(false);
-      showFeedback('Rutina u rifillua vetëm në këtë sesion.');
     });
   }
 
-  function initializeWithSession(value) {
-    session = value;
-    if (requestedItem && session.currentItemId !== requestedItem.id) {
-      session = setDailyDhikrCurrentItem(session, requestedItem.id);
-      markDirty();
-    }
-    renderShell();
-    renderCurrentItem(false);
-    if (dirty) persistNow();
-  }
-
-  function initialize() {
-    showLoading();
-    getDailyDhikrSession(dateKey, routine.id).then(function (existing) {
-      return existing || createDailyDhikrSession(dateKey, routine.id);
-    }).then(function (saved) {
-      if (mounted) initializeWithSession(saved);
-    }).catch(function () {
-      if (!mounted) return;
-      storageAvailable = false;
-      var fallback = memorySession(dateKey, routine);
-      if (requestedItem) fallback = setDailyDhikrCurrentItem(fallback, requestedItem.id);
-      initializeWithSession(fallback);
-      showStorageWarning();
+  if (categoriesList) {
+    // Click on category
+    listen(categoriesList, 'click', function (event) {
+      var btn = event.target.closest('[data-mburoja-category]');
+      if (!btn) return;
+      appContext.navigate('dhikr', { params: { category: btn.dataset.mburojaCategory } });
     });
   }
 
-  function backHandler() {
-    persistNow();
+  // ─── CATEGORY MOUNT ───
+  var categoryItems = page.querySelector('.mburoja-items-list');
+  if (categoryItems) {
+    // Click on item
+    listen(categoryItems, 'click', function (event) {
+      var btn = event.target.closest('[data-mburoja-item-id]');
+      if (!btn) return;
+      appContext.navigate('dhikr', { params: { item: btn.dataset.mburojaItemId } });
+    });
+
+    // Back to home
+    listen(page.querySelector('[data-mburoja-back-home]'), 'click', function () {
+      appContext.navigate('dhikr');
+    });
+  }
+
+  // ─── DETAIL MOUNT ───
+  var detailContent = page.querySelector('.mburoja-detail');
+  if (detailContent) {
+    var itemParam = context.params.item;
+    var itemData = getMburojaItem(itemParam);
+
+    // Back to category
+    listen(page.querySelector('[data-mburoja-back-category]'), 'click', function () {
+      var catId = this.dataset.mburojaCategoryId;
+      appContext.navigate('dhikr', { params: { category: catId } });
+    });
+
+    // Toggle favorite
+    listen(page.querySelector('[data-mburoja-toggle-favorite]'), 'click', function () {
+      var added = toggleFavorite(this.dataset.mburojaToggleFavorite);
+      var heart = this.querySelector('.icon');
+      if (heart) {
+        heart.classList.toggle('mburoja-heart--active', added);
+      }
+      this.setAttribute('aria-label', added ? 'Hiqe nga të zgjedhurat' : 'Shto te të zgjedhurat');
+    });
+
+    // Copy
+    listen(page.querySelector('[data-mburoja-copy]'), 'click', function () {
+      if (!itemData) return;
+      var text = itemData.arabic + '\n\n' + itemData.transliteration + '\n\n' + itemData.translation + '\n\n' + itemData.reference;
+      navigator.clipboard.writeText(text).then(function () {
+        // Brief feedback
+      }).catch(function () {});
+    });
+
+    // Check (mark as read)
+    listen(page.querySelector('[data-mburoja-check]'), 'click', function () {
+      this.classList.add('btn--success');
+      this.textContent = 'U krye';
+    });
+  }
+
+  // ─── ERROR MOUNT ───
+  listen(page.querySelector('[data-mburoja-back-home]'), 'click', function () {
     appContext.navigate('dhikr');
-  }
-  function visibilityHandler() {
-    if (document.hidden) persistNow();
-  }
-  function pageHideHandler() { persistNow(); }
+  });
 
-  back.addEventListener('click', backHandler);
-  document.addEventListener('visibilitychange', visibilityHandler);
-  window.addEventListener('pagehide', pageHideHandler);
-  initialize();
-
-  return function () {
-    persistNow();
-    mounted = false;
-    if (quranController) quranController.abort();
-    quranController = null;
-    if (saveTimer) clearTimeout(saveTimer);
-    back.removeEventListener('click', backHandler);
-    document.removeEventListener('visibilitychange', visibilityHandler);
-    window.removeEventListener('pagehide', pageHideHandler);
-  };
+  return function () { cleanups.forEach(function (fn) { fn(); }); };
 }

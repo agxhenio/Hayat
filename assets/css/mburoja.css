@@ -349,3 +349,7 @@
   outline: var(--icon-stroke-width) solid var(--color-focus-ring);
   outline-offset: var(--space-1);
 }
+
+/* Chapter favorites: only chapter rows expose the star control. */
+.mb-chapter .mb-fav:not(.mb-fav--on) .icon { fill: none; }
+.mb-chapter .mb-fav--on .icon { fill: currentColor; }

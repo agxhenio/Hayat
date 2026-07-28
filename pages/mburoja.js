@@ -191,15 +191,6 @@ function renderCategoryCard(cat) {
   card.className = 'mb-cat';
   card.dataset.mburojaCat = cat.slug;
 
-  // Favorite button
-  var favBtn = document.createElement('button');
-  favBtn.type = 'button';
-  favBtn.className = 'mb-fav' + (isFavCat(cat.slug) ? ' mb-fav--on' : '');
-  favBtn.dataset.mburojaFavCat = cat.slug;
-  favBtn.setAttribute('aria-pressed', String(isFavCat(cat.slug)));
-  favBtn.setAttribute('aria-label', isFavCat(cat.slug) ? 'Hiq nga të preferuarat' : 'Shtoje te të preferuarat');
-  favBtn.appendChild(icon('star', 'icon--sm'));
-
   // Link
   var link = document.createElement('a');
   link.className = 'mb-cat__link link-plain';
@@ -218,7 +209,7 @@ function renderCategoryCard(cat) {
   meta.textContent = cat.chapters.length + ' kapituj · ' + duaCount + ' lutje';
 
   link.append(glyph, title, meta);
-  card.append(favBtn, link);
+  card.appendChild(link);
   return card;
 }
 
@@ -265,6 +256,8 @@ function renderChapterRow(ch, showCat) {
   favBtn.className = 'mb-fav' + (isFavChapter(ch.slug) ? ' mb-fav--on' : '');
   favBtn.dataset.mburojaFavChapter = ch.slug;
   favBtn.setAttribute('aria-pressed', String(isFavChapter(ch.slug)));
+  favBtn.setAttribute('aria-label', isFavChapter(ch.slug) ? 'Hiqe kapitullin nga të preferuarat' : 'Shtoje kapitullin te të preferuarat');
+  favBtn.title = isFavChapter(ch.slug) ? 'Hiqe nga të preferuarat' : 'Shtoje te të preferuarat';
   favBtn.appendChild(icon('star', 'icon--sm'));
 
   row.append(link, favBtn);
@@ -290,14 +283,7 @@ function renderChapters(page, catSlug) {
   title.className = 'settings-group__title';
   title.textContent = cat.title;
 
-  var favBtn = document.createElement('button');
-  favBtn.type = 'button';
-  favBtn.className = 'mb-fav' + (isFavCat(catSlug) ? ' mb-fav--on' : '');
-  favBtn.dataset.mburojaFavCat = catSlug;
-  favBtn.setAttribute('aria-pressed', String(isFavCat(catSlug)));
-  favBtn.appendChild(icon('star', 'icon--sm'));
-
-  header.append(title, favBtn);
+  header.appendChild(title);
 
   // Chapters list
   var list = document.createElement('div');
@@ -777,10 +763,9 @@ export function mount(page, context, appContext) {
     var favChapters2 = page.querySelector('[data-mburoja-fav-chapters]');
     var favSection = page.querySelector('[data-mburoja-fav-section]');
 
-    if (favGrid && favSection) {
-      var favCats2 = DATA.categories.filter(function (c) { return isFavCat(c.slug); });
-      favCats2.forEach(function (cat) { favGrid.appendChild(renderCategoryCard(cat)); });
-      favGrid.hidden = favCats2.length === 0;
+    if (favGrid) {
+      favGrid.replaceChildren();
+      favGrid.hidden = true;
     }
     if (favChapters2 && favSection) {
       var favChs = favChapters.map(function (sl) { return BY_SLUG[sl]; }).filter(Boolean);
@@ -788,7 +773,7 @@ export function mount(page, context, appContext) {
       favChapters2.hidden = favChs.length === 0;
     }
     if (favSection) {
-      var hasFavs = (favCats2 && favCats2.length > 0) || (favChs && favChs.length > 0);
+      var hasFavs = Boolean(favChs && favChs.length > 0);
       favSection.hidden = !hasFavs;
     }
 
@@ -849,7 +834,10 @@ export function mount(page, context, appContext) {
         event.stopPropagation();
         toggleFavChapter(favBtn.dataset.mburojaFavChapter);
         favBtn.classList.toggle('mb-fav--on');
-        favBtn.setAttribute('aria-pressed', String(favBtn.classList.contains('mb-fav--on')));
+        var active = favBtn.classList.contains('mb-fav--on');
+        favBtn.setAttribute('aria-pressed', String(active));
+        favBtn.setAttribute('aria-label', active ? 'Hiqe kapitullin nga të preferuarat' : 'Shtoje kapitullin te të preferuarat');
+        favBtn.title = active ? 'Hiqe nga të preferuarat' : 'Shtoje te të preferuarat';
         return;
       }
     });

@@ -180,7 +180,7 @@ var DEFAULT_SETTINGS = deepFreeze({
   coordinates: null,
   hijriAdjustment: 0,
   enabledModules: ['prayer', 'quran', 'dhikr', 'mburoja', 'dayPlanner', 'settings'],
-  homeCards: ['prayer', 'now', 'quran', 'dhikr'],
+  homeCards: ['prayer', 'now', 'quran', 'mburoja'],
   hayatAIEnabled: false,
   reducedMotionOverride: 'system',
   prayerDefaultsApplied: false,
@@ -216,7 +216,7 @@ var ALLOWED_HOME_CARDS = deepFreeze([
   'prayer',
   'now',
   'quran',
-  'dhikr'
+  'mburoja'
 ]);
 
 var ALLOWED_REDUCED_MOTION = deepFreeze([

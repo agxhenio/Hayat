@@ -203,7 +203,7 @@ function renderCategoryCard(cat) {
   // Link
   var link = document.createElement('a');
   link.className = 'mb-cat__link link-plain';
-  link.href = '#/mburoja/kategoria/' + encodeURIComponent(cat.slug);
+  link.href = '#/mburoja?kategoria=' + encodeURIComponent(cat.slug);
 
   var glyph = document.createElement('span');
   glyph.className = 'mb-cat__glyph';
@@ -231,7 +231,7 @@ function renderChapterRow(ch, showCat) {
 
   var link = document.createElement('a');
   link.className = 'mb-chapter__link link-plain';
-  link.href = '#/mburoja/kapitulli/' + encodeURIComponent(ch.slug);
+  link.href = '#/mburoja?kapitulli=' + encodeURIComponent(ch.slug);
 
   var num = document.createElement('span');
   num.className = 'mb-chapter__num';

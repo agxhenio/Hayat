@@ -29,7 +29,7 @@ var PAGE_LOADERS = Object.freeze({
   prayer: function () { return import('../pages/prayer.js'); },
   prayerDhikr: function () { return import('../pages/prayer-dhikr.js'); },
   quran: function () { return import('../pages/quran.js'); },
-  dhikr: function () { return import('../pages/dhikr.js'); },
+  mburoja: function () { return import('../pages/mburoja.js'); },
   more: function () { return import('../pages/more.js'); },
   settings: function () { return import('../pages/settings.js'); }
 });
@@ -235,7 +235,7 @@ function getIconForRoute(routeId) {
     home: 'home',
     prayer: 'mosque',
     quran: 'book-open',
-    dhikr: 'shield',
+    mburoja: 'shield',
     more: 'more'
   };
   return iconMap[routeId] || 'home';

@@ -260,6 +260,13 @@ function renderCategory(page, categoryId) {
   title.textContent = category.titleSq;
   topBar.append(back, title);
 
+  // Start session button
+  var startBtn = document.createElement('button');
+  startBtn.type = 'button';
+  startBtn.className = 'btn btn--primary mburoja-category__start-btn';
+  startBtn.dataset.mburojaStartSession = categoryId;
+  startBtn.append(icon('play', 'icon--sm'), document.createTextNode(' Fillo dhikrin'));
+
   // Items list
   var list = document.createElement('div');
   list.className = 'mburoja-items-list';
@@ -278,15 +285,20 @@ function renderCategory(page, categoryId) {
     text.className = 'mburoja-item-row__text';
     text.textContent = item.title;
 
+    var reps = item.repetitions || 1;
+    var repsBadge = document.createElement('span');
+    repsBadge.className = 'mburoja-item-row__reps';
+    repsBadge.textContent = reps > 1 ? reps + 'x' : '';
+
     var arrow = document.createElement('span');
     arrow.className = 'mburoja-item-row__arrow';
     arrow.appendChild(icon('chevron-right', 'icon--sm'));
 
-    row.append(num, text, arrow);
+    row.append(num, text, repsBadge, arrow);
     list.appendChild(row);
   });
 
-  page.append(topBar, list);
+  page.append(topBar, startBtn, list);
 }
 
 // ═══════════════════════════════════════════════
@@ -417,34 +429,304 @@ function renderDetail(page, itemId) {
 }
 
 // ═══════════════════════════════════════════════
-// SCREEN: DAILY DHIK ROUTINE
+// SCREEN: DHIKRI SESSION (Counter + Navigation)
+// ═══════════════════════════════════════════════
 
-function renderError(page, message) {
+function renderSession(page, categoryId, startIndex) {
   page.classList.add('mburoja-page');
-  var box = document.createElement('div');
-  box.className = 'mburoja-error';
-  box.setAttribute('role', 'alert');
-  box.appendChild(icon('alert-circle', 'icon--2xl'));
-  var h1 = document.createElement('h1');
-  h1.className = 'mburoja-error__title';
-  h1.textContent = message;
+
+  var category = MBUROJA_CATEGORIES.find(function (c) { return c.id === categoryId; });
+  if (!category) {
+    renderError(page, 'Kategoria nuk u gjet.');
+    return;
+  }
+
+  var items = getItemsByCategory(categoryId);
+  if (!items.length) {
+    renderError(page, 'Nuk ka lutje në këtë kategori.');
+    return;
+  }
+
+  var currentIndex = startIndex || 0;
+  if (currentIndex < 0 || currentIndex >= items.length) currentIndex = 0;
+  var currentCount = 0;
+
+  // Top bar
+  var topBar = document.createElement('header');
+  topBar.className = 'mburoja-topbar';
   var back = document.createElement('button');
   back.type = 'button';
-  back.className = 'btn btn--primary';
-  back.dataset.mburojaBackHome = '';
-  back.textContent = 'Kthehu te Mburoja';
-  box.append(h1, back);
+  back.className = 'btn btn--icon btn--ghost';
+  back.dataset.mburojaBackCategory = '';
+  back.dataset.mburojaCategoryId = categoryId;
+  back.appendChild(icon('chevron-left'));
+
+  var titleEl = document.createElement('h1');
+  titleEl.className = 'mburoja-topbar__title';
+  titleEl.dataset.routeHeading = '';
+  titleEl.textContent = category.titleSq;
+
+  var favBtn = document.createElement('button');
+  favBtn.type = 'button';
+  favBtn.className = 'btn btn--icon btn--ghost';
+  favBtn.dataset.mburojaSessionFavorite = '';
+  favBtn.setAttribute('aria-label', 'Shto te të zgjedhurat');
+  favBtn.appendChild(icon('heart'));
+
+  topBar.append(back, titleEl, favBtn);
+
+  // Progress bar
+  var progressBar = document.createElement('div');
+  progressBar.className = 'mburoja-session__progress';
+  var progressFill = document.createElement('div');
+  progressFill.className = 'mburoja-session__progress-fill';
+  progressFill.style.width = ((currentIndex) / items.length * 100) + '%';
+  progressBar.appendChild(progressFill);
+
+  // Progress text
+  var progressText = document.createElement('p');
+  progressText.className = 'mburoja-session__progress-text';
+  progressText.textContent = (currentIndex + 1) + ' nga ' + items.length;
+
+  // Content container
+  var content = document.createElement('div');
+  content.className = 'mburoja-session__content';
+
+  // Counter area
+  var counterArea = document.createElement('div');
+  counterArea.className = 'mburoja-session__counter-area';
+
+  var counterButton = document.createElement('button');
+  counterButton.type = 'button';
+  counterButton.className = 'mburoja-session__counter-btn';
+  counterButton.dataset.mburojaCounterBtn = '';
+
+  var counterValue = document.createElement('span');
+  counterValue.className = 'mburoja-session__counter-value';
+  counterButton.appendChild(counterValue);
+
+  var counterLabel = document.createElement('span');
+  counterLabel.className = 'mburoja-session__counter-label';
+
+  counterArea.append(counterButton, counterLabel);
+
+  // Navigation
+  var nav = document.createElement('div');
+  nav.className = 'mburoja-session__nav';
+
+  var prevBtn = document.createElement('button');
+  prevBtn.type = 'button';
+  prevBtn.className = 'btn btn--outline';
+  prevBtn.dataset.mburojaSessionPrev = '';
+  prevBtn.append(icon('chevron-left', 'icon--sm'), document.createTextNode(' Mbrapa'));
+
+  var nextBtn = document.createElement('button');
+  nextBtn.type = 'button';
+  nextBtn.className = 'btn btn--primary';
+  nextBtn.dataset.mburojaSessionNext = '';
+  nextBtn.append(document.createTextNode('Tjetra '), icon('chevron-right', 'icon--sm'));
+
+  nav.append(prevBtn, nextBtn);
+
+  // Store references for updates
+  page.dataset.mburojaSessionCategory = categoryId;
+  page.dataset.mburojaSessionIndex = String(currentIndex);
+  page.dataset.mburojaSessionCount = String(currentCount);
+
+  page.append(topBar, progressBar, progressText, content, counterArea, nav);
+
+  // Render current item
+  renderSessionItem(page, items, currentIndex, currentCount);
+}
+
+function renderSessionItem(page, items, index, count) {
+  var item = items[index];
+  if (!item) return;
+
+  var content = page.querySelector('.mburoja-session__content');
+  var counterValue = page.querySelector('.mburoja-session__counter-value');
+  var counterLabel = page.querySelector('.mburoja-session__counter-label');
+  var counterBtn = page.querySelector('[data-mburoja-counter-btn]');
+  var prevBtn = page.querySelector('[data-mburoja-session-prev]');
+  var nextBtn = page.querySelector('[data-mburoja-session-next]');
+  var progressFill = page.querySelector('.mburoja-session__progress-fill');
+  var progressText = page.querySelector('.mburoja-session__progress-text');
+  var favBtn = page.querySelector('[data-mburoja-session-favorite]');
+
+  if (!content || !counterBtn) return;
+
+  // Update progress
+  if (progressFill) progressFill.style.width = (index / items.length * 100) + '%';
+  if (progressText) progressText.textContent = (index + 1) + ' nga ' + items.length;
+
+  // Update favorite button
+  if (favBtn) {
+    var fav = isFavorite(item.id);
+    favBtn.dataset.mburojaSessionFavorite = item.id;
+    var heart = favBtn.querySelector('.icon');
+    if (heart) heart.classList.toggle('mburoja-heart--active', fav);
+  }
+
+  // Update counter
+  var reps = item.repetitions || 1;
+  if (counterValue) {
+    counterValue.textContent = reps === 1
+      ? (count >= 1 ? '✓' : '0')
+      : count + ' / ' + reps;
+  }
+  if (counterLabel) {
+    counterLabel.textContent = reps === 1
+      ? 'Shëno si të lexuar'
+      : 'Prek për të numëruar';
+  }
+  if (counterBtn) {
+    counterBtn.disabled = count >= reps;
+    counterBtn.classList.toggle('mburoja-session__counter-btn--done', count >= reps);
+  }
+
+  // Update navigation
+  if (prevBtn) prevBtn.disabled = index === 0;
+  if (nextBtn) {
+    var isLast = index === items.length - 1;
+    nextBtn.disabled = count < reps;
+    nextBtn.textContent = isLast ? 'Përfundo' : 'Tjetra ';
+    if (!isLast) nextBtn.appendChild(icon('chevron-right', 'icon--sm'));
+  }
+
+  // Render content
+  content.replaceChildren();
+
+  // Title
+  var title = document.createElement('h2');
+  title.className = 'mburoja-detail__title';
+  title.textContent = item.title;
+  content.appendChild(title);
+
+  // Arabic
+  if (item.arabic) {
+    var arabicBlock = document.createElement('div');
+    arabicBlock.className = 'mburoja-detail__block';
+    var arabicLabel = document.createElement('p');
+    arabicLabel.className = 'mburoja-detail__label';
+    arabicLabel.textContent = 'Arabisht';
+    var arabicText = document.createElement('p');
+    arabicText.className = 'mburoja-detail__arabic text-quran';
+    arabicText.lang = 'ar';
+    arabicText.dir = 'rtl';
+    arabicText.textContent = item.arabic;
+    arabicBlock.append(arabicLabel, arabicText);
+    content.appendChild(arabicBlock);
+  }
+
+  // Transliteration
+  if (item.transliteration) {
+    var translitBlock = document.createElement('div');
+    translitBlock.className = 'mburoja-detail__block';
+    var translitLabel = document.createElement('p');
+    translitLabel.className = 'mburoja-detail__label';
+    translitLabel.textContent = 'Transliterim';
+    var translitText = document.createElement('p');
+    translitText.className = 'mburoja-detail__transliteration';
+    translitText.textContent = item.transliteration;
+    translitBlock.append(translitLabel, translitText);
+    content.appendChild(translitBlock);
+  }
+
+  // Translation
+  if (item.translation) {
+    var transBlock = document.createElement('div');
+    transBlock.className = 'mburoja-detail__block';
+    var transLabel = document.createElement('p');
+    transLabel.className = 'mburoja-detail__label';
+    transLabel.textContent = 'Përkthimi';
+    var transText = document.createElement('p');
+    transText.className = 'mburoja-detail__translation';
+    transText.textContent = item.translation;
+    transBlock.append(transLabel, transText);
+    content.appendChild(transBlock);
+  }
+
+  // Reference
+  if (item.reference) {
+    var refBlock = document.createElement('div');
+    refBlock.className = 'mburoja-detail__block';
+    var refLabel = document.createElement('p');
+    refLabel.className = 'mburoja-detail__label';
+    refLabel.textContent = 'Referenca';
+    var refText = document.createElement('p');
+    refText.className = 'mburoja-detail__reference';
+    refText.textContent = item.reference;
+    refBlock.append(refLabel, refText);
+    content.appendChild(refBlock);
+  }
+}
+
+// ═══════════════════════════════════════════════
+// SCREEN: SESSION COMPLETE
+// ═══════════════════════════════════════════════
+
+function renderSessionComplete(page, categoryId) {
+  page.classList.add('mburoja-page');
+
+  var category = MBUROJA_CATEGORIES.find(function (c) { return c.id === categoryId; });
+
+  var box = document.createElement('div');
+  box.className = 'mburoja-session-complete';
+  box.setAttribute('role', 'status');
+  box.appendChild(icon('check-circle', 'icon--xl'));
+
+  var title = document.createElement('h2');
+  title.className = 'mburoja-session-complete__title';
+  title.textContent = 'Përfundove!';
+
+  var subtitle = document.createElement('p');
+  subtitle.className = 'mburoja-session-complete__subtitle';
+  subtitle.textContent = category ? category.titleSq : '';
+
+  var dua = document.createElement('p');
+  dua.className = 'mburoja-session-complete__dua';
+  dua.textContent = 'Allahu ta pranoftë.';
+
+  var actions = document.createElement('div');
+  actions.className = 'mburoja-session-complete__actions';
+
+  var backBtn = document.createElement('button');
+  backBtn.type = 'button';
+  backBtn.className = 'btn btn--primary';
+  backBtn.dataset.mburojaBackHome = '';
+  backBtn.textContent = 'Kthehu te Mburoja';
+
+  var repeatBtn = document.createElement('button');
+  repeatBtn.type = 'button';
+  repeatBtn.className = 'btn btn--outline';
+  repeatBtn.dataset.mburojaSessionRepeat = categoryId;
+  repeatBtn.textContent = 'Përsërit';
+
+  actions.append(backBtn, repeatBtn);
+  box.append(title, subtitle, dua, actions);
   page.appendChild(box);
 }
 
 // ═══════════════════════════════════════════════
-// EXPORTS: render + mount
+// ERROR SCREEN
 // ═══════════════════════════════════════════════
 
 export function render(context) {
   var page = document.createElement('div');
   page.className = 'route-page';
   var params = context.params || {};
+
+  // Session view
+  if (params.session) {
+    renderSession(page, params.session, parseInt(params.index, 10) || 0);
+    return page;
+  }
+
+  // Session complete view
+  if (params.complete) {
+    renderSessionComplete(page, params.complete);
+    return page;
+  }
 
   // Detail view
   if (params.item) {
@@ -526,6 +808,12 @@ export function mount(page, context, appContext) {
   // ─── CATEGORY MOUNT ───
   var categoryItems = page.querySelector('.mburoja-items-list');
   if (categoryItems) {
+    // Start session button
+    listen(page.querySelector('[data-mburoja-start-session]'), 'click', function () {
+      var catId = this.dataset.mburojaStartSession;
+      appContext.navigate('dhikr', { params: { session: catId, index: 0 } });
+    });
+
     // Click on item
     listen(categoryItems, 'click', function (event) {
       var btn = event.target.closest('[data-mburoja-item-id]');
@@ -536,6 +824,81 @@ export function mount(page, context, appContext) {
     // Back to home
     listen(page.querySelector('[data-mburoja-back-home]'), 'click', function () {
       appContext.navigate('dhikr');
+    });
+  }
+
+  // ─── SESSION MOUNT ───
+  var sessionContent = page.querySelector('.mburoja-session__content');
+  if (sessionContent) {
+    var sessionCategory = page.dataset.mburojaSessionCategory;
+    var sessionIndex = parseInt(page.dataset.mburojaSessionIndex, 10) || 0;
+    var sessionCount = parseInt(page.dataset.mburojaSessionCount, 10) || 0;
+    var sessionItems = getItemsByCategory(sessionCategory);
+
+    // Counter button
+    listen(page.querySelector('[data-mburoja-counter-btn]'), 'click', function () {
+      var item = sessionItems[sessionIndex];
+      if (!item) return;
+      var reps = item.repetitions || 1;
+      if (sessionCount >= reps) return;
+
+      sessionCount++;
+      page.dataset.mburojaSessionCount = String(sessionCount);
+
+      // Vibrate feedback
+      if (typeof navigator !== 'undefined' && navigator.vibrate &&
+          !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+        navigator.vibrate(20);
+      }
+
+      renderSessionItem(page, sessionItems, sessionIndex, sessionCount);
+    });
+
+    // Previous button
+    listen(page.querySelector('[data-mburoja-session-prev]'), 'click', function () {
+      if (sessionIndex <= 0) return;
+      sessionIndex--;
+      sessionCount = 0;
+      page.dataset.mburojaSessionIndex = String(sessionIndex);
+      page.dataset.mburojaSessionCount = String(sessionCount);
+      renderSessionItem(page, sessionItems, sessionIndex, sessionCount);
+    });
+
+    // Next button
+    listen(page.querySelector('[data-mburoja-session-next]'), 'click', function () {
+      var item = sessionItems[sessionIndex];
+      if (!item) return;
+      var reps = item.repetitions || 1;
+      if (sessionCount < reps) return;
+
+      if (sessionIndex < sessionItems.length - 1) {
+        sessionIndex++;
+        sessionCount = 0;
+        page.dataset.mburojaSessionIndex = String(sessionIndex);
+        page.dataset.mburojaSessionCount = String(sessionCount);
+        renderSessionItem(page, sessionItems, sessionIndex, sessionCount);
+      } else {
+        // Session complete
+        appContext.navigate('dhikr', { params: { complete: sessionCategory } });
+      }
+    });
+
+    // Back to category
+    listen(page.querySelector('[data-mburoja-back-category]'), 'click', function () {
+      var catId = this.dataset.mburojaCategoryId;
+      appContext.navigate('dhikr', { params: { category: catId } });
+    });
+
+    // Toggle favorite in session
+    listen(page.querySelector('[data-mburoja-session-favorite]'), 'click', function () {
+      var itemId = this.dataset.mburojaSessionFavorite;
+      if (!itemId) return;
+      var added = toggleFavorite(itemId);
+      var heart = this.querySelector('.icon');
+      if (heart) {
+        heart.classList.toggle('mburoja-heart--active', added);
+      }
+      this.setAttribute('aria-label', added ? 'Hiqe nga të zgjedhurat' : 'Shto te të zgjedhurat');
     });
   }
 
@@ -574,6 +937,15 @@ export function mount(page, context, appContext) {
     listen(page.querySelector('[data-mburoja-check]'), 'click', function () {
       this.classList.add('btn--success');
       this.textContent = 'U krye';
+    });
+  }
+
+  // ─── SESSION COMPLETE MOUNT ───
+  var sessionComplete = page.querySelector('.mburoja-session-complete');
+  if (sessionComplete) {
+    listen(page.querySelector('[data-mburoja-session-repeat]'), 'click', function () {
+      var catId = this.dataset.mburojaSessionRepeat;
+      appContext.navigate('dhikr', { params: { session: catId, index: 0 } });
     });
   }
 

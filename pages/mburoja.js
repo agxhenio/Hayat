@@ -672,13 +672,23 @@ function ensureData() {
   if (DATA) return Promise.resolve();
   if (dataLoading) return dataLoading;
   dataLoading = fetch('./data/mburoja.json')
-    .then(function (r) { return r.json(); })
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
     .then(function (data) {
+      if (!data || !data.categories || !data.categories.length) {
+        throw new Error('Invalid data structure');
+      }
       prepare(data);
       counts = getJSON(LS.counts, {});
       saved = getJSON(LS.saved, []);
       favCats = getJSON(LS.favCats, []);
       favChapters = getJSON(LS.favChapters, []);
+    })
+    .catch(function (err) {
+      dataLoading = null; // Allow retry
+      throw err;
     });
   return dataLoading;
 }

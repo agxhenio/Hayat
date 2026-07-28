@@ -665,29 +665,60 @@ function runSearch(query) {
 // EXPORTS
 // ═══════════════════════════════════════════════
 
-export async function render(context) {
-  var page = document.createElement('div');
-  page.className = 'route-page';
-  var params = context.params || {};
+// ─── Data loading ───
+var dataLoading = null;
 
-  // Load data if not loaded
-  if (!DATA) {
-    try {
-      var response = await fetch('./data/mburoja.json');
-      var data = await response.json();
+function ensureData() {
+  if (DATA) return Promise.resolve();
+  if (dataLoading) return dataLoading;
+  dataLoading = fetch('./data/mburoja.json')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
       prepare(data);
-      // Load state from localStorage
       counts = getJSON(LS.counts, {});
       saved = getJSON(LS.saved, []);
       favCats = getJSON(LS.favCats, []);
       favChapters = getJSON(LS.favChapters, []);
-    } catch (e) {
+    });
+  return dataLoading;
+}
+
+export function render(context) {
+  var page = document.createElement('div');
+  page.className = 'route-page';
+  var params = context.params || {};
+
+  // Show loading if data not ready
+  if (!DATA) {
+    var loading = document.createElement('div');
+    loading.className = 'app__loading';
+    loading.setAttribute('role', 'status');
+    var spinner = document.createElement('div');
+    spinner.className = 'app__loading-spinner';
+    spinner.setAttribute('aria-hidden', 'true');
+    var text = document.createElement('p');
+    text.className = 'app__loading-text';
+    text.textContent = 'Duke ngarkuar Mburojën...';
+    loading.append(spinner, text);
+    page.appendChild(loading);
+
+    // Load data and re-render
+    ensureData().then(function () {
+      var newPage = document.createElement('div');
+      newPage.className = 'route-page';
+      if (params.kapitulli) renderReader(newPage, params.kapitulli);
+      else if (params.kategoria) renderChapters(newPage, params.kategoria);
+      else renderHome(newPage);
+      page.replaceChildren(...newPage.childNodes);
+    }).catch(function () {
+      page.replaceChildren();
       var error = document.createElement('div');
       error.className = 'alert alert--danger';
       error.textContent = 'Gabim në ngarkimin e të dhënave.';
       page.appendChild(error);
-      return page;
-    }
+    });
+
+    return page;
   }
 
   // Route

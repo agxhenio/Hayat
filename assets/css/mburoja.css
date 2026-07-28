@@ -353,3 +353,6 @@
 /* Chapter favorites: only chapter rows expose the star control. */
 .mb-chapter .mb-fav:not(.mb-fav--on) .icon { fill: none; }
 .mb-chapter .mb-fav--on .icon { fill: currentColor; }
+
+/* Explicit chapter completion replaces automatic previous/next navigation. */
+.mb-chapter-complete { inline-size: 100%; justify-content: center; }

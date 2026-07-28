@@ -15,7 +15,8 @@ var LS = {
   favCats: 'hayat-mburoja-favCats',
   favChapters: 'hayat-mburoja-favChapters',
   readerTheme: 'hayat-mburoja-readerTheme',
-  font: 'hayat-mburoja-font'
+  font: 'hayat-mburoja-font',
+  completedByDate: 'hayat-mburoja-completed-by-date'
 };
 
 // ─── State ───
@@ -24,6 +25,7 @@ var saved = [];
 var favCats = [];
 var favChapters = [];
 var currentChapter = null;
+var completedByDate = {};
 
 // ─── Helpers ───
 
@@ -33,6 +35,24 @@ function get(k, fb) {
 function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 function getJSON(k, fb) { try { return JSON.parse(get(k, '')) || fb; } catch (e) { return fb; } }
 function setJSON(k, v) { set(k, JSON.stringify(v)); }
+function localDateKey() {
+  var date = new Date();
+  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+}
+function isChapterCompletedToday(slug) {
+  var list = completedByDate[localDateKey()];
+  return Array.isArray(list) && list.indexOf(slug) !== -1;
+}
+function setChapterCompletedToday(slug, completed) {
+  var dateKey = localDateKey();
+  var list = Array.isArray(completedByDate[dateKey]) ? completedByDate[dateKey].slice() : [];
+  var index = list.indexOf(slug);
+  if (completed && index === -1) list.push(slug);
+  if (!completed && index !== -1) list.splice(index, 1);
+  if (list.length) completedByDate[dateKey] = list;
+  else delete completedByDate[dateKey];
+  setJSON(LS.completedByDate, completedByDate);
+}
 
 function icon(name, sizeClass) {
   var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -397,6 +417,18 @@ function renderReader(page, chSlug) {
   actions.className = 'cluster';
   actions.style.marginTop = 'var(--space-6)';
 
+  var completeChapterBtn = document.createElement('button');
+  completeChapterBtn.type = 'button';
+  completeChapterBtn.className = 'btn btn--primary mb-chapter-complete';
+  completeChapterBtn.dataset.mburojaCompleteChapter = '';
+  var completedToday = isChapterCompletedToday(chSlug);
+  completeChapterBtn.disabled = completedToday;
+  completeChapterBtn.appendChild(icon(completedToday ? 'check-circle' : 'check', 'icon--sm'));
+  var completeLabel = document.createElement('span');
+  completeLabel.dataset.mburojaCompleteLabel = '';
+  completeLabel.textContent = completedToday ? 'U krye sot' : 'E përfundova';
+  completeChapterBtn.appendChild(completeLabel);
+
   var favChapterBtn = document.createElement('button');
   favChapterBtn.type = 'button';
   favChapterBtn.className = 'btn btn--outline btn--sm' + (isFavChapter(chSlug) ? ' btn--primary' : '');
@@ -419,40 +451,9 @@ function renderReader(page, chSlug) {
   resetLabel.textContent = 'Rinis numërimin';
   resetBtn.appendChild(resetLabel);
 
-  actions.append(favChapterBtn, resetBtn);
+  actions.append(completeChapterBtn, favChapterBtn, resetBtn);
 
-  // Navigation (prev/next chapter)
-  var nav = document.createElement('nav');
-  nav.className = 'mb-spread';
-  nav.style.marginTop = 'var(--space-6)';
-  nav.setAttribute('aria-label', 'Navigim kapitujsh');
-
-  var chIndex = CHAPTERS.indexOf(ch);
-
-  var prevBtn = document.createElement('button');
-  prevBtn.type = 'button';
-  prevBtn.className = 'btn btn--outline btn--sm';
-  prevBtn.dataset.mburojaPrevChapter = '';
-  prevBtn.disabled = chIndex <= 0;
-  prevBtn.appendChild(icon('chevron-left', 'icon--sm'));
-  var prevLabel = document.createElement('span');
-  prevLabel.className = 'btn__label';
-  prevLabel.textContent = 'I mëparshmi';
-  prevBtn.appendChild(prevLabel);
-
-  var nextBtn = document.createElement('button');
-  nextBtn.type = 'button';
-  nextBtn.className = 'btn btn--outline btn--sm';
-  nextBtn.dataset.mburojaNextChapter = '';
-  nextBtn.disabled = chIndex >= CHAPTERS.length - 1;
-  var nextLabel = document.createElement('span');
-  nextLabel.className = 'btn__label';
-  nextLabel.textContent = 'Tjetri';
-  nextBtn.append(nextLabel, icon('chevron-right', 'icon--sm'));
-
-  nav.append(prevBtn, nextBtn);
-
-  page.append(toolbar, progress, readerBody, actions, nav);
+  page.append(toolbar, progress, readerBody, actions);
 }
 
 function renderDuaCard(d) {
@@ -671,6 +672,7 @@ function ensureData() {
       saved = getJSON(LS.saved, []);
       favCats = getJSON(LS.favCats, []);
       favChapters = getJSON(LS.favChapters, []);
+      completedByDate = getJSON(LS.completedByDate, {});
     })
     .catch(function (err) {
       dataLoading = null; // Allow retry
@@ -879,6 +881,23 @@ export function mount(page, context, appContext) {
       }
     });
 
+    // Explicit daily completion for Home and the chapter reader
+    listen(page.querySelector('[data-mburoja-complete-chapter]'), 'click', function () {
+      if (!currentChapter || isChapterCompletedToday(currentChapter.slug)) return;
+      currentChapter.duas.forEach(function (dua) {
+        counts[dua.uid] = dua.repetitions || 1;
+        updateDuaCard(dua.uid);
+      });
+      setJSON(LS.counts, counts);
+      setChapterCompletedToday(currentChapter.slug, true);
+      updateProgress();
+      this.disabled = true;
+      var use = this.querySelector('use');
+      if (use) use.setAttribute('href', '#icon-check-circle');
+      var label = this.querySelector('[data-mburoja-complete-label]');
+      if (label) label.textContent = 'U krye sot';
+    });
+
     // Favorite chapter
     listen(page.querySelector('[data-mburoja-fav-chapter-btn]'), 'click', function () {
       if (!currentChapter) return;
@@ -894,20 +913,21 @@ export function mount(page, context, appContext) {
     // Reset chapter
     listen(page.querySelector('[data-mburoja-reset-chapter]'), 'click', function () {
       if (!currentChapter) return;
-      currentChapter.duas.forEach(function (d) { delete counts[d.uid]; });
+      currentChapter.duas.forEach(function (d) {
+        delete counts[d.uid];
+        updateDuaCard(d.uid);
+      });
       setJSON(LS.counts, counts);
-      // Re-render reader
-      appContext.navigate('mburoja', { params: { kapitulli: currentChapter.slug } });
-    });
-
-    // Prev/Next chapter
-    listen(page.querySelector('[data-mburoja-prev-chapter]'), 'click', function () {
-      var i = CHAPTERS.indexOf(currentChapter);
-      if (i > 0) appContext.navigate('mburoja', { params: { kapitulli: CHAPTERS[i - 1].slug } });
-    });
-    listen(page.querySelector('[data-mburoja-next-chapter]'), 'click', function () {
-      var i = CHAPTERS.indexOf(currentChapter);
-      if (i < CHAPTERS.length - 1) appContext.navigate('mburoja', { params: { kapitulli: CHAPTERS[i + 1].slug } });
+      setChapterCompletedToday(currentChapter.slug, false);
+      updateProgress();
+      var completeButton = page.querySelector('[data-mburoja-complete-chapter]');
+      if (completeButton) {
+        completeButton.disabled = false;
+        var use = completeButton.querySelector('use');
+        if (use) use.setAttribute('href', '#icon-check');
+        var label = completeButton.querySelector('[data-mburoja-complete-label]');
+        if (label) label.textContent = 'E përfundova';
+      }
     });
 
     // Font size

@@ -322,10 +322,22 @@ function resolveSuggestionWindows(timings, totalMinutes) {
   };
 }
 
+function isMburojaChapterCompleted(dateKey, chapterSlug) {
+  try {
+    var records = JSON.parse(localStorage.getItem('hayat-mburoja-completed-by-date') || '{}');
+    var local = new Date();
+    var localKey = [local.getFullYear(), String(local.getMonth() + 1).padStart(2, '0'), String(local.getDate()).padStart(2, '0')].join('-');
+    var list = records[dateKey] || records[localKey];
+    return Array.isArray(list) && list.indexOf(chapterSlug) !== -1;
+  } catch (error) {
+    return false;
+  }
+}
+
 function suggestionCard(options, navigate) {
   var button = document.createElement('button');
   button.type = 'button';
-  button.className = 'home-suggestion-card card';
+  button.className = 'home-suggestion-card card' + (options.completed ? ' home-suggestion-card--completed' : '');
   button.setAttribute('aria-label', options.title + ', ' + options.actionLabel);
   if (options.routineId) button.dataset.homeDhikrRoutine = options.routineId;
   button.addEventListener('click', function () {
@@ -383,12 +395,14 @@ function renderSuggestedReadings(section, settings, navigate, timings, now, time
   ];
   routines.forEach(function (routine) {
     if (!routine.active) return;
+    var completed = isMburojaChapterCompleted(dateKey, routine.slug);
     cards.push(suggestionCard({
-      eyebrow: 'Dhikri nga Mburoja',
+      eyebrow: completed ? 'Dhikri nga Mburoja · U krye sot' : 'Dhikri nga Mburoja',
       title: routine.title,
-      description: routine.description,
+      description: completed ? 'U krye sot · ' + routine.description : routine.description,
       actionLabel: 'hap kapitullin në Mburoja',
-      icon: 'shield',
+      icon: completed ? 'check-circle' : 'shield',
+      completed: completed,
       route: 'mburoja',
       params: { kapitulli: routine.slug }
     }, navigate));

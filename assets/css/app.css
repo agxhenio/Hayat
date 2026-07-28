@@ -3910,3 +3910,28 @@
 .mburoja-favorites{margin-block-end:var(--space-6)}
 .mburoja-section-title{margin:0 0 var(--space-3);font-size:var(--text-lg);font-weight:var(--font-weight-semibold);color:var(--color-text-primary)}
 .mburoja-catalog-section{padding-block-start:var(--space-6);border-block-start:1px solid var(--color-border-subtle)}
+
+/* Cross-platform viewport scrolling: keep one explicit vertical scroll owner. */
+html,
+body.app {
+  block-size: 100%;
+  max-block-size: 100%;
+}
+body.app {
+  overflow: hidden;
+}
+body.app > .app__shell {
+  block-size: 100%;
+  min-block-size: 0;
+  overflow: hidden;
+}
+.app__main {
+  overflow: hidden;
+}
+.app__view {
+  overflow-x: hidden;
+  overflow-y: auto;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto;
+}

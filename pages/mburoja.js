@@ -671,7 +671,7 @@ var dataLoading = null;
 function ensureData() {
   if (DATA) return Promise.resolve();
   if (dataLoading) return dataLoading;
-  dataLoading = fetch('./data/mburoja.json')
+  dataLoading = fetch('./js/data/mburoja.json')
     .then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();

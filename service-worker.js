@@ -1,5 +1,5 @@
 /* Hayat — privacy-first app-shell cache. */
-const CACHE_NAME = 'hayat-app-shell-v29';
+const CACHE_NAME = 'hayat-app-shell-v30';
 const APP_SHELL = [
   './',
   './index.html',
@@ -19,7 +19,7 @@ const APP_SHELL = [
   './js/data/mburoja-content.js',
   './js/data/mburoja-items.js',
   './js/storage/mburoja-favorites.js',
-  './data/mburoja.json',
+  './js/data/mburoja.json',
   './assets/css/mburoja.css',
   './js/data/post-prayer-dhikr.js',
   './js/data/quran-surahs.js',

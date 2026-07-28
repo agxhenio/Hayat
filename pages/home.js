@@ -3,7 +3,7 @@
  *
  * Renders the Home route with four priority cards:
  * 1. Prayer hero (real data from Prayer Engine)
- * 2. Suggested readings with real Daily Dhikr state
+ * 2. Prayer-time contextual readings from Mburoja and the Quran
  * 3. Quran continue from saved reading position
  * 4. Curated articles
  *
@@ -22,7 +22,6 @@ import { getZonedDateParts } from '../js/utils/date-time.js';
 import { BEDTIME_QURAN_READINGS } from '../js/data/daily-dhikr.js';
 import { getSurahMetadata } from '../js/data/quran-surahs.js';
 import { getLastReadPosition } from '../js/storage/quran-reading.js';
-import { getDailyDhikrSession, DAILY_DHIKR_SESSION_STATUS } from '../js/storage/daily-dhikr-progress.js';
 import { listDayItems } from '../js/storage/day-planner.js';
 import {
   getArticlesManifest,
@@ -299,18 +298,28 @@ function isFridayDateKey(dateKey) {
   return new Date(dateKey + 'T00:00:00Z').getUTCDay() === 5;
 }
 
-function resolveDhikrSuggestion(prayerState, hours) {
-  if (prayerState) {
-    if (prayerState.currentPrayer === 'isha' || prayerState.nextPrayerIsTomorrow) return 'bedtime';
-    if (prayerState.currentPrayer === 'asr' || prayerState.currentPrayer === 'maghrib' ||
-        prayerState.nextPrayer === 'maghrib' || prayerState.nextPrayer === 'isha') return 'evening';
-    if (prayerState.currentPrayer === 'fajr' || prayerState.nextPrayer === 'dhuhr') return 'morning';
-    return null;
-  }
-  if (hours >= 21 || hours < 4) return 'bedtime';
-  if (hours >= 16) return 'evening';
-  if (hours >= 4 && hours < 12) return 'morning';
-  return null;
+function timeToMinutes(value) {
+  if (typeof value !== 'string' || !/^\d{2}:\d{2}$/.test(value)) return null;
+  var parts = value.split(':').map(Number);
+  return parts[0] >= 0 && parts[0] <= 23 && parts[1] >= 0 && parts[1] <= 59
+    ? parts[0] * 60 + parts[1] : null;
+}
+
+function resolveSuggestionWindows(timings, totalMinutes) {
+  var empty = { morning: false, evening: false, bedtime: false, fridayQuran: false };
+  if (!timings || !Number.isInteger(totalMinutes)) return empty;
+  var fajr = timeToMinutes(timings.fajr);
+  var sunrise = timeToMinutes(timings.sunrise);
+  var dhuhr = timeToMinutes(timings.dhuhr);
+  var maghrib = timeToMinutes(timings.maghrib);
+  var isha = timeToMinutes(timings.isha);
+  if ([fajr, sunrise, dhuhr, maghrib, isha].some(function (value) { return value === null; })) return empty;
+  return {
+    morning: totalMinutes >= Math.max(0, sunrise - 20) && totalMinutes < dhuhr,
+    evening: totalMinutes >= Math.max(0, maghrib - 20),
+    bedtime: totalMinutes >= isha || totalMinutes < fajr,
+    fridayQuran: totalMinutes >= sunrise && totalMinutes < maghrib
+  };
 }
 
 function suggestionCard(options, navigate) {
@@ -344,7 +353,7 @@ function suggestionCard(options, navigate) {
   return button;
 }
 
-function renderSuggestedReadings(section, settings, navigate, prayerState, now, timeZone) {
+function renderSuggestedReadings(section, settings, navigate, timings, now, timeZone) {
   if (!section) return;
   var homeSettings = settings && settings.home ? settings.home : {
     showSuggestedReadings: true,
@@ -364,26 +373,27 @@ function renderSuggestedReadings(section, settings, navigate, prayerState, now, 
     String(now.getMonth() + 1).padStart(2, '0'),
     String(now.getDate()).padStart(2, '0')
   ].join('-');
-  var routineId = resolveDhikrSuggestion(prayerState, hours);
+  var totalMinutes = zoned ? zoned.totalMinutes : now.getHours() * 60 + now.getMinutes();
+  var windows = resolveSuggestionWindows(timings, totalMinutes);
   var cards = [];
-  var routineLabels = {
-    morning: 'Dhikri i mëngjesit',
-    evening: 'Dhikri i mbrëmjes',
-    bedtime: 'Dhikri para gjumit'
-  };
-  if (routineId) {
+  var routines = [
+    { active: windows.morning, title: 'Dhikri i mëngjesit', slug: 'dhikri-i-mengjesit', description: 'Nga 20 minuta para lindjes së diellit deri në Drekë' },
+    { active: windows.evening, title: 'Dhikri i mbrëmjes', slug: 'dhikri-i-mbremjes', description: 'Nga 20 minuta para Akshamit deri në mesnatë' },
+    { active: windows.bedtime, title: 'Dhikri para gjumit', slug: 'dhikri-kur-biem-ne-gjume', description: 'Pas Jacisë deri në Imsak' }
+  ];
+  routines.forEach(function (routine) {
+    if (!routine.active) return;
     cards.push(suggestionCard({
-      eyebrow: 'Dhikri aktual',
-      title: routineLabels[routineId],
-      description: 'Hap rutinën dhe vazhdo aty ku e le',
-      actionLabel: 'hap rutinën',
-      icon: 'sparkles',
-      route: 'dhikr',
-      params: { routine: routineId },
-      routineId: routineId
+      eyebrow: 'Dhikri nga Mburoja',
+      title: routine.title,
+      description: routine.description,
+      actionLabel: 'hap kapitullin në Mburoja',
+      icon: 'shield',
+      route: 'mburoja',
+      params: { kapitulli: routine.slug }
     }, navigate));
-  }
-  if (homeSettings.showFridayAlKahf !== false && isFridayDateKey(dateKey)) {
+  });
+  if (homeSettings.showFridayAlKahf !== false && isFridayDateKey(dateKey) && windows.fridayQuran) {
     cards.push(suggestionCard({
       eyebrow: 'Leximi i së premtes',
       title: 'Lexo suren El-Kehf',
@@ -394,7 +404,7 @@ function renderSuggestedReadings(section, settings, navigate, prayerState, now, 
       params: { surah: 18, ayah: 1 }
     }, navigate));
   }
-  if (routineId === 'bedtime' && homeSettings.showBedtimeQuranReadings !== false) {
+  if (windows.bedtime && homeSettings.showBedtimeQuranReadings !== false) {
     BEDTIME_QURAN_READINGS.forEach(function (reading) {
       cards.push(suggestionCard({
         eyebrow: 'Lexim para gjumit',
@@ -434,7 +444,6 @@ function buildSuggestedReadings(settings, navigate) {
   section.className = 'home-suggestions';
   section.dataset.homeSuggestions = '';
   section.hidden = true;
-  renderSuggestedReadings(section, settings, navigate, null, new Date(), null);
   return section;
 }
 
@@ -731,23 +740,10 @@ export function mount(pageElement, context, appContext) {
       suggestionsElement,
       currentSettings,
       navigate,
-      prayerState || null,
+      todayResult ? todayResult.timings : null,
       new Date(),
       timeZone
     );
-    var routineCard = suggestionsElement && suggestionsElement.querySelector('[data-home-dhikr-routine]');
-    if (routineCard) {
-      var routineId = routineCard.dataset.homeDhikrRoutine;
-      var zoned = getZonedDateParts(new Date(), timeZone);
-      var dateKey = zoned ? zoned.dateKey : new Date().toISOString().slice(0, 10);
-      getDailyDhikrSession(dateKey, routineId).then(function (session) {
-        if (!isMounted || !routineCard.isConnected) return;
-        var description = routineCard.querySelector('.home-suggestion-card__description');
-        if (!description) return;
-        description.textContent = !session ? 'I pa filluar' :
-          (session.status === DAILY_DHIKR_SESSION_STATUS.COMPLETED ? 'U krye' : 'Në vazhdim · vazhdo aty ku e le');
-      }).catch(function () {});
-    }
   }
 
   function loadNowCard() {

@@ -454,13 +454,13 @@ export function render(context, appContext) {
       appContext,
       'showFridayAlKahf',
       'El-Kehf të premten',
-      'Shfaq suren El-Kehf në ditën e premte'
+      'Shfaqe të premten nga lindja deri para perëndimit të diellit'
     ),
     buildHomeSwitch(
       appContext,
       'showBedtimeQuranReadings',
-      'Leximet para gjumit',
-      'Shfaq Es-Sexhde dhe El-Mulk pas Jacisë'
+      'Es-Sexhde dhe El-Mulk pas Jacisë',
+      'Shfaqi çdo natë pas Jacisë deri në Imsak'
     ),
     buildHomeSwitch(
       appContext,

@@ -720,6 +720,7 @@ export function render(context) {
       else if (params.kategoria) renderChapters(newPage, params.kategoria);
       else renderHome(newPage);
       page.replaceChildren(...newPage.childNodes);
+      page.dispatchEvent(new CustomEvent('mburoja:data-ready'));
     }).catch(function () {
       page.replaceChildren();
       var error = document.createElement('div');
@@ -744,6 +745,18 @@ export function render(context) {
 }
 
 export function mount(page, context, appContext) {
+  if (!DATA) {
+    var nestedCleanup = null;
+    var dataReadyHandler = function () {
+      if (nestedCleanup) nestedCleanup();
+      nestedCleanup = mount(page, context, appContext);
+    };
+    page.addEventListener('mburoja:data-ready', dataReadyHandler, { once: true });
+    return function () {
+      page.removeEventListener('mburoja:data-ready', dataReadyHandler);
+      if (nestedCleanup) nestedCleanup();
+    };
+  }
   var cleanups = [];
   function listen(element, event, handler) {
     if (!element) return;

@@ -16,7 +16,9 @@ var LS = {
   favChapters: 'hayat-mburoja-favChapters',
   readerTheme: 'hayat-mburoja-readerTheme',
   font: 'hayat-mburoja-font',
-  completedByDate: 'hayat-mburoja-completed-by-date'
+  completedByDate: 'hayat-mburoja-completed-by-date',
+  dailyCountsByDate: 'hayat-mburoja-daily-counts-by-date',
+  dailyCountsMigrated: 'hayat-mburoja-daily-counts-migrated-v1'
 };
 
 // ─── State ───
@@ -26,6 +28,8 @@ var favCats = [];
 var favChapters = [];
 var currentChapter = null;
 var completedByDate = {};
+var dailyCountsByDate = {};
+var DAILY_CHAPTER_SLUGS = ['dhikri-i-mengjesit', 'dhikri-i-mbremjes', 'dhikri-kur-biem-ne-gjume'];
 
 // ─── Helpers ───
 
@@ -52,6 +56,55 @@ function setChapterCompletedToday(slug, completed) {
   if (list.length) completedByDate[dateKey] = list;
   else delete completedByDate[dateKey];
   setJSON(LS.completedByDate, completedByDate);
+}
+function isDailyChapter(chapterSlug) {
+  return DAILY_CHAPTER_SLUGS.indexOf(chapterSlug) !== -1;
+}
+function dailyCounts(create) {
+  var dateKey = localDateKey();
+  if (!dailyCountsByDate[dateKey] && create) dailyCountsByDate[dateKey] = {};
+  return dailyCountsByDate[dateKey] || null;
+}
+function getDuaCount(dua) {
+  if (!dua) return 0;
+  if (!isDailyChapter(dua.chapterSlug)) return counts[dua.uid] || 0;
+  var bucket = dailyCounts(false);
+  return bucket && Number.isInteger(bucket[dua.uid]) ? bucket[dua.uid] : 0;
+}
+function setDuaCount(dua, value) {
+  if (!dua) return;
+  if (isDailyChapter(dua.chapterSlug)) dailyCounts(true)[dua.uid] = value;
+  else counts[dua.uid] = value;
+}
+function deleteDuaCount(dua) {
+  if (!dua) return;
+  if (isDailyChapter(dua.chapterSlug)) {
+    var bucket = dailyCounts(false);
+    if (bucket) delete bucket[dua.uid];
+  } else delete counts[dua.uid];
+}
+function persistDuaCounts(dua) {
+  if (dua && isDailyChapter(dua.chapterSlug)) setJSON(LS.dailyCountsByDate, dailyCountsByDate);
+  else setJSON(LS.counts, counts);
+}
+function pruneDailyCounts() {
+  var keys = Object.keys(dailyCountsByDate).filter(function (key) { return /^\d{4}-\d{2}-\d{2}$/.test(key); }).sort();
+  while (keys.length > 14) delete dailyCountsByDate[keys.shift()];
+  setJSON(LS.dailyCountsByDate, dailyCountsByDate);
+}
+function migrateLegacyDailyCountsOnce() {
+  if (get(LS.dailyCountsMigrated, '') === '1') return;
+  var bucket = dailyCounts(true);
+  CHAPTERS.forEach(function (chapter) {
+    if (!isDailyChapter(chapter.slug)) return;
+    chapter.duas.forEach(function (dua) {
+      if (Number.isInteger(counts[dua.uid]) && counts[dua.uid] > 0) bucket[dua.uid] = counts[dua.uid];
+      delete counts[dua.uid];
+    });
+  });
+  setJSON(LS.counts, counts);
+  setJSON(LS.dailyCountsByDate, dailyCountsByDate);
+  set(LS.dailyCountsMigrated, '1');
 }
 
 function icon(name, sizeClass) {
@@ -234,7 +287,7 @@ function renderCategoryCard(cat) {
 }
 
 function renderChapterRow(ch, showCat) {
-  var done = ch.duas.filter(function (d) { return (counts[d.uid] || 0) >= (d.repetitions || 1); }).length;
+  var done = ch.duas.filter(function (d) { return getDuaCount(d) >= (d.repetitions || 1); }).length;
   var complete = done === ch.duas.length && ch.duas.length > 0;
 
   var row = document.createElement('div');
@@ -372,7 +425,7 @@ function renderReader(page, chSlug) {
   progress.dataset.mburojaProgress = '';
 
   var total = ch.duas.length;
-  var done = ch.duas.filter(function (d) { return (counts[d.uid] || 0) >= (d.repetitions || 1); }).length;
+  var done = ch.duas.filter(function (d) { return getDuaCount(d) >= (d.repetitions || 1); }).length;
   var pct = total ? Math.round(done / total * 100) : 0;
 
   var progressLabel = document.createElement('div');
@@ -458,7 +511,7 @@ function renderReader(page, chSlug) {
 
 function renderDuaCard(d) {
   var target = d.repetitions || 1;
-  var done = counts[d.uid] || 0;
+  var done = getDuaCount(d);
   var isSaved = saved.indexOf(d.uid) !== -1;
   var isDone = done >= target;
 
@@ -585,9 +638,9 @@ function tapCount(uid) {
   var d = findDua(uid);
   if (!d) return;
   var target = d.repetitions || 1;
-  var cur = counts[uid] || 0;
-  counts[uid] = cur >= target ? 0 : cur + 1;
-  setJSON(LS.counts, counts);
+  var cur = getDuaCount(d);
+  setDuaCount(d, cur >= target ? 0 : cur + 1);
+  persistDuaCounts(d);
   updateDuaCard(uid);
   updateProgress();
 }
@@ -596,7 +649,7 @@ function updateDuaCard(uid) {
   var d = findDua(uid);
   if (!d) return;
   var target = d.repetitions || 1;
-  var done = counts[uid] || 0;
+  var done = getDuaCount(d);
   var isDone = done >= target;
 
   var card = document.querySelector('[data-mburoja-dua-uid="' + uid + '"]');
@@ -617,7 +670,7 @@ function updateProgress() {
   if (!currentChapter) return;
   var total = currentChapter.duas.length;
   var done = currentChapter.duas.filter(function (d) {
-    return (counts[d.uid] || 0) >= (d.repetitions || 1);
+    return getDuaCount(d) >= (d.repetitions || 1);
   }).length;
   var pct = total ? Math.round(done / total * 100) : 0;
 
@@ -673,6 +726,9 @@ function ensureData() {
       favCats = getJSON(LS.favCats, []);
       favChapters = getJSON(LS.favChapters, []);
       completedByDate = getJSON(LS.completedByDate, {});
+      dailyCountsByDate = getJSON(LS.dailyCountsByDate, {});
+      migrateLegacyDailyCountsOnce();
+      pruneDailyCounts();
     })
     .catch(function (err) {
       dataLoading = null; // Allow retry
@@ -885,10 +941,10 @@ export function mount(page, context, appContext) {
     listen(page.querySelector('[data-mburoja-complete-chapter]'), 'click', function () {
       if (!currentChapter || isChapterCompletedToday(currentChapter.slug)) return;
       currentChapter.duas.forEach(function (dua) {
-        counts[dua.uid] = dua.repetitions || 1;
+        setDuaCount(dua, dua.repetitions || 1);
         updateDuaCard(dua.uid);
       });
-      setJSON(LS.counts, counts);
+      persistDuaCounts(currentChapter.duas[0]);
       setChapterCompletedToday(currentChapter.slug, true);
       updateProgress();
       this.disabled = true;
@@ -914,10 +970,10 @@ export function mount(page, context, appContext) {
     listen(page.querySelector('[data-mburoja-reset-chapter]'), 'click', function () {
       if (!currentChapter) return;
       currentChapter.duas.forEach(function (d) {
-        delete counts[d.uid];
+        deleteDuaCount(d);
         updateDuaCard(d.uid);
       });
-      setJSON(LS.counts, counts);
+      persistDuaCounts(currentChapter.duas[0]);
       setChapterCompletedToday(currentChapter.slug, false);
       updateProgress();
       var completeButton = page.querySelector('[data-mburoja-complete-chapter]');

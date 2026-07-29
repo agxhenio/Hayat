@@ -296,7 +296,7 @@ function buildDataSection(appContext) {
   section.className = 'settings-data';
   section.setAttribute('aria-labelledby', 'settings-data-title');
   var title = document.createElement('h2'); title.id = 'settings-data-title'; title.className = 'settings-section-title'; title.textContent = 'Të dhënat e tua';
-  var description = document.createElement('p'); description.className = 'settings-section-description'; description.textContent = 'Shkarko një kopje JSON të cilësimeve, regjistrimeve të namazit, dhikrit, Dita Ime dhe pozicionit të leximit. Përmbajtjet e shkarkuara për cache nuk përfshihen.';
+  var description = document.createElement('p'); description.className = 'settings-section-description'; description.textContent = 'Shkarko një kopje JSON të cilësimeve, namazit, dhikrit, Mburojës, Dita Ime dhe të dhënave personale të Kuranit. Përmbajtjet e cache-it dhe audio nuk përfshihen.';
   var action = document.createElement('button'); action.type = 'button'; action.className = 'btn btn--outline'; action.dataset.dataExport = ''; action.append(document.createTextNode('Shkarko kopjen '), createIcon('external-link', 'icon--sm'));
   var restore = document.createElement('button'); restore.type = 'button'; restore.className = 'btn btn--ghost'; restore.dataset.dataRestore = ''; restore.textContent = 'Rikthe nga kopja';
   var input = document.createElement('input'); input.type = 'file'; input.accept = 'application/json,.json'; input.hidden = true; input.dataset.dataRestoreInput = ''; input.setAttribute('aria-label', 'Zgjidh kopjen JSON të Hayat');

@@ -1,7 +1,8 @@
 /** Hayat — local-first personal data export. */
 import { getAllRecords } from './database.js';
+import { exportMburojaLocalState } from './mburoja-state-backup.js';
 
-export const DATA_EXPORT_VERSION = 1;
+export const DATA_EXPORT_VERSION = 2;
 const PERSONAL_STORES = Object.freeze([
   'prayerLogs',
   'postPrayerDhikrSessions',
@@ -29,6 +30,7 @@ export async function createPersonalDataExport(settings) {
     version: DATA_EXPORT_VERSION,
     exportedAt: new Date().toISOString(),
     settings: cloneJson(settings),
+    localState: { mburoja: cloneJson(exportMburojaLocalState()) },
     stores: stores
   });
 }

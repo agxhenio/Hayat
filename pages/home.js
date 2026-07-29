@@ -19,6 +19,7 @@ import {
 } from '../js/services/prayer-times.js';
 import { getPrayerLogsForDate } from '../js/storage/prayer-log.js';
 import { getZonedDateParts } from '../js/utils/date-time.js';
+import { isFridayDateKey, resolveSuggestionWindows } from '../js/utils/home-suggestion-windows.js';
 import { BEDTIME_QURAN_READINGS } from '../js/data/daily-dhikr.js';
 import { getSurahMetadata } from '../js/data/quran-surahs.js';
 import { getLastReadPosition } from '../js/storage/quran-reading.js';
@@ -291,35 +292,6 @@ function renderQuranContinue(card, reading, navigate) {
     oldButton.replaceWith(button);
   }
   card.hidden = false;
-}
-
-function isFridayDateKey(dateKey) {
-  if (typeof dateKey !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return false;
-  return new Date(dateKey + 'T00:00:00Z').getUTCDay() === 5;
-}
-
-function timeToMinutes(value) {
-  if (typeof value !== 'string' || !/^\d{2}:\d{2}$/.test(value)) return null;
-  var parts = value.split(':').map(Number);
-  return parts[0] >= 0 && parts[0] <= 23 && parts[1] >= 0 && parts[1] <= 59
-    ? parts[0] * 60 + parts[1] : null;
-}
-
-function resolveSuggestionWindows(timings, totalMinutes) {
-  var empty = { morning: false, evening: false, bedtime: false, fridayQuran: false };
-  if (!timings || !Number.isInteger(totalMinutes)) return empty;
-  var fajr = timeToMinutes(timings.fajr);
-  var sunrise = timeToMinutes(timings.sunrise);
-  var dhuhr = timeToMinutes(timings.dhuhr);
-  var maghrib = timeToMinutes(timings.maghrib);
-  var isha = timeToMinutes(timings.isha);
-  if ([fajr, sunrise, dhuhr, maghrib, isha].some(function (value) { return value === null; })) return empty;
-  return {
-    morning: totalMinutes >= Math.max(0, sunrise - 20) && totalMinutes < dhuhr,
-    evening: totalMinutes >= Math.max(0, maghrib - 20),
-    bedtime: totalMinutes >= isha || totalMinutes < fajr,
-    fridayQuran: totalMinutes >= sunrise && totalMinutes < maghrib
-  };
 }
 
 function isMburojaChapterCompleted(dateKey, chapterSlug) {

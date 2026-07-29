@@ -1,5 +1,5 @@
 /* Hayat — privacy-first app-shell cache. */
-const CACHE_NAME = 'hayat-app-shell-v37';
+const CACHE_NAME = 'hayat-app-shell-v38';
 const APP_SHELL = [
   './',
   './index.html',
@@ -49,6 +49,7 @@ const APP_SHELL = [
   './js/storage/settings-storage.js',
   './js/store.js',
   './js/utils/date-time.js',
+  './js/utils/home-suggestion-windows.js',
   './js/utils/post-prayer-dhikr.js',
   './pages/dhikr.js',
   './pages/home.js',

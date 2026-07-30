@@ -4,7 +4,7 @@
  * PDF: https://d1.islamhouse.com/data/sq/ih_books/single/sq_mburoja_muslimanit.pdf
  */
 
-export const MBUROJA_CONTENT_VERSION = 5;
+export const MBUROJA_CONTENT_VERSION = 6;
 export const MBUROJA_CONTENT_REVIEW_STATUS = "qualified-review-required";
 
 var RAW_CHAPTERS = [
@@ -335,7 +335,7 @@ var RAW_CHAPTERS = [
         type: "text",
         titleSq: "Lutja 4",
         arabic: "بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي، وَبِكَ أَرْفَعُهُ، فَإِن أَمْسَكْتَ نَفْسِي فارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا، بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ.",
-        transliterationSq: "فَاحْفَظْهَا، بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ. Bismike rabbĩ weḍa’tu xhenbĩ, we bike erfe’uhu, fe in emsekte nefsĩ ferḥamhã, we in erseltehã faḥfeḍhhã bimã taḥfeḍhu bihi ‘ibãdekeṣ-ṣãlihĩn.",
+        transliterationSq: "Bismike rabbĩ weḍa’tu xhenbĩ, we bike erfe’uhu, fe in emsekte nefsĩ ferḥamhã, we in erseltehã faḥfeḍhhã bimã taḥfeḍhu bihi ‘ibãdekeṣ-ṣãlihĩn.",
         translationSq: "Duke përmendur emrin Tënd, o Zoti im, u shtriva për të fjetur dhe duke përmendur emrin Tënd ngrihem nga gjumi. Nëse ma mban shpirtin (më vdes) mëshiroje atë e, nëse ma kthen shpirtin në trup, ruaje atë ashtu siç ruan robërit e Tu të mirë.",
         repetitions: 1,
         sourceSq: "Buhariu dhe Muslimi · Pejgamberi ﷺ thotë: “Nëse ndonjëri prej jush ngrihet nga shtrati, e pastaj kthehet në të, le ta shkundë shtrojën tre herë me cepin e rrobës, dhe le të thotë: “bismil-lãh”, sepse ai nuk e di se çfarë ka rënë në të mbasi është ngritur. Kur të shtrihet, le të thotë: “O Allah… (lutjen e lartpërmendur)”."
@@ -1139,7 +1139,7 @@ var RAW_CHAPTERS = [
         type: "text",
         titleSq: "Lutja 1",
         arabic: "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ.",
-        transliterationSq: "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ.",
+        transliterationSq: "E’ũdhu bi kelimãtil-lãhit-tãmmãti min sherri mã ḣaleḳ.",
         translationSq: "Mbrohem me fjalët e përkryera të Allahut nga sherri i gjithçkaje që Ai ka krijuar!",
         repetitions: 1,
         sourceSq: "Muslimi"

@@ -1,6 +1,6 @@
 /**
- * Hayat — Mburoja e Muslimanit: Certified content.
- * Source: mburoja_e_muslimanit.json (certified)
+ * Hayat — Mburoja e Muslimanit: Reviewed structured content.
+ * Source: Mburoja e Muslimanit structured dataset
  * PDF: https://d1.islamhouse.com/data/sq/ih_books/single/sq_mburoja_muslimanit.pdf
  */
 

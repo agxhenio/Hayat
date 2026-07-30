@@ -143,6 +143,13 @@ export function normalizeApiResponse(json, requestContext) {
     if (!parsed) throw new PrayerTimesError('Invalid timing: ' + apiKey, 'INVALID_RESPONSE');
     rawTimings[key] = parsed.normalized;
   }
+  var parsedImsak = parseTimeString(json.data.timings.Imsak);
+  if (!parsedImsak) throw new PrayerTimesError('Invalid timing: Imsak', 'INVALID_RESPONSE');
+  var parsedFajr = parseTimeString(rawTimings.fajr);
+  if (!parsedFajr || parsedImsak.totalMinutes > parsedFajr.totalMinutes) {
+    throw new PrayerTimesError('Imsak must not be after Fajr', 'INVALID_RESPONSE');
+  }
+  rawTimings.imsak = parsedImsak.normalized;
   if (!resolvePrayerState(rawTimings, 0)) {
     throw new PrayerTimesError('Prayer timings are not strictly ordered', 'INVALID_RESPONSE');
   }
@@ -169,7 +176,12 @@ function applyAdjustments(rawTimings, adjustments) {
       ? rawTimings[key]
       : applyMinuteAdjustment(rawTimings[key], adjustments[key]);
   });
+  var rawImsak = rawTimings.imsak || applyMinuteAdjustment(rawTimings.fajr, -10);
+  adjusted.imsak = applyMinuteAdjustment(rawImsak, adjustments.fajr);
+  var adjustedImsak = parseTimeString(adjusted.imsak);
+  var adjustedFajr = parseTimeString(adjusted.fajr);
   if (Object.values(adjusted).some(function (value) { return value === null; }) ||
+      !adjustedImsak || !adjustedFajr || adjustedImsak.totalMinutes > adjustedFajr.totalMinutes ||
       !resolvePrayerState(adjusted, 0)) {
     throw new PrayerTimesError('Adjusted timings are not valid', 'INVALID_RESPONSE');
   }

@@ -16,16 +16,17 @@ export function resolveSuggestionWindows(timings, totalMinutes) {
   var empty = Object.freeze({ morning: false, evening: false, bedtime: false, fridayQuran: false });
   if (!timings || !Number.isInteger(totalMinutes) || totalMinutes < 0 || totalMinutes > 1439) return empty;
   var fajr = timeToMinutes(timings.fajr);
+  var imsak = timeToMinutes(timings.imsak || timings.fajr);
   var sunrise = timeToMinutes(timings.sunrise);
   var dhuhr = timeToMinutes(timings.dhuhr);
   var maghrib = timeToMinutes(timings.maghrib);
   var isha = timeToMinutes(timings.isha);
-  if ([fajr, sunrise, dhuhr, maghrib, isha].some(function (value) { return value === null; }) ||
-      !(fajr < sunrise && sunrise < dhuhr && dhuhr < maghrib && maghrib < isha)) return empty;
+  if ([fajr, imsak, sunrise, dhuhr, maghrib, isha].some(function (value) { return value === null; }) ||
+      !(imsak <= fajr && fajr < sunrise && sunrise < dhuhr && dhuhr < maghrib && maghrib < isha)) return empty;
   return Object.freeze({
     morning: totalMinutes >= Math.max(0, sunrise - 20) && totalMinutes < dhuhr,
     evening: totalMinutes >= Math.max(0, maghrib - 20),
-    bedtime: totalMinutes >= isha || totalMinutes < fajr,
+    bedtime: totalMinutes >= isha || totalMinutes < imsak,
     fridayQuran: totalMinutes >= sunrise && totalMinutes < maghrib
   });
 }

@@ -1,5 +1,5 @@
 /* Hayat — privacy-first app-shell cache. */
-const CACHE_NAME = 'hayat-app-shell-v39';
+const CACHE_NAME = 'hayat-app-shell-v40';
 const APP_SHELL = [
   './',
   './index.html',
@@ -79,6 +79,16 @@ self.addEventListener('activate', function (event) {
   }));
 });
 
+function fetchAndCache(request) {
+  return fetch(request).then(function (response) {
+    if (!response || !response.ok || response.type !== 'basic') return response;
+    var copy = response.clone();
+    return caches.open(CACHE_NAME).then(function (cache) {
+      return cache.put(request, copy);
+    }).then(function () { return response; });
+  });
+}
+
 self.addEventListener('fetch', function (event) {
   var request = event.request;
   if (request.method !== 'GET') return;
@@ -87,23 +97,22 @@ self.addEventListener('fetch', function (event) {
 
   if (request.mode === 'navigate') {
     event.respondWith(fetch(request).then(function (response) {
+      if (!response || !response.ok) return response;
       var copy = response.clone();
-      caches.open(CACHE_NAME).then(function (cache) { cache.put('./index.html', copy); });
-      return response;
+      return caches.open(CACHE_NAME).then(function (cache) {
+        return cache.put('./index.html', copy);
+      }).then(function () { return response; });
     }).catch(function () {
-      return caches.match('./index.html');
+      return caches.match('./index.html').then(function (cached) {
+        return cached || caches.match('./');
+      });
     }));
     return;
   }
 
+  var network = fetchAndCache(request);
+  event.waitUntil(network.then(function () { return undefined; }).catch(function () { return undefined; }));
   event.respondWith(caches.match(request).then(function (cached) {
-    var network = fetch(request).then(function (response) {
-      if (response && response.ok) {
-        var copy = response.clone();
-        caches.open(CACHE_NAME).then(function (cache) { cache.put(request, copy); });
-      }
-      return response;
-    });
     return cached || network;
   }));
 });
